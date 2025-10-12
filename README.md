@@ -5,24 +5,49 @@ A Figma plugin that creates configurable connection arrows between frames. Perfe
 ## Features
 
 - **Smart Connection Detection**: Automatically connects frames at the optimal edge points
-- **Configurable Styling**: 
-  - Custom arrow colors
-  - Adjustable line width (1-8px)
-  - Multiple arrow styles (simple, filled, outline)
-- **Connection Labels**: Add optional text labels in the middle of connections
-- **Real-time Selection**: Live feedback showing selected frames
-- **Intelligent Positioning**: Automatically calculates the best connection points based on frame positions
+- **Comprehensive Styling Options**: 
+  - 6 predefined stroke colors
+  - 4 stroke width options (1-4px)
+  - 3 stroke styles (solid, dashed, dotted)
+  - 3 sloppiness levels for hand-drawn effects
+  - 3 arrow types (straight, curved, elbow)
+  - 3 arrowhead options (none, end, both)
+  - Opacity control (0-100%)
+- **Connection Labels**: Add optional text labels positioned at connection midpoint
+- **Auto-Creation**: Instant connection creation when selecting 2 frames with Shift+Click
+- **Auto-Update**: Connections automatically reposition when connected frames are moved or resized
+- **Live Editing**: Select any existing connection to edit its properties in real-time
+- **Persistent Configuration**: Connection settings are stored and can be modified later
+- **Intelligent Positioning**: Automatically calculates optimal connection points based on frame positions
 
 ## How to Use
 
+### Creating New Connections
 1. **Select Frames**: Use Shift+Click to select exactly 2 frames you want to connect
 2. **Configure Connection**: 
-   - Choose arrow color using the color picker
-   - Adjust line width with the slider
-   - Select arrow style from dropdown
-   - Add an optional label text
-3. **Create Connection**: Click "Create Connection" to generate the arrow
-4. **Result**: A grouped connection with line, arrow head, and optional label
+   - Choose stroke color from 6 predefined colors
+   - Select stroke width (1-4px)
+   - Pick stroke style (solid, dashed, dotted)
+   - Adjust sloppiness for hand-drawn effect
+   - Choose arrow type (straight, curved, elbow)
+   - Set arrowheads (none, end, both)
+   - Control opacity (0-100%)
+   - Add optional label text
+3. **Auto-Create**: With "Auto-create on selection" enabled (default), connections are created instantly
+4. **Manual Create**: Disable auto-create to use the "Create Connection" button manually
+5. **Auto-Update**: Enable "Auto-update when frames move" to automatically reposition connections when frames change
+
+### Updating Existing Connections
+1. **Select Connection**: Click on any existing flow connection in your canvas
+2. **Edit Mode**: The plugin automatically switches to edit mode, showing current settings
+3. **Live Updates**: Any changes to configuration instantly update the selected connection
+4. **Visual Feedback**: Orange status bar indicates you're editing an existing connection
+
+### Automatic Connection Updates
+1. **Enable Auto-Update**: Check "Auto-update when frames move" (enabled by default)
+2. **Move Frames**: Drag or resize any connected frames in your canvas
+3. **Instant Updates**: Connections automatically reposition to maintain optimal connection points
+4. **Smart Tracking**: Plugin tracks all connections and updates them as needed
 
 ## Installation
 
@@ -41,15 +66,37 @@ A Figma plugin that creates configurable connection arrows between frames. Perfe
 
 ## Technical Details
 
+### Connection Intelligence
 The plugin intelligently determines connection points by:
 - Calculating frame centers and relative positions
 - Choosing horizontal vs vertical connections based on distance
 - Connecting at the nearest edge points for clean, professional-looking arrows
 
-Connection elements are grouped together for easy manipulation and include:
-- Main connection line
-- Arrow head (with configurable style)
+### Connection Structure
+Each connection is a grouped element containing:
+- Main connection line (with configurable path type)
+- Arrow heads (start and/or end, based on configuration)
 - Optional text label (positioned at connection midpoint)
+- Stored metadata for future editing
+
+### Persistent Configuration
+- Connection settings are stored as plugin data within each connection group
+- Selecting a connection automatically loads its configuration into the UI
+- Real-time updates allow immediate visual feedback when editing
+- Metadata includes original frame references for proper reconnection
+
+### Automatic Updates
+- Plugin tracks all connections on the current page for automatic updates
+- Listens for document changes to detect when frames are moved or resized
+- Debounced updates prevent excessive recalculations during rapid changes
+- Maintains connection styling and configuration during automatic updates
+- Smart detection only updates connections when frame positions actually change
+
+### Path Generation
+- **Straight**: Direct line between connection points
+- **Curved**: Smooth bezier curve with intelligent control points
+- **Elbow**: Right-angle connection with intermediate waypoint
+- **Sloppiness**: Adds controlled randomness for hand-drawn appearance
 
 ## Requirements
 

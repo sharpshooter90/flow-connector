@@ -1,26 +1,138 @@
 <style>
   body {
     font-family: 'Inter', sans-serif;
-    margin: 16px;
+    margin: 0;
     background: #f8f9fa;
+    height: 100vh;
+    overflow: hidden;
   }
   
-  .container {
-    max-width: 300px;
+  .main-container {
+    display: flex;
+    height: 100vh;
+  }
+  
+  .left-panel {
+    width: 280px;
+    padding: 16px;
+    background: #ffffff;
+    border-right: 1px solid #e0e0e0;
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+  }
+  
+  .left-panel-content {
+    flex: 1;
+    overflow-y: auto;
+    padding-bottom: 80px; /* Space for sticky buttons */
+  }
+  
+  .right-panel {
+    flex: 1;
+    padding: 16px;
+    background: #f8f9fa;
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .preview-header {
+    margin-bottom: 16px;
+  }
+  
+  .preview-header h3 {
+    margin: 0 0 12px 0;
+    font-size: 12px;
+    font-weight: 600;
+    color: #666;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  
+  .preview-label-input {
+    margin-bottom: 16px;
+  }
+  
+  .preview-label-input label {
+    display: block;
+    margin-bottom: 4px;
+    font-size: 10px;
+    font-weight: 600;
+    color: #333;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  
+  .preview-label-input input {
+    width: 100%;
+    padding: 8px 12px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 12px;
+    box-sizing: border-box;
   }
   
   h2 {
-    margin: 0 0 16px 0;
+    margin: 0 0 12px 0;
     color: #1a1a1a;
-    font-size: 18px;
+    font-size: 14px;
     font-weight: 600;
   }
   
   .status {
-    padding: 12px;
+    padding: 6px 10px;
+    border-radius: 4px;
+    margin-bottom: 12px;
+    font-size: 11px;
+  }
+  
+  .preview-container {
+    flex: 1;
+    background: white;
+    border-radius: 8px;
+    border: 1px solid #e0e0e0;
+    padding: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+  }
+  
+  .preview-canvas {
+    width: 240px;
+    height: 160px;
+    position: relative;
+  }
+  
+  .frame-preview {
+    position: absolute;
+    width: 50px;
+    height: 35px;
+    background: #1976d2;
     border-radius: 6px;
-    margin-bottom: 16px;
-    font-size: 14px;
+    border: 2px solid #1565c0;
+  }
+  
+  .frame-1 {
+    top: 30px;
+    left: 30px;
+  }
+  
+  .frame-2 {
+    top: 95px;
+    right: 30px;
+  }
+  
+  .connection-preview {
+    position: absolute;
+    top: 0;
+    left: 0;
+    pointer-events: none;
+  }
+  
+  .connection-preview svg {
+    width: 240px;
+    height: 160px;
   }
   
   .status.info {
@@ -41,29 +153,37 @@
     border: 1px solid #ffcdd2;
   }
   
+  .status.editing {
+    background: #fff3e0;
+    color: #f57c00;
+    border: 1px solid #ffcc02;
+  }
+  
   .form-group {
-    margin-bottom: 16px;
+    margin-bottom: 10px;
   }
   
   label {
     display: block;
-    margin-bottom: 8px;
-    font-size: 13px;
+    margin-bottom: 4px;
+    font-size: 10px;
     font-weight: 600;
     color: #333;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
   }
   
   .color-grid {
     display: grid;
     grid-template-columns: repeat(6, 1fr);
-    gap: 8px;
-    margin-bottom: 8px;
+    gap: 4px;
+    margin-bottom: 4px;
   }
   
   .color-option {
-    width: 36px;
-    height: 36px;
-    border-radius: 8px;
+    width: 24px;
+    height: 24px;
+    border-radius: 4px;
     border: 2px solid transparent;
     cursor: pointer;
     transition: all 0.2s;
@@ -77,23 +197,24 @@
   .option-grid {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
-    gap: 8px;
-    margin-bottom: 8px;
+    gap: 4px;
+    margin-bottom: 4px;
   }
   
   .option-button {
-    padding: 12px 8px;
+    padding: 6px 3px;
     border: 2px solid #e0e0e0;
-    border-radius: 8px;
+    border-radius: 4px;
     background: white;
     cursor: pointer;
     text-align: center;
-    font-size: 12px;
+    font-size: 9px;
     transition: all 0.2s;
     display: flex;
     align-items: center;
     justify-content: center;
-    min-height: 40px;
+    min-height: 28px;
+    position: relative;
   }
   
   .option-button.selected {
@@ -123,8 +244,14 @@
   .checkbox-container {
     display: flex;
     align-items: center;
-    gap: 8px;
-    margin-bottom: 16px;
+    gap: 4px;
+    margin-bottom: 8px;
+  }
+  
+  .checkbox-container label {
+    font-size: 10px;
+    text-transform: none;
+    letter-spacing: normal;
   }
   
   input[type="checkbox"] {
@@ -132,17 +259,23 @@
   }
   
   .button-group {
+    position: absolute;
+    bottom: 16px;
+    left: 16px;
+    right: 16px;
     display: flex;
-    gap: 8px;
-    margin-top: 20px;
+    gap: 6px;
+    background: white;
+    padding: 12px 0 0 0;
+    border-top: 1px solid #e0e0e0;
   }
   
   button {
     flex: 1;
-    padding: 10px 16px;
+    padding: 8px 12px;
     border: none;
-    border-radius: 6px;
-    font-size: 14px;
+    border-radius: 4px;
+    font-size: 11px;
     font-weight: 500;
     cursor: pointer;
     transition: background-color 0.2s;
@@ -173,112 +306,343 @@
   
   input[type="text"] {
     width: 100%;
-    padding: 8px;
+    padding: 4px 6px;
     border: 1px solid #ddd;
-    border-radius: 4px;
-    font-size: 14px;
+    border-radius: 3px;
+    font-size: 10px;
     box-sizing: border-box;
+  }
+  
+  /* Custom stroke width indicators */
+  .stroke-width-1::after { content: ''; position: absolute; width: 16px; height: 1px; background: #333; }
+  .stroke-width-2::after { content: ''; position: absolute; width: 16px; height: 2px; background: #333; }
+  .stroke-width-3::after { content: ''; position: absolute; width: 16px; height: 3px; background: #333; }
+  .stroke-width-4::after { content: ''; position: absolute; width: 16px; height: 4px; background: #333; }
+  
+  /* Custom stroke style indicators */
+  .stroke-solid::after { content: ''; position: absolute; width: 16px; height: 2px; background: #333; }
+  .stroke-dashed::after { 
+    content: ''; 
+    position: absolute; 
+    width: 16px; 
+    height: 2px; 
+    background: linear-gradient(to right, #333 40%, transparent 40%, transparent 60%, #333 60%);
+    background-size: 4px 2px;
+  }
+  .stroke-dotted::after { 
+    content: ''; 
+    position: absolute; 
+    width: 16px; 
+    height: 2px; 
+    background: linear-gradient(to right, #333 25%, transparent 25%, transparent 75%, #333 75%);
+    background-size: 3px 2px;
+  }
+  
+  /* Custom sloppiness indicators */
+  .sloppiness-none svg { filter: none; }
+  .sloppiness-low svg { filter: url(#roughen-low); }
+  .sloppiness-high svg { filter: url(#roughen-high); }
+  
+  /* SVG icons */
+  .option-button svg {
+    width: 16px;
+    height: 10px;
+    stroke: #333;
+    fill: none;
+    stroke-width: 1.5;
+  }
+  
+  .option-button.selected svg {
+    stroke: white;
+  }
+  
+  /* Tab styles */
+  .tabs {
+    display: flex;
+    margin-bottom: 12px;
+    border-bottom: 1px solid #e0e0e0;
+  }
+  
+  .tab {
+    flex: 1;
+    padding: 8px 12px;
+    background: none;
+    border: none;
+    border-bottom: 2px solid transparent;
+    cursor: pointer;
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: #666;
+    transition: all 0.2s;
+  }
+  
+  .tab.active {
+    color: #0066cc;
+    border-bottom-color: #0066cc;
+  }
+  
+  .tab-content {
+    display: none;
+  }
+  
+  .tab-content.active {
+    display: block;
   }
 </style>
 
-<div class="container">
-  <h2>Flow Connector</h2>
+<div class="main-container">
+  <div class="left-panel">
+    <div class="left-panel-content">
+      <h2>Flow Connector</h2>
+      
+      <div id="status" class="status info">
+        Select 2 frames with Shift+Click to create a connection
+      </div>
+      
+      <div class="checkbox-container">
+        <input type="checkbox" id="autoCreate" checked>
+        <label for="autoCreate" style="margin: 0; font-weight: normal;">Auto-create on selection</label>
+      </div>
+      
+      <div class="checkbox-container">
+        <input type="checkbox" id="autoUpdate" checked>
+        <label for="autoUpdate" style="margin: 0; font-weight: normal;">Auto-update when frames move</label>
+      </div>
+      
+      <!-- Tabs -->
+      <div class="tabs">
+        <button class="tab active" data-tab="arrow">Arrow</button>
+        <button class="tab" data-tab="label">Label</button>
+      </div>
   
-  <div id="status" class="status info">
-    Select 2 frames with Shift+Click to create a connection
-  </div>
-  
-  <div class="checkbox-container">
-    <input type="checkbox" id="autoCreate" checked>
-    <label for="autoCreate" style="margin: 0; font-weight: normal;">Auto-create on selection</label>
-  </div>
-  
-  <div class="form-group">
-    <label>Stroke</label>
-    <div class="color-grid">
-      <div class="color-option selected" data-color="#2c2c2c" style="background: #2c2c2c;"></div>
-      <div class="color-option" data-color="#dc3545" style="background: #dc3545;"></div>
-      <div class="color-option" data-color="#28a745" style="background: #28a745;"></div>
-      <div class="color-option" data-color="#1976d2" style="background: #1976d2;"></div>
-      <div class="color-option" data-color="#ff9800" style="background: #ff9800;"></div>
-      <div class="color-option" data-color="#2196f3" style="background: #2196f3;"></div>
+  <!-- SVG Filters for sloppiness effect -->
+  <svg width="0" height="0" style="position: absolute;">
+    <defs>
+      <filter id="roughen-low">
+        <feTurbulence baseFrequency="0.04" numOctaves="3" result="noise"/>
+        <feDisplacementMap in="SourceGraphic" in2="noise" scale="0.5"/>
+      </filter>
+      <filter id="roughen-high">
+        <feTurbulence baseFrequency="0.08" numOctaves="4" result="noise"/>
+        <feDisplacementMap in="SourceGraphic" in2="noise" scale="1.2"/>
+      </filter>
+    </defs>
+  </svg>
+
+      <!-- Arrow Tab Content -->
+      <div class="tab-content active" id="arrow-tab">
+        <div class="form-group">
+          <label>Stroke</label>
+          <div class="color-grid">
+            <div class="color-option selected" data-color="#2c2c2c" style="background: #2c2c2c;"></div>
+            <div class="color-option" data-color="#dc3545" style="background: #dc3545;"></div>
+            <div class="color-option" data-color="#28a745" style="background: #28a745;"></div>
+            <div class="color-option" data-color="#1976d2" style="background: #1976d2;"></div>
+            <div class="color-option" data-color="#ff9800" style="background: #ff9800;"></div>
+            <div class="color-option" data-color="#2196f3" style="background: #2196f3;"></div>
+          </div>
+        </div>
+        
+        <div class="form-group">
+          <label>Stroke width</label>
+          <div class="option-grid">
+            <div class="option-button stroke-width-1" data-width="1"></div>
+            <div class="option-button stroke-width-2" data-width="2"></div>
+            <div class="option-button selected stroke-width-3" data-width="3"></div>
+            <div class="option-button stroke-width-4" data-width="4"></div>
+          </div>
+        </div>
+        
+        <div class="form-group">
+          <label>Stroke style</label>
+          <div class="option-grid">
+            <div class="option-button selected stroke-solid" data-style="solid"></div>
+            <div class="option-button stroke-dashed" data-style="dashed"></div>
+            <div class="option-button stroke-dotted" data-style="dotted"></div>
+            <div class="option-button" style="visibility: hidden;"></div>
+          </div>
+        </div>
+        
+        <div class="form-group">
+          <label>Sloppiness</label>
+          <div class="option-grid">
+            <div class="option-button sloppiness-none" data-sloppiness="none">
+              <svg><line x1="2" y1="6" x2="18" y2="6"/></svg>
+            </div>
+            <div class="option-button selected sloppiness-low" data-sloppiness="low">
+              <svg><line x1="2" y1="6" x2="18" y2="6" class="low-rough"/></svg>
+            </div>
+            <div class="option-button sloppiness-high" data-sloppiness="high">
+              <svg><path d="M2,6 Q6,4 10,6 T18,6" class="high-rough"/></svg>
+            </div>
+            <div class="option-button" style="visibility: hidden;"></div>
+          </div>
+        </div>
+        
+        <div class="form-group">
+          <label>Arrow type</label>
+          <div class="option-grid">
+            <div class="option-button" data-arrow-type="straight">
+              <svg><line x1="2" y1="6" x2="18" y2="6"/><polygon points="15,3 18,6 15,9" fill="currentColor"/></svg>
+            </div>
+            <div class="option-button" data-arrow-type="curved">
+              <svg><path d="M2,6 Q10,2 18,6"/><polygon points="15,3 18,6 15,9" fill="currentColor"/></svg>
+            </div>
+            <div class="option-button selected" data-arrow-type="elbow">
+              <svg><path d="M2,6 L10,6 L10,3 L18,3"/><polygon points="15,0 18,3 15,6" fill="currentColor"/></svg>
+            </div>
+            <div class="option-button" style="visibility: hidden;"></div>
+          </div>
+        </div>
+        
+        <div class="form-group">
+          <label>Arrowheads</label>
+          <div class="option-grid">
+            <div class="option-button" data-arrowheads="none">
+              <svg><line x1="2" y1="6" x2="18" y2="6"/></svg>
+            </div>
+            <div class="option-button selected" data-arrowheads="end">
+              <svg><line x1="2" y1="6" x2="18" y2="6"/><polygon points="15,3 18,6 15,9" fill="currentColor"/></svg>
+            </div>
+            <div class="option-button" data-arrowheads="both">
+              <svg><line x1="2" y1="6" x2="18" y2="6"/><polygon points="5,3 2,6 5,9" fill="currentColor"/><polygon points="15,3 18,6 15,9" fill="currentColor"/></svg>
+            </div>
+            <div class="option-button" style="visibility: hidden;"></div>
+          </div>
+        </div>
+        
+        <div class="form-group">
+          <label>Opacity</label>
+          <input type="range" id="opacity" min="0" max="100" value="100">
+          <div class="range-container">
+            <span>0</span>
+            <span id="opacityValue">100</span>
+            <span>100</span>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Label Tab Content -->
+      <div class="tab-content" id="label-tab">
+        
+        <div class="form-group">
+          <label>Text Color</label>
+          <div class="color-grid">
+            <div class="color-option" data-label-text-color="#333333" style="background: #333333;"></div>
+            <div class="color-option" data-label-text-color="#ffffff" style="background: #ffffff; border: 1px solid #ddd;"></div>
+            <div class="color-option" data-label-text-color="#dc3545" style="background: #dc3545;"></div>
+            <div class="color-option" data-label-text-color="#28a745" style="background: #28a745;"></div>
+            <div class="color-option" data-label-text-color="#1976d2" style="background: #1976d2;"></div>
+            <div class="color-option" data-label-text-color="#ff9800" style="background: #ff9800;"></div>
+          </div>
+        </div>
+        
+        <div class="form-group">
+          <label>Background Color</label>
+          <div class="color-grid">
+            <div class="color-option selected" data-label-bg="#ffffff" style="background: #ffffff; border: 1px solid #ddd;"></div>
+            <div class="color-option" data-label-bg="#f8f9fa" style="background: #f8f9fa;"></div>
+            <div class="color-option" data-label-bg="#333333" style="background: #333333;"></div>
+            <div class="color-option" data-label-bg="#1976d2" style="background: #1976d2;"></div>
+            <div class="color-option" data-label-bg="#28a745" style="background: #28a745;"></div>
+            <div class="color-option" data-label-bg="#ff9800" style="background: #ff9800;"></div>
+          </div>
+        </div>
+        
+        <div class="form-group">
+          <label>Border Color</label>
+          <div class="color-grid">
+            <div class="color-option selected" data-label-border="#e0e0e0" style="background: #e0e0e0;"></div>
+            <div class="color-option" data-label-border="#333333" style="background: #333333;"></div>
+            <div class="color-option" data-label-border="#dc3545" style="background: #dc3545;"></div>
+            <div class="color-option" data-label-border="#28a745" style="background: #28a745;"></div>
+            <div class="color-option" data-label-border="#1976d2" style="background: #1976d2;"></div>
+            <div class="color-option" data-label-border="#ff9800" style="background: #ff9800;"></div>
+          </div>
+        </div>
+        
+        <div class="form-group">
+          <label>Border Width</label>
+          <div class="option-grid">
+            <div class="option-button" data-label-border-width="0">0</div>
+            <div class="option-button selected" data-label-border-width="1">1</div>
+            <div class="option-button" data-label-border-width="2">2</div>
+            <div class="option-button" data-label-border-width="3">3</div>
+          </div>
+        </div>
+        
+        <div class="form-group">
+          <label>Border Radius</label>
+          <input type="range" id="labelBorderRadius" min="0" max="12" value="4">
+          <div class="range-container">
+            <span>0</span>
+            <span id="labelBorderRadiusValue">4</span>
+            <span>12</span>
+          </div>
+        </div>
+        
+        <div class="form-group">
+          <label>Padding</label>
+          <input type="range" id="labelPadding" min="2" max="12" value="6">
+          <div class="range-container">
+            <span>2</span>
+            <span id="labelPaddingValue">6</span>
+            <span>12</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="button-group">
+      <button id="create" class="primary" disabled>Create Connection</button>
+      <button id="cancel" class="secondary">Cancel</button>
     </div>
   </div>
   
-  <div class="form-group">
-    <label>Stroke width</label>
-    <div class="option-grid">
-      <div class="option-button" data-width="1">—</div>
-      <div class="option-button" data-width="2">—</div>
-      <div class="option-button selected" data-width="3">—</div>
-      <div class="option-button" data-width="4">—</div>
+  <div class="right-panel">
+    <div class="preview-header">
+      <h3>Preview</h3>
+      <div class="preview-label-input">
+        <label for="labelPreview">Label Text</label>
+        <input type="text" id="labelPreview" placeholder="Label Text" value="Label Text">
+      </div>
     </div>
-  </div>
-  
-  <div class="form-group">
-    <label>Stroke style</label>
-    <div class="option-grid">
-      <div class="option-button selected" data-style="solid">—</div>
-      <div class="option-button" data-style="dashed">- - -</div>
-      <div class="option-button" data-style="dotted">• • •</div>
-      <div class="option-button" style="visibility: hidden;"></div>
+    <div class="preview-container">
+      <div class="preview-canvas">
+        <div class="frame-preview frame-1"></div>
+        <div class="frame-preview frame-2"></div>
+        <div class="connection-preview">
+          <svg id="previewSvg">
+            <defs>
+              <filter id="preview-roughen-low">
+                <feTurbulence baseFrequency="0.04" numOctaves="3" result="noise"/>
+                <feDisplacementMap in="SourceGraphic" in2="noise" scale="0.3"/>
+              </filter>
+              <filter id="preview-roughen-high">
+                <feTurbulence baseFrequency="0.08" numOctaves="4" result="noise"/>
+                <feDisplacementMap in="SourceGraphic" in2="noise" scale="0.8"/>
+              </filter>
+            </defs>
+            <g id="previewConnection">
+              <!-- Connection will be drawn here -->
+            </g>
+          </svg>
+        </div>
+      </div>
     </div>
-  </div>
-  
-  <div class="form-group">
-    <label>Sloppiness</label>
-    <div class="option-grid">
-      <div class="option-button" data-sloppiness="none">~</div>
-      <div class="option-button selected" data-sloppiness="low">~</div>
-      <div class="option-button" data-sloppiness="high">~</div>
-      <div class="option-button" style="visibility: hidden;"></div>
-    </div>
-  </div>
-  
-  <div class="form-group">
-    <label>Arrow type</label>
-    <div class="option-grid">
-      <div class="option-button" data-arrow-type="straight">↗</div>
-      <div class="option-button" data-arrow-type="curved">↗</div>
-      <div class="option-button selected" data-arrow-type="elbow">↗</div>
-      <div class="option-button" style="visibility: hidden;"></div>
-    </div>
-  </div>
-  
-  <div class="form-group">
-    <label>Arrowheads</label>
-    <div class="option-grid">
-      <div class="option-button" data-arrowheads="none">×—</div>
-      <div class="option-button selected" data-arrowheads="end">—→</div>
-      <div class="option-button" data-arrowheads="both">←→</div>
-      <div class="option-button" style="visibility: hidden;"></div>
-    </div>
-  </div>
-  
-  <div class="form-group">
-    <label>Opacity</label>
-    <input type="range" id="opacity" min="0" max="100" value="100">
-    <div class="range-container">
-      <span>0</span>
-      <span id="opacityValue">100</span>
-      <span>100</span>
-    </div>
-  </div>
-  
-  <div class="form-group">
-    <label for="label">Connection Label (optional)</label>
-    <input type="text" id="label" placeholder="Enter label text...">
-  </div>
-  
-  <div class="button-group">
-    <button id="create" class="primary" disabled>Create Connection</button>
-    <button id="cancel" class="secondary">Cancel</button>
   </div>
 </div>
 
 <script>
   let frameCount = 0;
-  let config = {
+  let connectionCount = 0;
+  let selectedConnectionId = null;
+  let isEditingConnection = false;
+  
+  // Load config from localStorage or use defaults
+  let config = loadConfig() || {
     color: '#2c2c2c',
     strokeWidth: 3,
     strokeStyle: 'solid',
@@ -286,9 +650,188 @@
     arrowType: 'elbow',
     arrowheads: 'end',
     opacity: 100,
-    label: ''
+    label: 'Label Text',
+    labelBg: '#ffffff',
+    labelTextColor: '#333333',
+    labelBorderColor: '#e0e0e0',
+    labelBorderWidth: 1,
+    labelBorderRadius: 4,
+    labelPadding: 6
   };
   
+  // Local storage functions
+  function saveConfig() {
+    try {
+      localStorage.setItem('flow-connector-config', JSON.stringify(config));
+    } catch (error) {
+      console.warn('Failed to save config to localStorage:', error);
+    }
+  }
+  
+  function loadConfig() {
+    try {
+      const saved = localStorage.getItem('flow-connector-config');
+      return saved ? JSON.parse(saved) : null;
+    } catch (error) {
+      console.warn('Failed to load config from localStorage:', error);
+      return null;
+    }
+  }
+  
+  // Preview update function
+  function updatePreview() {
+    const svg = document.getElementById('previewSvg');
+    const connection = document.getElementById('previewConnection');
+    
+    // Clear previous connection
+    connection.innerHTML = '';
+    
+    // Frame positions (relative to preview canvas)
+    const frame1 = { x: 30, y: 30, width: 50, height: 35 };
+    const frame2 = { x: 160, y: 95, width: 50, height: 35 };
+    
+    // Calculate connection points
+    const startPoint = { x: frame1.x + frame1.width, y: frame1.y + frame1.height / 2 };
+    const endPoint = { x: frame2.x, y: frame2.y + frame2.height / 2 };
+    
+    // Create path based on arrow type
+    let pathData = '';
+    if (config.arrowType === 'straight') {
+      pathData = `M ${startPoint.x} ${startPoint.y} L ${endPoint.x} ${endPoint.y}`;
+    } else if (config.arrowType === 'elbow') {
+      const midX = (startPoint.x + endPoint.x) / 2;
+      pathData = `M ${startPoint.x} ${startPoint.y} L ${midX} ${startPoint.y} L ${midX} ${endPoint.y} L ${endPoint.x} ${endPoint.y}`;
+    } else { // curved
+      const dx = endPoint.x - startPoint.x;
+      const dy = endPoint.y - startPoint.y;
+      const distance = Math.sqrt(dx * dx + dy * dy);
+      const curvature = distance * 0.3;
+      
+      const controlPoint1 = {
+        x: startPoint.x + (Math.abs(dx) > Math.abs(dy) ? curvature : 0),
+        y: startPoint.y + (Math.abs(dy) > Math.abs(dx) ? curvature * Math.sign(dy) : 0)
+      };
+      
+      const controlPoint2 = {
+        x: endPoint.x - (Math.abs(dx) > Math.abs(dy) ? curvature : 0),
+        y: endPoint.y - (Math.abs(dy) > Math.abs(dx) ? curvature * Math.sign(dy) : 0)
+      };
+      
+      pathData = `M ${startPoint.x} ${startPoint.y} C ${controlPoint1.x} ${controlPoint1.y} ${controlPoint2.x} ${controlPoint2.y} ${endPoint.x} ${endPoint.y}`;
+    }
+    
+    // Create main line
+    const line = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+    line.setAttribute('d', pathData);
+    line.setAttribute('stroke', config.color);
+    line.setAttribute('stroke-width', config.strokeWidth);
+    line.setAttribute('fill', 'none');
+    line.setAttribute('opacity', config.opacity / 100);
+    
+    // Apply stroke style
+    if (config.strokeStyle === 'dashed') {
+      line.setAttribute('stroke-dasharray', '5,5');
+    } else if (config.strokeStyle === 'dotted') {
+      line.setAttribute('stroke-dasharray', '2,3');
+    }
+    
+    // Apply sloppiness filter
+    if (config.sloppiness === 'low') {
+      line.setAttribute('filter', 'url(#preview-roughen-low)');
+    } else if (config.sloppiness === 'high') {
+      line.setAttribute('filter', 'url(#preview-roughen-high)');
+    }
+    
+    connection.appendChild(line);
+    
+    // Add arrowheads
+    if (config.arrowheads === 'end' || config.arrowheads === 'both') {
+      const angle = Math.atan2(endPoint.y - startPoint.y, endPoint.x - startPoint.x);
+      const arrowHead = createPreviewArrowHead(endPoint.x, endPoint.y, angle);
+      connection.appendChild(arrowHead);
+    }
+    
+    if (config.arrowheads === 'both') {
+      const angle = Math.atan2(endPoint.y - startPoint.y, endPoint.x - startPoint.x) + Math.PI;
+      const arrowHead = createPreviewArrowHead(startPoint.x, startPoint.y, angle);
+      connection.appendChild(arrowHead);
+    }
+    
+    // Add label if present
+    if (config.label.trim()) {
+      const midX = (startPoint.x + endPoint.x) / 2;
+      const midY = (startPoint.y + endPoint.y) / 2;
+      
+      // Create background rectangle
+      const labelBg = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+      const textWidth = config.label.length * 6; // Approximate text width
+      const textHeight = 12;
+      const bgWidth = textWidth + (config.labelPadding * 2);
+      const bgHeight = textHeight + (config.labelPadding * 2);
+      
+      labelBg.setAttribute('x', midX - bgWidth / 2);
+      labelBg.setAttribute('y', midY - bgHeight / 2);
+      labelBg.setAttribute('width', bgWidth);
+      labelBg.setAttribute('height', bgHeight);
+      labelBg.setAttribute('fill', config.labelBg);
+      labelBg.setAttribute('stroke', config.labelBorderColor);
+      labelBg.setAttribute('stroke-width', config.labelBorderWidth);
+      labelBg.setAttribute('rx', config.labelBorderRadius);
+      labelBg.setAttribute('opacity', config.opacity / 100);
+      
+      connection.appendChild(labelBg);
+      
+      // Create text
+      const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+      text.setAttribute('x', midX);
+      text.setAttribute('y', midY);
+      text.setAttribute('text-anchor', 'middle');
+      text.setAttribute('dominant-baseline', 'middle');
+      text.setAttribute('fill', config.labelTextColor);
+      text.setAttribute('font-size', '10');
+      text.setAttribute('font-family', 'Inter, sans-serif');
+      text.setAttribute('opacity', config.opacity / 100);
+      text.textContent = config.label;
+      
+      connection.appendChild(text);
+    }
+  }
+  
+  function createPreviewArrowHead(x, y, angle) {
+    const arrowLength = 8;
+    const arrowAngle = Math.PI / 6;
+    
+    const x1 = x - arrowLength * Math.cos(angle - arrowAngle);
+    const y1 = y - arrowLength * Math.sin(angle - arrowAngle);
+    const x2 = x - arrowLength * Math.cos(angle + arrowAngle);
+    const y2 = y - arrowLength * Math.sin(angle + arrowAngle);
+    
+    const arrowHead = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+    arrowHead.setAttribute('d', `M ${x1} ${y1} L ${x} ${y} L ${x2} ${y2}`);
+    arrowHead.setAttribute('stroke', config.color);
+    arrowHead.setAttribute('stroke-width', config.strokeWidth);
+    arrowHead.setAttribute('fill', 'none');
+    arrowHead.setAttribute('opacity', config.opacity / 100);
+    
+    return arrowHead;
+  }
+  
+  // Tab functionality
+  function initializeTabs() {
+    document.querySelectorAll('.tab').forEach(tab => {
+      tab.addEventListener('click', () => {
+        // Remove active class from all tabs and content
+        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+        document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+        
+        // Add active class to clicked tab and corresponding content
+        tab.classList.add('active');
+        const tabId = tab.dataset.tab + '-tab';
+        document.getElementById(tabId).classList.add('active');
+      });
+    });
+  }
+
   // Initialize UI
   function initializeUI() {
     // Color selection
@@ -297,7 +840,13 @@
         document.querySelectorAll('.color-option').forEach(o => o.classList.remove('selected'));
         option.classList.add('selected');
         config.color = option.dataset.color;
-        checkAutoCreate();
+        saveConfig();
+        updatePreview();
+        if (isEditingConnection) {
+          updateConnection();
+        } else {
+          checkAutoCreate();
+        }
       });
     });
     
@@ -307,7 +856,13 @@
         document.querySelectorAll('[data-width]').forEach(o => o.classList.remove('selected'));
         option.classList.add('selected');
         config.strokeWidth = parseInt(option.dataset.width);
-        checkAutoCreate();
+        saveConfig();
+        updatePreview();
+        if (isEditingConnection) {
+          updateConnection();
+        } else {
+          checkAutoCreate();
+        }
       });
     });
     
@@ -317,7 +872,13 @@
         document.querySelectorAll('[data-style]').forEach(o => o.classList.remove('selected'));
         option.classList.add('selected');
         config.strokeStyle = option.dataset.style;
-        checkAutoCreate();
+        saveConfig();
+        updatePreview();
+        if (isEditingConnection) {
+          updateConnection();
+        } else {
+          checkAutoCreate();
+        }
       });
     });
     
@@ -327,7 +888,13 @@
         document.querySelectorAll('[data-sloppiness]').forEach(o => o.classList.remove('selected'));
         option.classList.add('selected');
         config.sloppiness = option.dataset.sloppiness;
-        checkAutoCreate();
+        saveConfig();
+        updatePreview();
+        if (isEditingConnection) {
+          updateConnection();
+        } else {
+          checkAutoCreate();
+        }
       });
     });
     
@@ -337,7 +904,13 @@
         document.querySelectorAll('[data-arrow-type]').forEach(o => o.classList.remove('selected'));
         option.classList.add('selected');
         config.arrowType = option.dataset.arrowType;
-        checkAutoCreate();
+        saveConfig();
+        updatePreview();
+        if (isEditingConnection) {
+          updateConnection();
+        } else {
+          checkAutoCreate();
+        }
       });
     });
     
@@ -347,7 +920,13 @@
         document.querySelectorAll('[data-arrowheads]').forEach(o => o.classList.remove('selected'));
         option.classList.add('selected');
         config.arrowheads = option.dataset.arrowheads;
-        checkAutoCreate();
+        saveConfig();
+        updatePreview();
+        if (isEditingConnection) {
+          updateConnection();
+        } else {
+          checkAutoCreate();
+        }
       });
     });
     
@@ -358,14 +937,26 @@
     opacitySlider.addEventListener('input', () => {
       config.opacity = parseInt(opacitySlider.value);
       opacityValue.textContent = opacitySlider.value;
-      checkAutoCreate();
+      saveConfig();
+      updatePreview();
+      if (isEditingConnection) {
+        updateConnection();
+      } else {
+        checkAutoCreate();
+      }
     });
     
-    // Label input
-    const labelInput = document.getElementById('label');
+    // Label input (now in preview area)
+    const labelInput = document.getElementById('labelPreview');
     labelInput.addEventListener('input', () => {
       config.label = labelInput.value;
-      checkAutoCreate();
+      saveConfig();
+      updatePreview();
+      if (isEditingConnection) {
+        updateConnection();
+      } else {
+        checkAutoCreate();
+      }
     });
     
     // Auto-create checkbox
@@ -378,14 +969,204 @@
         } 
       }, '*');
     });
+    
+    // Auto-update checkbox
+    const autoUpdateCheckbox = document.getElementById('autoUpdate');
+    autoUpdateCheckbox.addEventListener('change', () => {
+      parent.postMessage({ 
+        pluginMessage: { 
+          type: 'toggle-auto-update', 
+          enabled: autoUpdateCheckbox.checked 
+        } 
+      }, '*');
+    });
+    
+    // Label text color
+    document.querySelectorAll('[data-label-text-color]').forEach(option => {
+      option.addEventListener('click', () => {
+        document.querySelectorAll('[data-label-text-color]').forEach(o => o.classList.remove('selected'));
+        option.classList.add('selected');
+        config.labelTextColor = option.dataset.labelTextColor;
+        saveConfig();
+        updatePreview();
+        if (isEditingConnection) {
+          updateConnection();
+        } else {
+          checkAutoCreate();
+        }
+      });
+    });
+    
+    // Label background color
+    document.querySelectorAll('[data-label-bg]').forEach(option => {
+      option.addEventListener('click', () => {
+        document.querySelectorAll('[data-label-bg]').forEach(o => o.classList.remove('selected'));
+        option.classList.add('selected');
+        config.labelBg = option.dataset.labelBg;
+        saveConfig();
+        updatePreview();
+        if (isEditingConnection) {
+          updateConnection();
+        } else {
+          checkAutoCreate();
+        }
+      });
+    });
+    
+    // Label border color
+    document.querySelectorAll('[data-label-border]').forEach(option => {
+      option.addEventListener('click', () => {
+        document.querySelectorAll('[data-label-border]').forEach(o => o.classList.remove('selected'));
+        option.classList.add('selected');
+        config.labelBorderColor = option.dataset.labelBorder;
+        saveConfig();
+        updatePreview();
+        if (isEditingConnection) {
+          updateConnection();
+        } else {
+          checkAutoCreate();
+        }
+      });
+    });
+    
+    // Label border width
+    document.querySelectorAll('[data-label-border-width]').forEach(option => {
+      option.addEventListener('click', () => {
+        document.querySelectorAll('[data-label-border-width]').forEach(o => o.classList.remove('selected'));
+        option.classList.add('selected');
+        config.labelBorderWidth = parseInt(option.dataset.labelBorderWidth);
+        saveConfig();
+        updatePreview();
+        if (isEditingConnection) {
+          updateConnection();
+        } else {
+          checkAutoCreate();
+        }
+      });
+    });
+    
+    // Label border radius slider
+    const labelBorderRadiusSlider = document.getElementById('labelBorderRadius');
+    const labelBorderRadiusValue = document.getElementById('labelBorderRadiusValue');
+    
+    labelBorderRadiusSlider.addEventListener('input', () => {
+      config.labelBorderRadius = parseInt(labelBorderRadiusSlider.value);
+      labelBorderRadiusValue.textContent = labelBorderRadiusSlider.value;
+      saveConfig();
+      updatePreview();
+      if (isEditingConnection) {
+        updateConnection();
+      } else {
+        checkAutoCreate();
+      }
+    });
+    
+    // Label padding slider
+    const labelPaddingSlider = document.getElementById('labelPadding');
+    const labelPaddingValue = document.getElementById('labelPaddingValue');
+    
+    labelPaddingSlider.addEventListener('input', () => {
+      config.labelPadding = parseInt(labelPaddingSlider.value);
+      labelPaddingValue.textContent = labelPaddingSlider.value;
+      saveConfig();
+      updatePreview();
+      if (isEditingConnection) {
+        updateConnection();
+      } else {
+        checkAutoCreate();
+      }
+    });
   }
   
+  function updateConfigFromUI(newConfig) {
+    // Update color selection
+    document.querySelectorAll('.color-option').forEach(option => {
+      option.classList.toggle('selected', option.dataset.color === newConfig.color);
+    });
+    
+    // Update stroke width
+    document.querySelectorAll('[data-width]').forEach(option => {
+      option.classList.toggle('selected', parseInt(option.dataset.width) === newConfig.strokeWidth);
+    });
+    
+    // Update stroke style
+    document.querySelectorAll('[data-style]').forEach(option => {
+      option.classList.toggle('selected', option.dataset.style === newConfig.strokeStyle);
+    });
+    
+    // Update sloppiness
+    document.querySelectorAll('[data-sloppiness]').forEach(option => {
+      option.classList.toggle('selected', option.dataset.sloppiness === newConfig.sloppiness);
+    });
+    
+    // Update arrow type
+    document.querySelectorAll('[data-arrow-type]').forEach(option => {
+      option.classList.toggle('selected', option.dataset.arrowType === newConfig.arrowType);
+    });
+    
+    // Update arrowheads
+    document.querySelectorAll('[data-arrowheads]').forEach(option => {
+      option.classList.toggle('selected', option.dataset.arrowheads === newConfig.arrowheads);
+    });
+    
+    // Update opacity
+    document.getElementById('opacity').value = newConfig.opacity;
+    document.getElementById('opacityValue').textContent = newConfig.opacity;
+    
+    // Update label
+    document.getElementById('labelPreview').value = newConfig.label || 'Label Text';
+    
+    // Update label text color
+    document.querySelectorAll('[data-label-text-color]').forEach(option => {
+      option.classList.toggle('selected', option.dataset.labelTextColor === newConfig.labelTextColor);
+    });
+    
+    // Update label background color
+    document.querySelectorAll('[data-label-bg]').forEach(option => {
+      option.classList.toggle('selected', option.dataset.labelBg === newConfig.labelBg);
+    });
+    
+    // Update label border color
+    document.querySelectorAll('[data-label-border]').forEach(option => {
+      option.classList.toggle('selected', option.dataset.labelBorder === newConfig.labelBorderColor);
+    });
+    
+    // Update label border width
+    document.querySelectorAll('[data-label-border-width]').forEach(option => {
+      option.classList.toggle('selected', parseInt(option.dataset.labelBorderWidth) === newConfig.labelBorderWidth);
+    });
+    
+    // Update label border radius
+    document.getElementById('labelBorderRadius').value = newConfig.labelBorderRadius;
+    document.getElementById('labelBorderRadiusValue').textContent = newConfig.labelBorderRadius;
+    
+    // Update label padding
+    document.getElementById('labelPadding').value = newConfig.labelPadding;
+    document.getElementById('labelPaddingValue').textContent = newConfig.labelPadding;
+    
+    // Update config object
+    config = { ...newConfig };
+    updatePreview();
+  }
+
   function checkAutoCreate() {
     const autoCreateEnabled = document.getElementById('autoCreate').checked;
-    if (autoCreateEnabled && frameCount === 2) {
+    if (autoCreateEnabled && frameCount === 2 && !isEditingConnection) {
       parent.postMessage({ 
         pluginMessage: { 
           type: 'auto-create-connection', 
+          config: config 
+        } 
+      }, '*');
+    }
+  }
+  
+  function updateConnection() {
+    if (selectedConnectionId) {
+      parent.postMessage({ 
+        pluginMessage: { 
+          type: 'update-connection', 
+          connectionId: selectedConnectionId,
           config: config 
         } 
       }, '*');
@@ -398,8 +1179,21 @@
     
     if (msg.type === 'selection-changed') {
       frameCount = msg.frameCount;
+      connectionCount = msg.connectionCount || 0;
+      isEditingConnection = false;
+      selectedConnectionId = null;
       updateUI();
       checkAutoCreate();
+    }
+    
+    if (msg.type === 'connection-selected') {
+      isEditingConnection = true;
+      selectedConnectionId = msg.connectionId;
+      frameCount = 0;
+      connectionCount = 1;
+      updateConfigFromUI(msg.config);
+      showStatus(`Editing: ${msg.connectionName}`, 'editing');
+      updateUI();
     }
     
     if (msg.type === 'get-config') {
@@ -424,7 +1218,19 @@
     const createButton = document.getElementById('create');
     const autoCreateEnabled = document.getElementById('autoCreate').checked;
     
+    if (isEditingConnection) {
+      createButton.textContent = 'Update Connection';
+      createButton.disabled = false;
+      return;
+    }
+    
+    createButton.textContent = 'Create Connection';
+    
     if (frameCount === 0) {
+      if (connectionCount === 1) {
+        // Don't override the editing status message
+        return;
+      }
       showStatus('Select 2 frames with Shift+Click to create a connection', 'info');
       createButton.disabled = true;
     } else if (frameCount === 1) {
@@ -451,12 +1257,16 @@
   }
   
   document.getElementById('create').onclick = () => {
-    parent.postMessage({ 
-      pluginMessage: { 
-        type: 'create-connection', 
-        config: config 
-      } 
-    }, '*');
+    if (isEditingConnection) {
+      updateConnection();
+    } else {
+      parent.postMessage({ 
+        pluginMessage: { 
+          type: 'create-connection', 
+          config: config 
+        } 
+      }, '*');
+    }
   };
   
   document.getElementById('cancel').onclick = () => {
@@ -464,5 +1274,14 @@
   };
   
   // Initialize when page loads
+  initializeTabs();
   initializeUI();
+  
+  // Load saved config and update UI
+  if (config) {
+    updateConfigFromUI(config);
+  }
+  
+  // Initial preview update
+  updatePreview();
 </script>
