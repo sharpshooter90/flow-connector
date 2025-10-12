@@ -1,0 +1,468 @@
+<style>
+  body {
+    font-family: 'Inter', sans-serif;
+    margin: 16px;
+    background: #f8f9fa;
+  }
+  
+  .container {
+    max-width: 300px;
+  }
+  
+  h2 {
+    margin: 0 0 16px 0;
+    color: #1a1a1a;
+    font-size: 18px;
+    font-weight: 600;
+  }
+  
+  .status {
+    padding: 12px;
+    border-radius: 6px;
+    margin-bottom: 16px;
+    font-size: 14px;
+  }
+  
+  .status.info {
+    background: #e3f2fd;
+    color: #1976d2;
+    border: 1px solid #bbdefb;
+  }
+  
+  .status.success {
+    background: #e8f5e8;
+    color: #2e7d32;
+    border: 1px solid #c8e6c9;
+  }
+  
+  .status.error {
+    background: #ffebee;
+    color: #c62828;
+    border: 1px solid #ffcdd2;
+  }
+  
+  .form-group {
+    margin-bottom: 16px;
+  }
+  
+  label {
+    display: block;
+    margin-bottom: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    color: #333;
+  }
+  
+  .color-grid {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 8px;
+    margin-bottom: 8px;
+  }
+  
+  .color-option {
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    border: 2px solid transparent;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  
+  .color-option.selected {
+    border-color: #0066cc;
+    transform: scale(1.1);
+  }
+  
+  .option-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 8px;
+    margin-bottom: 8px;
+  }
+  
+  .option-button {
+    padding: 12px 8px;
+    border: 2px solid #e0e0e0;
+    border-radius: 8px;
+    background: white;
+    cursor: pointer;
+    text-align: center;
+    font-size: 12px;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 40px;
+  }
+  
+  .option-button.selected {
+    border-color: #7c4dff;
+    background: #7c4dff;
+    color: white;
+  }
+  
+  .option-button:hover {
+    border-color: #7c4dff;
+  }
+  
+  input[type="range"] {
+    width: 100%;
+    margin: 8px 0;
+  }
+  
+  .range-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 12px;
+    color: #666;
+    margin-top: 4px;
+  }
+  
+  .checkbox-container {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 16px;
+  }
+  
+  input[type="checkbox"] {
+    width: auto;
+  }
+  
+  .button-group {
+    display: flex;
+    gap: 8px;
+    margin-top: 20px;
+  }
+  
+  button {
+    flex: 1;
+    padding: 10px 16px;
+    border: none;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.2s;
+  }
+  
+  .primary {
+    background: #0066cc;
+    color: white;
+  }
+  
+  .primary:hover {
+    background: #0052a3;
+  }
+  
+  .primary:disabled {
+    background: #ccc;
+    cursor: not-allowed;
+  }
+  
+  .secondary {
+    background: #f0f0f0;
+    color: #333;
+  }
+  
+  .secondary:hover {
+    background: #e0e0e0;
+  }
+  
+  input[type="text"] {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 14px;
+    box-sizing: border-box;
+  }
+</style>
+
+<div class="container">
+  <h2>Flow Connector</h2>
+  
+  <div id="status" class="status info">
+    Select 2 frames with Shift+Click to create a connection
+  </div>
+  
+  <div class="checkbox-container">
+    <input type="checkbox" id="autoCreate" checked>
+    <label for="autoCreate" style="margin: 0; font-weight: normal;">Auto-create on selection</label>
+  </div>
+  
+  <div class="form-group">
+    <label>Stroke</label>
+    <div class="color-grid">
+      <div class="color-option selected" data-color="#2c2c2c" style="background: #2c2c2c;"></div>
+      <div class="color-option" data-color="#dc3545" style="background: #dc3545;"></div>
+      <div class="color-option" data-color="#28a745" style="background: #28a745;"></div>
+      <div class="color-option" data-color="#1976d2" style="background: #1976d2;"></div>
+      <div class="color-option" data-color="#ff9800" style="background: #ff9800;"></div>
+      <div class="color-option" data-color="#2196f3" style="background: #2196f3;"></div>
+    </div>
+  </div>
+  
+  <div class="form-group">
+    <label>Stroke width</label>
+    <div class="option-grid">
+      <div class="option-button" data-width="1">—</div>
+      <div class="option-button" data-width="2">—</div>
+      <div class="option-button selected" data-width="3">—</div>
+      <div class="option-button" data-width="4">—</div>
+    </div>
+  </div>
+  
+  <div class="form-group">
+    <label>Stroke style</label>
+    <div class="option-grid">
+      <div class="option-button selected" data-style="solid">—</div>
+      <div class="option-button" data-style="dashed">- - -</div>
+      <div class="option-button" data-style="dotted">• • •</div>
+      <div class="option-button" style="visibility: hidden;"></div>
+    </div>
+  </div>
+  
+  <div class="form-group">
+    <label>Sloppiness</label>
+    <div class="option-grid">
+      <div class="option-button" data-sloppiness="none">~</div>
+      <div class="option-button selected" data-sloppiness="low">~</div>
+      <div class="option-button" data-sloppiness="high">~</div>
+      <div class="option-button" style="visibility: hidden;"></div>
+    </div>
+  </div>
+  
+  <div class="form-group">
+    <label>Arrow type</label>
+    <div class="option-grid">
+      <div class="option-button" data-arrow-type="straight">↗</div>
+      <div class="option-button" data-arrow-type="curved">↗</div>
+      <div class="option-button selected" data-arrow-type="elbow">↗</div>
+      <div class="option-button" style="visibility: hidden;"></div>
+    </div>
+  </div>
+  
+  <div class="form-group">
+    <label>Arrowheads</label>
+    <div class="option-grid">
+      <div class="option-button" data-arrowheads="none">×—</div>
+      <div class="option-button selected" data-arrowheads="end">—→</div>
+      <div class="option-button" data-arrowheads="both">←→</div>
+      <div class="option-button" style="visibility: hidden;"></div>
+    </div>
+  </div>
+  
+  <div class="form-group">
+    <label>Opacity</label>
+    <input type="range" id="opacity" min="0" max="100" value="100">
+    <div class="range-container">
+      <span>0</span>
+      <span id="opacityValue">100</span>
+      <span>100</span>
+    </div>
+  </div>
+  
+  <div class="form-group">
+    <label for="label">Connection Label (optional)</label>
+    <input type="text" id="label" placeholder="Enter label text...">
+  </div>
+  
+  <div class="button-group">
+    <button id="create" class="primary" disabled>Create Connection</button>
+    <button id="cancel" class="secondary">Cancel</button>
+  </div>
+</div>
+
+<script>
+  let frameCount = 0;
+  let config = {
+    color: '#2c2c2c',
+    strokeWidth: 3,
+    strokeStyle: 'solid',
+    sloppiness: 'low',
+    arrowType: 'elbow',
+    arrowheads: 'end',
+    opacity: 100,
+    label: ''
+  };
+  
+  // Initialize UI
+  function initializeUI() {
+    // Color selection
+    document.querySelectorAll('.color-option').forEach(option => {
+      option.addEventListener('click', () => {
+        document.querySelectorAll('.color-option').forEach(o => o.classList.remove('selected'));
+        option.classList.add('selected');
+        config.color = option.dataset.color;
+        checkAutoCreate();
+      });
+    });
+    
+    // Stroke width
+    document.querySelectorAll('[data-width]').forEach(option => {
+      option.addEventListener('click', () => {
+        document.querySelectorAll('[data-width]').forEach(o => o.classList.remove('selected'));
+        option.classList.add('selected');
+        config.strokeWidth = parseInt(option.dataset.width);
+        checkAutoCreate();
+      });
+    });
+    
+    // Stroke style
+    document.querySelectorAll('[data-style]').forEach(option => {
+      option.addEventListener('click', () => {
+        document.querySelectorAll('[data-style]').forEach(o => o.classList.remove('selected'));
+        option.classList.add('selected');
+        config.strokeStyle = option.dataset.style;
+        checkAutoCreate();
+      });
+    });
+    
+    // Sloppiness
+    document.querySelectorAll('[data-sloppiness]').forEach(option => {
+      option.addEventListener('click', () => {
+        document.querySelectorAll('[data-sloppiness]').forEach(o => o.classList.remove('selected'));
+        option.classList.add('selected');
+        config.sloppiness = option.dataset.sloppiness;
+        checkAutoCreate();
+      });
+    });
+    
+    // Arrow type
+    document.querySelectorAll('[data-arrow-type]').forEach(option => {
+      option.addEventListener('click', () => {
+        document.querySelectorAll('[data-arrow-type]').forEach(o => o.classList.remove('selected'));
+        option.classList.add('selected');
+        config.arrowType = option.dataset.arrowType;
+        checkAutoCreate();
+      });
+    });
+    
+    // Arrowheads
+    document.querySelectorAll('[data-arrowheads]').forEach(option => {
+      option.addEventListener('click', () => {
+        document.querySelectorAll('[data-arrowheads]').forEach(o => o.classList.remove('selected'));
+        option.classList.add('selected');
+        config.arrowheads = option.dataset.arrowheads;
+        checkAutoCreate();
+      });
+    });
+    
+    // Opacity slider
+    const opacitySlider = document.getElementById('opacity');
+    const opacityValue = document.getElementById('opacityValue');
+    
+    opacitySlider.addEventListener('input', () => {
+      config.opacity = parseInt(opacitySlider.value);
+      opacityValue.textContent = opacitySlider.value;
+      checkAutoCreate();
+    });
+    
+    // Label input
+    const labelInput = document.getElementById('label');
+    labelInput.addEventListener('input', () => {
+      config.label = labelInput.value;
+      checkAutoCreate();
+    });
+    
+    // Auto-create checkbox
+    const autoCreateCheckbox = document.getElementById('autoCreate');
+    autoCreateCheckbox.addEventListener('change', () => {
+      parent.postMessage({ 
+        pluginMessage: { 
+          type: 'toggle-auto-create', 
+          enabled: autoCreateCheckbox.checked 
+        } 
+      }, '*');
+    });
+  }
+  
+  function checkAutoCreate() {
+    const autoCreateEnabled = document.getElementById('autoCreate').checked;
+    if (autoCreateEnabled && frameCount === 2) {
+      parent.postMessage({ 
+        pluginMessage: { 
+          type: 'auto-create-connection', 
+          config: config 
+        } 
+      }, '*');
+    }
+  }
+  
+  // Handle messages from plugin
+  window.onmessage = (event) => {
+    const msg = event.data.pluginMessage;
+    
+    if (msg.type === 'selection-changed') {
+      frameCount = msg.frameCount;
+      updateUI();
+      checkAutoCreate();
+    }
+    
+    if (msg.type === 'get-config') {
+      parent.postMessage({ 
+        pluginMessage: { 
+          type: 'auto-create-connection', 
+          config: config 
+        } 
+      }, '*');
+    }
+    
+    if (msg.type === 'success') {
+      showStatus(msg.message, 'success');
+    }
+    
+    if (msg.type === 'error') {
+      showStatus(msg.message, 'error');
+    }
+  };
+  
+  function updateUI() {
+    const createButton = document.getElementById('create');
+    const autoCreateEnabled = document.getElementById('autoCreate').checked;
+    
+    if (frameCount === 0) {
+      showStatus('Select 2 frames with Shift+Click to create a connection', 'info');
+      createButton.disabled = true;
+    } else if (frameCount === 1) {
+      showStatus('Select 1 more frame to create a connection', 'info');
+      createButton.disabled = true;
+    } else if (frameCount === 2) {
+      if (autoCreateEnabled) {
+        showStatus('Auto-creating connection...', 'success');
+        createButton.disabled = true;
+      } else {
+        showStatus('Ready to create connection between 2 frames', 'success');
+        createButton.disabled = false;
+      }
+    } else {
+      showStatus(`Too many frames selected (${frameCount}). Please select exactly 2 frames.`, 'error');
+      createButton.disabled = true;
+    }
+  }
+  
+  function showStatus(message, type) {
+    const status = document.getElementById('status');
+    status.textContent = message;
+    status.className = `status ${type}`;
+  }
+  
+  document.getElementById('create').onclick = () => {
+    parent.postMessage({ 
+      pluginMessage: { 
+        type: 'create-connection', 
+        config: config 
+      } 
+    }, '*');
+  };
+  
+  document.getElementById('cancel').onclick = () => {
+    parent.postMessage({ pluginMessage: { type: 'cancel' } }, '*');
+  };
+  
+  // Initialize when page loads
+  initializeUI();
+</script>
