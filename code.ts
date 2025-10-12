@@ -7,6 +7,9 @@ interface ConnectionConfig {
   sloppiness: 'none' | 'low' | 'high';
   arrowType: 'straight' | 'curved' | 'elbow';
   arrowheads: 'none' | 'end' | 'both';
+  startPosition: 'auto' | 'top' | 'right' | 'bottom' | 'left';
+  endPosition: 'auto' | 'top' | 'right' | 'bottom' | 'left';
+  connectionOffset: number;
   opacity: number;
   label: string;
   labelBg: string;
@@ -46,6 +49,9 @@ const defaultConfig: ConnectionConfig = {
   sloppiness: 'low',
   arrowType: 'straight',
   arrowheads: 'end',
+  startPosition: 'auto',
+  endPosition: 'auto',
+  connectionOffset: 20,
   opacity: 100,
   label: 'Label Text',
   labelBg: '#ffffff',
@@ -177,7 +183,7 @@ async function checkAndUpdateConnections() {
     }
 
     // Check if connection needs updating by comparing current positions with stored positions
-    const currentConnectionPoints = calculateConnectionPoints(frame1, frame2);
+    const currentConnectionPoints = calculateConnectionPoints(frame1, frame2, metadata.config);
     const shouldUpdate = connectionNeedsUpdate(connection, currentConnectionPoints, metadata.config);
 
     if (shouldUpdate) {
@@ -311,7 +317,7 @@ initializePlugin().catch(error => {
   trackConnections();
 });
 
-function calculateConnectionPoints(frame1: FrameNode, frame2: FrameNode) {
+function calculateConnectionPoints(frame1: FrameNode, frame2: FrameNode, config: ConnectionConfig) {
   const frame1Center = {
     x: frame1.x + frame1.width / 2,
     y: frame1.y + frame1.height / 2
@@ -322,37 +328,103 @@ function calculateConnectionPoints(frame1: FrameNode, frame2: FrameNode) {
     y: frame2.y + frame2.height / 2
   };
 
-  // Calculate which edges to connect based on relative positions
-  const dx = frame2Center.x - frame1Center.x;
-  const dy = frame2Center.y - frame1Center.y;
+  let startPoint, endPoint, startOffsetPoint, endOffsetPoint;
 
-  let startPoint, endPoint;
+  // Calculate start point based on config or auto-detect
+  if (config.startPosition === 'auto') {
+    // Auto-detect based on relative positions (original logic)
+    const dx = frame2Center.x - frame1Center.x;
+    const dy = frame2Center.y - frame1Center.y;
 
-  if (Math.abs(dx) > Math.abs(dy)) {
-    // Horizontal connection
-    if (dx > 0) {
-      // Frame2 is to the right of frame1
-      startPoint = { x: frame1.x + frame1.width, y: frame1Center.y };
-      endPoint = { x: frame2.x, y: frame2Center.y };
+    if (Math.abs(dx) > Math.abs(dy)) {
+      // Horizontal connection
+      if (dx > 0) {
+        startPoint = { x: frame1.x + frame1.width, y: frame1Center.y }; // right
+        startOffsetPoint = { x: startPoint.x + config.connectionOffset, y: startPoint.y };
+      } else {
+        startPoint = { x: frame1.x, y: frame1Center.y }; // left
+        startOffsetPoint = { x: startPoint.x - config.connectionOffset, y: startPoint.y };
+      }
     } else {
-      // Frame2 is to the left of frame1
-      startPoint = { x: frame1.x, y: frame1Center.y };
-      endPoint = { x: frame2.x + frame2.width, y: frame2Center.y };
+      // Vertical connection
+      if (dy > 0) {
+        startPoint = { x: frame1Center.x, y: frame1.y + frame1.height }; // bottom
+        startOffsetPoint = { x: startPoint.x, y: startPoint.y + config.connectionOffset };
+      } else {
+        startPoint = { x: frame1Center.x, y: frame1.y }; // top
+        startOffsetPoint = { x: startPoint.x, y: startPoint.y - config.connectionOffset };
+      }
     }
   } else {
-    // Vertical connection
-    if (dy > 0) {
-      // Frame2 is below frame1
-      startPoint = { x: frame1Center.x, y: frame1.y + frame1.height };
-      endPoint = { x: frame2Center.x, y: frame2.y };
-    } else {
-      // Frame2 is above frame1
-      startPoint = { x: frame1Center.x, y: frame1.y };
-      endPoint = { x: frame2Center.x, y: frame2.y + frame2.height };
+    // Use specified position
+    switch (config.startPosition) {
+      case 'top':
+        startPoint = { x: frame1Center.x, y: frame1.y };
+        startOffsetPoint = { x: startPoint.x, y: startPoint.y - config.connectionOffset };
+        break;
+      case 'right':
+        startPoint = { x: frame1.x + frame1.width, y: frame1Center.y };
+        startOffsetPoint = { x: startPoint.x + config.connectionOffset, y: startPoint.y };
+        break;
+      case 'bottom':
+        startPoint = { x: frame1Center.x, y: frame1.y + frame1.height };
+        startOffsetPoint = { x: startPoint.x, y: startPoint.y + config.connectionOffset };
+        break;
+      case 'left':
+        startPoint = { x: frame1.x, y: frame1Center.y };
+        startOffsetPoint = { x: startPoint.x - config.connectionOffset, y: startPoint.y };
+        break;
     }
   }
 
-  return { startPoint, endPoint };
+  // Calculate end point based on config or auto-detect
+  if (config.endPosition === 'auto') {
+    // Auto-detect based on relative positions (original logic)
+    const dx = frame2Center.x - frame1Center.x;
+    const dy = frame2Center.y - frame1Center.y;
+
+    if (Math.abs(dx) > Math.abs(dy)) {
+      // Horizontal connection
+      if (dx > 0) {
+        endPoint = { x: frame2.x, y: frame2Center.y }; // left
+        endOffsetPoint = { x: endPoint.x - config.connectionOffset, y: endPoint.y };
+      } else {
+        endPoint = { x: frame2.x + frame2.width, y: frame2Center.y }; // right
+        endOffsetPoint = { x: endPoint.x + config.connectionOffset, y: endPoint.y };
+      }
+    } else {
+      // Vertical connection
+      if (dy > 0) {
+        endPoint = { x: frame2Center.x, y: frame2.y }; // top
+        endOffsetPoint = { x: endPoint.x, y: endPoint.y - config.connectionOffset };
+      } else {
+        endPoint = { x: frame2Center.x, y: frame2.y + frame2.height }; // bottom
+        endOffsetPoint = { x: endPoint.x, y: endPoint.y + config.connectionOffset };
+      }
+    }
+  } else {
+    // Use specified position
+    switch (config.endPosition) {
+      case 'top':
+        endPoint = { x: frame2Center.x, y: frame2.y };
+        endOffsetPoint = { x: endPoint.x, y: endPoint.y - config.connectionOffset };
+        break;
+      case 'right':
+        endPoint = { x: frame2.x + frame2.width, y: frame2Center.y };
+        endOffsetPoint = { x: endPoint.x + config.connectionOffset, y: endPoint.y };
+        break;
+      case 'bottom':
+        endPoint = { x: frame2Center.x, y: frame2.y + frame2.height };
+        endOffsetPoint = { x: endPoint.x, y: endPoint.y + config.connectionOffset };
+        break;
+      case 'left':
+        endPoint = { x: frame2.x, y: frame2Center.y };
+        endOffsetPoint = { x: endPoint.x - config.connectionOffset, y: endPoint.y };
+        break;
+    }
+  }
+
+  return { startPoint, endPoint, startOffsetPoint, endOffsetPoint };
 }
 
 function createArrowHead(endPoint: { x: number, y: number }, angle: number, config: ConnectionConfig) {
@@ -425,33 +497,64 @@ function hexToRgb(hex: string): RGB {
   } : { r: 0, g: 0, b: 0 };
 }
 
-function createCurvedPath(startPoint: { x: number, y: number }, endPoint: { x: number, y: number }, config: ConnectionConfig): string {
+function createCurvedPath(startPoint: { x: number, y: number }, endPoint: { x: number, y: number }, startOffsetPoint: { x: number, y: number }, endOffsetPoint: { x: number, y: number }, config: ConnectionConfig): string {
   if (config.arrowType === 'straight') {
+    // For straight connections with offset, create an elbow path
+    if (config.connectionOffset > 0) {
+      return `M ${startPoint.x} ${startPoint.y} L ${startOffsetPoint.x} ${startOffsetPoint.y} L ${endOffsetPoint.x} ${endOffsetPoint.y} L ${endPoint.x} ${endPoint.y}`;
+    }
     return `M ${startPoint.x} ${startPoint.y} L ${endPoint.x} ${endPoint.y}`;
   }
 
   if (config.arrowType === 'elbow') {
-    const midX = (startPoint.x + endPoint.x) / 2;
-    return `M ${startPoint.x} ${startPoint.y} L ${midX} ${startPoint.y} L ${midX} ${endPoint.y} L ${endPoint.x} ${endPoint.y}`;
+    // Create elbow path with offset points
+    if (config.connectionOffset > 0) {
+      const midX = (startOffsetPoint.x + endOffsetPoint.x) / 2;
+      const midY = (startOffsetPoint.y + endOffsetPoint.y) / 2;
+      return `M ${startPoint.x} ${startPoint.y} L ${startOffsetPoint.x} ${startOffsetPoint.y} L ${midX} ${startOffsetPoint.y} L ${midX} ${endOffsetPoint.y} L ${endOffsetPoint.x} ${endOffsetPoint.y} L ${endPoint.x} ${endPoint.y}`;
+    } else {
+      const midX = (startPoint.x + endPoint.x) / 2;
+      return `M ${startPoint.x} ${startPoint.y} L ${midX} ${startPoint.y} L ${midX} ${endPoint.y} L ${endPoint.x} ${endPoint.y}`;
+    }
   }
 
-  // Curved path
-  const dx = endPoint.x - startPoint.x;
-  const dy = endPoint.y - startPoint.y;
-  const distance = Math.sqrt(dx * dx + dy * dy);
-  const curvature = distance * 0.3;
+  // Curved path with offset
+  if (config.connectionOffset > 0) {
+    const dx = endOffsetPoint.x - startOffsetPoint.x;
+    const dy = endOffsetPoint.y - startOffsetPoint.y;
+    const distance = Math.sqrt(dx * dx + dy * dy);
+    const curvature = distance * 0.3;
 
-  const controlPoint1 = {
-    x: startPoint.x + (Math.abs(dx) > Math.abs(dy) ? curvature : 0),
-    y: startPoint.y + (Math.abs(dy) > Math.abs(dx) ? curvature * Math.sign(dy) : 0)
-  };
+    const controlPoint1 = {
+      x: startOffsetPoint.x + (Math.abs(dx) > Math.abs(dy) ? curvature : 0),
+      y: startOffsetPoint.y + (Math.abs(dy) > Math.abs(dx) ? curvature * Math.sign(dy) : 0)
+    };
 
-  const controlPoint2 = {
-    x: endPoint.x - (Math.abs(dx) > Math.abs(dy) ? curvature : 0),
-    y: endPoint.y - (Math.abs(dy) > Math.abs(dx) ? curvature * Math.sign(dy) : 0)
-  };
+    const controlPoint2 = {
+      x: endOffsetPoint.x - (Math.abs(dx) > Math.abs(dy) ? curvature : 0),
+      y: endOffsetPoint.y - (Math.abs(dy) > Math.abs(dx) ? curvature * Math.sign(dy) : 0)
+    };
 
-  return `M ${startPoint.x} ${startPoint.y} C ${controlPoint1.x} ${controlPoint1.y} ${controlPoint2.x} ${controlPoint2.y} ${endPoint.x} ${endPoint.y}`;
+    return `M ${startPoint.x} ${startPoint.y} L ${startOffsetPoint.x} ${startOffsetPoint.y} C ${controlPoint1.x} ${controlPoint1.y} ${controlPoint2.x} ${controlPoint2.y} ${endOffsetPoint.x} ${endOffsetPoint.y} L ${endPoint.x} ${endPoint.y}`;
+  } else {
+    // Original curved path without offset
+    const dx = endPoint.x - startPoint.x;
+    const dy = endPoint.y - startPoint.y;
+    const distance = Math.sqrt(dx * dx + dy * dy);
+    const curvature = distance * 0.3;
+
+    const controlPoint1 = {
+      x: startPoint.x + (Math.abs(dx) > Math.abs(dy) ? curvature : 0),
+      y: startPoint.y + (Math.abs(dy) > Math.abs(dx) ? curvature * Math.sign(dy) : 0)
+    };
+
+    const controlPoint2 = {
+      x: endPoint.x - (Math.abs(dx) > Math.abs(dy) ? curvature : 0),
+      y: endPoint.y - (Math.abs(dy) > Math.abs(dx) ? curvature * Math.sign(dy) : 0)
+    };
+
+    return `M ${startPoint.x} ${startPoint.y} C ${controlPoint1.x} ${controlPoint1.y} ${controlPoint2.x} ${controlPoint2.y} ${endPoint.x} ${endPoint.y}`;
+  }
 }
 
 function addSloppiness(path: string, config: ConnectionConfig): string {
@@ -499,11 +602,11 @@ async function updateConnection(connectionId: string, newConfig: ConnectionConfi
 }
 
 async function createConnection(frame1: FrameNode, frame2: FrameNode, config: ConnectionConfig) {
-  const { startPoint, endPoint } = calculateConnectionPoints(frame1, frame2);
+  const { startPoint, endPoint, startOffsetPoint, endOffsetPoint } = calculateConnectionPoints(frame1, frame2, config);
 
   // Create the main line
   const line = figma.createVector();
-  let pathData = createCurvedPath(startPoint, endPoint, config);
+  let pathData = createCurvedPath(startPoint, endPoint, startOffsetPoint, endOffsetPoint, config);
   pathData = addSloppiness(pathData, config);
 
   line.vectorPaths = [{
@@ -527,9 +630,16 @@ async function createConnection(frame1: FrameNode, frame2: FrameNode, config: Co
   line.name = `Connection: ${frame1.name} → ${frame2.name}`;
 
   // Create arrow heads
-  const angle = Math.atan2(endPoint.y - startPoint.y, endPoint.x - startPoint.x);
-  const endArrowHead = createArrowHead(endPoint, angle, config);
-  const startArrowHead = createStartArrowHead(startPoint, angle, config);
+  // Calculate angles based on the final segments of the path
+  const endAngle = config.connectionOffset > 0 ?
+    Math.atan2(endPoint.y - endOffsetPoint.y, endPoint.x - endOffsetPoint.x) :
+    Math.atan2(endPoint.y - startPoint.y, endPoint.x - startPoint.x);
+  const startAngle = config.connectionOffset > 0 ?
+    Math.atan2(startOffsetPoint.y - startPoint.y, startOffsetPoint.x - startPoint.x) :
+    Math.atan2(endPoint.y - startPoint.y, endPoint.x - startPoint.x);
+
+  const endArrowHead = createArrowHead(endPoint, endAngle, config);
+  const startArrowHead = createStartArrowHead(startPoint, startAngle, config);
 
   // Create label if provided
   let labelFrame: FrameNode | null = null;

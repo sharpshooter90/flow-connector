@@ -514,6 +514,40 @@
         </div>
         
         <div class="form-group">
+          <label>Start Position</label>
+          <div class="option-grid">
+            <div class="option-button selected" data-start-position="auto">Auto</div>
+            <div class="option-button" data-start-position="top">Top</div>
+            <div class="option-button" data-start-position="right">Right</div>
+            <div class="option-button" data-start-position="bottom">Bottom</div>
+            <div class="option-button" data-start-position="left">Left</div>
+            <div class="option-button" style="visibility: hidden;"></div>
+          </div>
+        </div>
+        
+        <div class="form-group">
+          <label>End Position</label>
+          <div class="option-grid">
+            <div class="option-button selected" data-end-position="auto">Auto</div>
+            <div class="option-button" data-end-position="top">Top</div>
+            <div class="option-button" data-end-position="right">Right</div>
+            <div class="option-button" data-end-position="bottom">Bottom</div>
+            <div class="option-button" data-end-position="left">Left</div>
+            <div class="option-button" style="visibility: hidden;"></div>
+          </div>
+        </div>
+        
+        <div class="form-group">
+          <label>Connection Offset</label>
+          <input type="range" id="connectionOffset" min="0" max="50" value="20">
+          <div class="range-container">
+            <span>0</span>
+            <span id="connectionOffsetValue">20</span>
+            <span>50</span>
+          </div>
+        </div>
+        
+        <div class="form-group">
           <label>Opacity</label>
           <input type="range" id="opacity" min="0" max="100" value="100">
           <div class="range-container">
@@ -672,6 +706,9 @@
     sloppiness: 'low',
     arrowType: 'elbow',
     arrowheads: 'end',
+    startPosition: 'auto',
+    endPosition: 'auto',
+    connectionOffset: 20,
     opacity: 100,
     label: 'Label Text',
     labelBg: '#ffffff',
@@ -701,6 +738,117 @@
     }
   }
   
+  // Calculate connection points for preview (similar to backend logic)
+  function calculatePreviewConnectionPoints(frame1, frame2, config) {
+    const frame1Center = {
+      x: frame1.x + frame1.width / 2,
+      y: frame1.y + frame1.height / 2
+    };
+
+    const frame2Center = {
+      x: frame2.x + frame2.width / 2,
+      y: frame2.y + frame2.height / 2
+    };
+
+    let startPoint, endPoint, startOffsetPoint, endOffsetPoint;
+
+    // Calculate start point based on config or auto-detect
+    if (config.startPosition === 'auto') {
+      // Auto-detect based on relative positions
+      const dx = frame2Center.x - frame1Center.x;
+      const dy = frame2Center.y - frame1Center.y;
+
+      if (Math.abs(dx) > Math.abs(dy)) {
+        // Horizontal connection
+        if (dx > 0) {
+          startPoint = { x: frame1.x + frame1.width, y: frame1Center.y }; // right
+          startOffsetPoint = { x: startPoint.x + config.connectionOffset, y: startPoint.y };
+        } else {
+          startPoint = { x: frame1.x, y: frame1Center.y }; // left
+          startOffsetPoint = { x: startPoint.x - config.connectionOffset, y: startPoint.y };
+        }
+      } else {
+        // Vertical connection
+        if (dy > 0) {
+          startPoint = { x: frame1Center.x, y: frame1.y + frame1.height }; // bottom
+          startOffsetPoint = { x: startPoint.x, y: startPoint.y + config.connectionOffset };
+        } else {
+          startPoint = { x: frame1Center.x, y: frame1.y }; // top
+          startOffsetPoint = { x: startPoint.x, y: startPoint.y - config.connectionOffset };
+        }
+      }
+    } else {
+      // Use specified position
+      switch (config.startPosition) {
+        case 'top':
+          startPoint = { x: frame1Center.x, y: frame1.y };
+          startOffsetPoint = { x: startPoint.x, y: startPoint.y - config.connectionOffset };
+          break;
+        case 'right':
+          startPoint = { x: frame1.x + frame1.width, y: frame1Center.y };
+          startOffsetPoint = { x: startPoint.x + config.connectionOffset, y: startPoint.y };
+          break;
+        case 'bottom':
+          startPoint = { x: frame1Center.x, y: frame1.y + frame1.height };
+          startOffsetPoint = { x: startPoint.x, y: startPoint.y + config.connectionOffset };
+          break;
+        case 'left':
+          startPoint = { x: frame1.x, y: frame1Center.y };
+          startOffsetPoint = { x: startPoint.x - config.connectionOffset, y: startPoint.y };
+          break;
+      }
+    }
+
+    // Calculate end point based on config or auto-detect
+    if (config.endPosition === 'auto') {
+      // Auto-detect based on relative positions
+      const dx = frame2Center.x - frame1Center.x;
+      const dy = frame2Center.y - frame1Center.y;
+
+      if (Math.abs(dx) > Math.abs(dy)) {
+        // Horizontal connection
+        if (dx > 0) {
+          endPoint = { x: frame2.x, y: frame2Center.y }; // left
+          endOffsetPoint = { x: endPoint.x - config.connectionOffset, y: endPoint.y };
+        } else {
+          endPoint = { x: frame2.x + frame2.width, y: frame2Center.y }; // right
+          endOffsetPoint = { x: endPoint.x + config.connectionOffset, y: endPoint.y };
+        }
+      } else {
+        // Vertical connection
+        if (dy > 0) {
+          endPoint = { x: frame2Center.x, y: frame2.y }; // top
+          endOffsetPoint = { x: endPoint.x, y: endPoint.y - config.connectionOffset };
+        } else {
+          endPoint = { x: frame2Center.x, y: frame2.y + frame2.height }; // bottom
+          endOffsetPoint = { x: endPoint.x, y: endPoint.y + config.connectionOffset };
+        }
+      }
+    } else {
+      // Use specified position
+      switch (config.endPosition) {
+        case 'top':
+          endPoint = { x: frame2Center.x, y: frame2.y };
+          endOffsetPoint = { x: endPoint.x, y: endPoint.y - config.connectionOffset };
+          break;
+        case 'right':
+          endPoint = { x: frame2.x + frame2.width, y: frame2Center.y };
+          endOffsetPoint = { x: endPoint.x + config.connectionOffset, y: endPoint.y };
+          break;
+        case 'bottom':
+          endPoint = { x: frame2Center.x, y: frame2.y + frame2.height };
+          endOffsetPoint = { x: endPoint.x, y: endPoint.y + config.connectionOffset };
+          break;
+        case 'left':
+          endPoint = { x: frame2.x, y: frame2Center.y };
+          endOffsetPoint = { x: endPoint.x - config.connectionOffset, y: endPoint.y };
+          break;
+      }
+    }
+
+    return { startPoint, endPoint, startOffsetPoint, endOffsetPoint };
+  }
+
   // Preview update function
   function updatePreview() {
     const svg = document.getElementById('previewSvg');
@@ -713,34 +861,66 @@
     const frame1 = { x: 30, y: 30, width: 50, height: 35 };
     const frame2 = { x: 160, y: 95, width: 50, height: 35 };
     
-    // Calculate connection points
-    const startPoint = { x: frame1.x + frame1.width, y: frame1.y + frame1.height / 2 };
-    const endPoint = { x: frame2.x, y: frame2.y + frame2.height / 2 };
+    // Calculate connection points based on positioning config
+    const { startPoint, endPoint, startOffsetPoint, endOffsetPoint } = calculatePreviewConnectionPoints(frame1, frame2, config);
     
     // Create path based on arrow type
     let pathData = '';
     if (config.arrowType === 'straight') {
-      pathData = `M ${startPoint.x} ${startPoint.y} L ${endPoint.x} ${endPoint.y}`;
+      // For straight connections with offset, create an elbow path
+      if (config.connectionOffset > 0) {
+        pathData = `M ${startPoint.x} ${startPoint.y} L ${startOffsetPoint.x} ${startOffsetPoint.y} L ${endOffsetPoint.x} ${endOffsetPoint.y} L ${endPoint.x} ${endPoint.y}`;
+      } else {
+        pathData = `M ${startPoint.x} ${startPoint.y} L ${endPoint.x} ${endPoint.y}`;
+      }
     } else if (config.arrowType === 'elbow') {
-      const midX = (startPoint.x + endPoint.x) / 2;
-      pathData = `M ${startPoint.x} ${startPoint.y} L ${midX} ${startPoint.y} L ${midX} ${endPoint.y} L ${endPoint.x} ${endPoint.y}`;
+      // Create elbow path with offset points
+      if (config.connectionOffset > 0) {
+        const midX = (startOffsetPoint.x + endOffsetPoint.x) / 2;
+        const midY = (startOffsetPoint.y + endOffsetPoint.y) / 2;
+        pathData = `M ${startPoint.x} ${startPoint.y} L ${startOffsetPoint.x} ${startOffsetPoint.y} L ${midX} ${startOffsetPoint.y} L ${midX} ${endOffsetPoint.y} L ${endOffsetPoint.x} ${endOffsetPoint.y} L ${endPoint.x} ${endPoint.y}`;
+      } else {
+        const midX = (startPoint.x + endPoint.x) / 2;
+        pathData = `M ${startPoint.x} ${startPoint.y} L ${midX} ${startPoint.y} L ${midX} ${endPoint.y} L ${endPoint.x} ${endPoint.y}`;
+      }
     } else { // curved
-      const dx = endPoint.x - startPoint.x;
-      const dy = endPoint.y - startPoint.y;
-      const distance = Math.sqrt(dx * dx + dy * dy);
-      const curvature = distance * 0.3;
-      
-      const controlPoint1 = {
-        x: startPoint.x + (Math.abs(dx) > Math.abs(dy) ? curvature : 0),
-        y: startPoint.y + (Math.abs(dy) > Math.abs(dx) ? curvature * Math.sign(dy) : 0)
-      };
-      
-      const controlPoint2 = {
-        x: endPoint.x - (Math.abs(dx) > Math.abs(dy) ? curvature : 0),
-        y: endPoint.y - (Math.abs(dy) > Math.abs(dx) ? curvature * Math.sign(dy) : 0)
-      };
-      
-      pathData = `M ${startPoint.x} ${startPoint.y} C ${controlPoint1.x} ${controlPoint1.y} ${controlPoint2.x} ${controlPoint2.y} ${endPoint.x} ${endPoint.y}`;
+      // Curved path with offset
+      if (config.connectionOffset > 0) {
+        const dx = endOffsetPoint.x - startOffsetPoint.x;
+        const dy = endOffsetPoint.y - startOffsetPoint.y;
+        const distance = Math.sqrt(dx * dx + dy * dy);
+        const curvature = distance * 0.3;
+
+        const controlPoint1 = {
+          x: startOffsetPoint.x + (Math.abs(dx) > Math.abs(dy) ? curvature : 0),
+          y: startOffsetPoint.y + (Math.abs(dy) > Math.abs(dx) ? curvature * Math.sign(dy) : 0)
+        };
+
+        const controlPoint2 = {
+          x: endOffsetPoint.x - (Math.abs(dx) > Math.abs(dy) ? curvature : 0),
+          y: endOffsetPoint.y - (Math.abs(dy) > Math.abs(dx) ? curvature * Math.sign(dy) : 0)
+        };
+
+        pathData = `M ${startPoint.x} ${startPoint.y} L ${startOffsetPoint.x} ${startOffsetPoint.y} C ${controlPoint1.x} ${controlPoint1.y} ${controlPoint2.x} ${controlPoint2.y} ${endOffsetPoint.x} ${endOffsetPoint.y} L ${endPoint.x} ${endPoint.y}`;
+      } else {
+        // Original curved path without offset
+        const dx = endPoint.x - startPoint.x;
+        const dy = endPoint.y - startPoint.y;
+        const distance = Math.sqrt(dx * dx + dy * dy);
+        const curvature = distance * 0.3;
+        
+        const controlPoint1 = {
+          x: startPoint.x + (Math.abs(dx) > Math.abs(dy) ? curvature : 0),
+          y: startPoint.y + (Math.abs(dy) > Math.abs(dx) ? curvature * Math.sign(dy) : 0)
+        };
+        
+        const controlPoint2 = {
+          x: endPoint.x - (Math.abs(dx) > Math.abs(dy) ? curvature : 0),
+          y: endPoint.y - (Math.abs(dy) > Math.abs(dx) ? curvature * Math.sign(dy) : 0)
+        };
+        
+        pathData = `M ${startPoint.x} ${startPoint.y} C ${controlPoint1.x} ${controlPoint1.y} ${controlPoint2.x} ${controlPoint2.y} ${endPoint.x} ${endPoint.y}`;
+      }
     }
     
     // Create main line
@@ -953,6 +1133,38 @@
       });
     });
     
+    // Start position
+    document.querySelectorAll('[data-start-position]').forEach(option => {
+      option.addEventListener('click', () => {
+        document.querySelectorAll('[data-start-position]').forEach(o => o.classList.remove('selected'));
+        option.classList.add('selected');
+        config.startPosition = option.dataset.startPosition;
+        saveConfig();
+        updatePreview();
+        if (isEditingConnection) {
+          updateConnection();
+        } else {
+          checkAutoCreate();
+        }
+      });
+    });
+    
+    // End position
+    document.querySelectorAll('[data-end-position]').forEach(option => {
+      option.addEventListener('click', () => {
+        document.querySelectorAll('[data-end-position]').forEach(o => o.classList.remove('selected'));
+        option.classList.add('selected');
+        config.endPosition = option.dataset.endPosition;
+        saveConfig();
+        updatePreview();
+        if (isEditingConnection) {
+          updateConnection();
+        } else {
+          checkAutoCreate();
+        }
+      });
+    });
+    
     // Opacity slider
     const opacitySlider = document.getElementById('opacity');
     const opacityValue = document.getElementById('opacityValue');
@@ -960,6 +1172,22 @@
     opacitySlider.addEventListener('input', () => {
       config.opacity = parseInt(opacitySlider.value);
       opacityValue.textContent = opacitySlider.value;
+      saveConfig();
+      updatePreview();
+      if (isEditingConnection) {
+        updateConnection();
+      } else {
+        checkAutoCreate();
+      }
+    });
+    
+    // Connection offset slider
+    const connectionOffsetSlider = document.getElementById('connectionOffset');
+    const connectionOffsetValue = document.getElementById('connectionOffsetValue');
+    
+    connectionOffsetSlider.addEventListener('input', () => {
+      config.connectionOffset = parseInt(connectionOffsetSlider.value);
+      connectionOffsetValue.textContent = connectionOffsetSlider.value;
       saveConfig();
       updatePreview();
       if (isEditingConnection) {
@@ -1108,6 +1336,20 @@
     document.querySelectorAll('[data-arrowheads]').forEach(option => {
       option.classList.toggle('selected', option.dataset.arrowheads === newConfig.arrowheads);
     });
+    
+    // Update start position
+    document.querySelectorAll('[data-start-position]').forEach(option => {
+      option.classList.toggle('selected', option.dataset.startPosition === newConfig.startPosition);
+    });
+    
+    // Update end position
+    document.querySelectorAll('[data-end-position]').forEach(option => {
+      option.classList.toggle('selected', option.dataset.endPosition === newConfig.endPosition);
+    });
+    
+    // Update connection offset
+    document.getElementById('connectionOffset').value = newConfig.connectionOffset;
+    document.getElementById('connectionOffsetValue').textContent = newConfig.connectionOffset;
     
     // Update opacity
     document.getElementById('opacity').value = newConfig.opacity;
