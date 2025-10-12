@@ -120,23 +120,23 @@ function checkSelection() {
 // Find all connections on the current page
 function findAllConnections(): GroupNode[] {
   const connections: GroupNode[] = [];
-  
+
   function traverse(node: SceneNode) {
     if (isFlowConnection(node)) {
       connections.push(node as GroupNode);
     }
-    
+
     if ('children' in node) {
       for (const child of node.children) {
         traverse(child);
       }
     }
   }
-  
+
   for (const child of figma.currentPage.children) {
     traverse(child);
   }
-  
+
   return connections;
 }
 
@@ -144,7 +144,7 @@ function findAllConnections(): GroupNode[] {
 function trackConnections() {
   const connections = findAllConnections();
   trackedConnections.clear();
-  
+
   for (const connection of connections) {
     const metadata = getConnectionMetadata(connection);
     if (metadata) {
@@ -156,9 +156,9 @@ function trackConnections() {
 // Check if any tracked frames have changed and update connections
 async function checkAndUpdateConnections() {
   if (!autoUpdateEnabled) return;
-  
+
   const connectionsToUpdate: Array<{ connection: GroupNode, metadata: ConnectionMetadata }> = [];
-  
+
   for (const [connectionId, metadata] of trackedConnections) {
     const connection = figma.currentPage.findOne(node => node.id === connectionId) as GroupNode;
     if (!connection) {
@@ -166,45 +166,45 @@ async function checkAndUpdateConnections() {
       trackedConnections.delete(connectionId);
       continue;
     }
-    
+
     const frame1 = figma.currentPage.findOne(node => node.id === metadata.frame1Id) as FrameNode;
     const frame2 = figma.currentPage.findOne(node => node.id === metadata.frame2Id) as FrameNode;
-    
+
     if (!frame1 || !frame2) {
       // One of the frames was deleted, remove connection from tracking
       trackedConnections.delete(connectionId);
       continue;
     }
-    
+
     // Check if connection needs updating by comparing current positions with stored positions
     const currentConnectionPoints = calculateConnectionPoints(frame1, frame2);
     const shouldUpdate = connectionNeedsUpdate(connection, currentConnectionPoints, metadata.config);
-    
+
     if (shouldUpdate) {
       connectionsToUpdate.push({ connection, metadata });
     }
   }
-  
+
   // Update connections that need updating
   for (const { connection, metadata } of connectionsToUpdate) {
     try {
       const frame1 = figma.currentPage.findOne(node => node.id === metadata.frame1Id) as FrameNode;
       const frame2 = figma.currentPage.findOne(node => node.id === metadata.frame2Id) as FrameNode;
-      
+
       if (frame1 && frame2) {
         // Store current selection to restore later
         const currentSelection = figma.currentPage.selection;
-        
+
         // Remove old connection
         connection.remove();
-        
+
         // Create new connection
         const newConnection = await createConnection(frame1, frame2, metadata.config);
-        
+
         // Update tracking with new connection ID
         trackedConnections.delete(connection.id);
         trackedConnections.set(newConnection.id, metadata);
-        
+
         // Restore selection if it wasn't the connection we just updated
         const wasSelected = currentSelection.some(node => node.id === connection.id);
         if (!wasSelected) {
@@ -224,23 +224,23 @@ function connectionNeedsUpdate(connection: GroupNode, newConnectionPoints: any, 
   if (!line || !line.vectorPaths || line.vectorPaths.length === 0) {
     return true; // If we can't find the line, assume it needs updating
   }
-  
+
   // Extract start and end points from the current path
   const pathData = line.vectorPaths[0].data;
   const pathMatch = pathData.match(/M\s*([\d.-]+)\s*([\d.-]+).*?(?:L|C).*?([\d.-]+)\s*([\d.-]+)(?:\s|$)/);
-  
+
   if (!pathMatch) {
     return true; // If we can't parse the path, assume it needs updating
   }
-  
+
   const currentStart = { x: parseFloat(pathMatch[1]), y: parseFloat(pathMatch[2]) };
   const newStart = newConnectionPoints.startPoint;
-  
+
   // Check if the start point has moved significantly (more than 1 pixel)
   const threshold = 1;
-  const startMoved = Math.abs(currentStart.x - newStart.x) > threshold || 
-                   Math.abs(currentStart.y - newStart.y) > threshold;
-  
+  const startMoved = Math.abs(currentStart.x - newStart.x) > threshold ||
+    Math.abs(currentStart.y - newStart.y) > threshold;
+
   return startMoved;
 }
 
@@ -248,17 +248,36 @@ function connectionNeedsUpdate(connection: GroupNode, newConnectionPoints: any, 
 async function initializePlugin() {
   // Load all pages first to enable document change monitoring
   await figma.loadAllPagesAsync();
-  
+
   // Listen for document changes to update connections
   figma.on('documentchange', async (event) => {
     let shouldCheckConnections = false;
-    
+
     for (const change of event.documentChanges) {
       if (change.type === 'PROPERTY_CHANGE') {
         const node = change.node;
-        // Check if a frame's position or size changed
-        if (node.type === 'FRAME') {
-          const hasPositionChange = change.properties.some(prop => 
+        // Check if a frame's position or size changed, but ignore our plugin-created frames
+        if (node.type === 'FRAME' && 'name' in node && 'parent' in node) {
+          const frameNode = node as FrameNode;
+
+          // Skip frames that are part of our connections (label frames)
+          if (frameNode.name === 'Connection Label') {
+            continue;
+          }
+
+          // Skip frames that are children of our connection groups
+          let parent = frameNode.parent;
+          while (parent) {
+            if (parent.type === 'GROUP' && parent.name.startsWith('Flow Connection:')) {
+              break;
+            }
+            parent = parent.parent;
+          }
+          if (parent) {
+            continue; // This frame is part of a connection, skip it
+          }
+
+          const hasPositionChange = change.properties.some(prop =>
             prop === 'x' || prop === 'y' || prop === 'width' || prop === 'height'
           );
           if (hasPositionChange) {
@@ -268,7 +287,7 @@ async function initializePlugin() {
         }
       }
     }
-    
+
     if (shouldCheckConnections) {
       // Debounce the update check to avoid too frequent updates
       setTimeout(checkAndUpdateConnections, 100);
@@ -513,41 +532,63 @@ async function createConnection(frame1: FrameNode, frame2: FrameNode, config: Co
   const startArrowHead = createStartArrowHead(startPoint, angle, config);
 
   // Create label if provided
-  let labelGroup: GroupNode | null = null;
+  let labelFrame: FrameNode | null = null;
   if (config.label.trim()) {
-    // Load font first
-    await figma.loadFontAsync({ family: "Inter", style: "Regular" });
+    try {
+      // Load font first - try Inter, fallback to system fonts
+      try {
+        await figma.loadFontAsync({ family: "Inter", style: "Regular" });
+      } catch {
+        // Fallback to system font if Inter is not available
+        await figma.loadFontAsync({ family: "Helvetica", style: "Regular" });
+      }
 
-    // Create text
-    const label = figma.createText();
-    label.characters = config.label;
-    label.fontSize = 12;
-    label.fills = [{ type: 'SOLID', color: hexToRgb(config.labelTextColor), opacity: config.opacity / 100 }];
+      // Create text
+      const label = figma.createText();
+      label.characters = config.label;
+      label.fontSize = 12;
+      label.fills = [{ type: 'SOLID', color: hexToRgb(config.labelTextColor) }];
 
-    // Create background rectangle
-    const bg = figma.createRectangle();
-    bg.resize(label.width + (config.labelPadding * 2), label.height + (config.labelPadding * 2));
-    bg.fills = [{ type: 'SOLID', color: hexToRgb(config.labelBg), opacity: config.opacity / 100 }];
-    bg.strokes = [{ type: 'SOLID', color: hexToRgb(config.labelBorderColor), opacity: config.opacity / 100 }];
-    bg.strokeWeight = config.labelBorderWidth;
-    bg.cornerRadius = config.labelBorderRadius;
+      // Create auto-layout frame for the label
+      labelFrame = figma.createFrame();
+      labelFrame.name = 'Connection Label';
 
-    // Position text on top of background
-    label.x = config.labelPadding;
-    label.y = config.labelPadding;
+      // Set up auto-layout
+      labelFrame.layoutMode = 'HORIZONTAL';
+      labelFrame.primaryAxisSizingMode = 'AUTO';
+      labelFrame.counterAxisSizingMode = 'AUTO';
+      labelFrame.paddingLeft = config.labelPadding;
+      labelFrame.paddingRight = config.labelPadding;
+      labelFrame.paddingTop = config.labelPadding;
+      labelFrame.paddingBottom = config.labelPadding;
 
-    // Group background and text
-    labelGroup = figma.group([bg, label], figma.currentPage);
-    labelGroup.name = 'Connection Label';
+      // Set background and styling
+      labelFrame.fills = [{ type: 'SOLID', color: hexToRgb(config.labelBg) }];
 
-    // Position label group at the middle of the line
-    const midPoint = {
-      x: (startPoint.x + endPoint.x) / 2,
-      y: (startPoint.y + endPoint.y) / 2
-    };
+      if (config.labelBorderWidth > 0) {
+        labelFrame.strokes = [{ type: 'SOLID', color: hexToRgb(config.labelBorderColor) }];
+        labelFrame.strokeWeight = config.labelBorderWidth;
+      }
 
-    labelGroup.x = midPoint.x - labelGroup.width / 2;
-    labelGroup.y = midPoint.y - labelGroup.height / 2;
+      if (config.labelBorderRadius > 0) {
+        labelFrame.cornerRadius = config.labelBorderRadius;
+      }
+
+      // Add text to the frame
+      labelFrame.appendChild(label);
+
+      // Position label frame at the middle of the line
+      const midPoint = {
+        x: (startPoint.x + endPoint.x) / 2,
+        y: (startPoint.y + endPoint.y) / 2
+      };
+
+      labelFrame.x = midPoint.x - labelFrame.width / 2;
+      labelFrame.y = midPoint.y - labelFrame.height / 2;
+    } catch (error) {
+      console.error('Failed to create label:', error);
+      // Continue without label if creation fails
+    }
   }
 
   // Group all elements
@@ -560,7 +601,7 @@ async function createConnection(frame1: FrameNode, frame2: FrameNode, config: Co
     startArrowHead.name = 'Start Arrow Head';
     elements.push(startArrowHead);
   }
-  if (labelGroup) elements.push(labelGroup);
+  if (labelFrame) elements.push(labelFrame);
 
   const group = figma.group(elements, figma.currentPage);
   group.name = `Flow Connection: ${frame1.name} → ${frame2.name}`;
@@ -653,7 +694,7 @@ figma.ui.onmessage = async (msg: any) => {
   if (msg.type === 'toggle-auto-create') {
     autoCreateEnabled = msg.enabled ?? true;
   }
-  
+
   if (msg.type === 'toggle-auto-update') {
     autoUpdateEnabled = msg.enabled ?? true;
     if (autoUpdateEnabled) {

@@ -345,7 +345,7 @@
   
   /* SVG icons */
   .option-button svg {
-    width: 16px;
+    width: 18px;
     height: 10px;
     stroke: #333;
     fill: none;
@@ -485,13 +485,13 @@
           <label>Arrow type</label>
           <div class="option-grid">
             <div class="option-button" data-arrow-type="straight">
-              <svg><line x1="2" y1="6" x2="18" y2="6"/><polygon points="15,3 18,6 15,9" fill="currentColor"/></svg>
+              <svg><line x1="2" y1="5" x2="16" y2="5"/><polygon points="13,2 16,5 13,8" fill="currentColor"/></svg>
             </div>
             <div class="option-button" data-arrow-type="curved">
-              <svg><path d="M2,6 Q10,2 18,6"/><polygon points="15,3 18,6 15,9" fill="currentColor"/></svg>
+              <svg><path d="M2,5 Q9,1 16,5"/><polygon points="13,2 16,5 13,8" fill="currentColor"/></svg>
             </div>
             <div class="option-button selected" data-arrow-type="elbow">
-              <svg><path d="M2,6 L10,6 L10,3 L18,3"/><polygon points="15,0 18,3 15,6" fill="currentColor"/></svg>
+              <svg><path d="M2,5 L9,5 L9,2 L16,2"/><polygon points="13,0 16,2 13,4" fill="currentColor"/></svg>
             </div>
             <div class="option-button" style="visibility: hidden;"></div>
           </div>
@@ -501,13 +501,13 @@
           <label>Arrowheads</label>
           <div class="option-grid">
             <div class="option-button" data-arrowheads="none">
-              <svg><line x1="2" y1="6" x2="18" y2="6"/></svg>
+              <svg><line x1="2" y1="5" x2="16" y2="5"/></svg>
             </div>
             <div class="option-button selected" data-arrowheads="end">
-              <svg><line x1="2" y1="6" x2="18" y2="6"/><polygon points="15,3 18,6 15,9" fill="currentColor"/></svg>
+              <svg><line x1="2" y1="5" x2="16" y2="5"/><polygon points="13,2 16,5 13,8" fill="currentColor"/></svg>
             </div>
             <div class="option-button" data-arrowheads="both">
-              <svg><line x1="2" y1="6" x2="18" y2="6"/><polygon points="5,3 2,6 5,9" fill="currentColor"/><polygon points="15,3 18,6 15,9" fill="currentColor"/></svg>
+              <svg><line x1="2" y1="5" x2="16" y2="5"/><polygon points="5,2 2,5 5,8" fill="currentColor"/><polygon points="13,2 16,5 13,8" fill="currentColor"/></svg>
             </div>
             <div class="option-button" style="visibility: hidden;"></div>
           </div>
@@ -530,7 +530,7 @@
         <div class="form-group">
           <label>Text Color</label>
           <div class="color-grid">
-            <div class="color-option" data-label-text-color="#333333" style="background: #333333;"></div>
+            <div class="color-option selected" data-label-text-color="#333333" style="background: #333333;"></div>
             <div class="color-option" data-label-text-color="#ffffff" style="background: #ffffff; border: 1px solid #ddd;"></div>
             <div class="color-option" data-label-text-color="#dc3545" style="background: #dc3545;"></div>
             <div class="color-option" data-label-text-color="#28a745" style="background: #28a745;"></div>
@@ -638,6 +638,29 @@
 <script>
   let frameCount = 0;
   let connectionCount = 0;
+  
+  // Shared debouncer for label configuration changes
+  let labelConfigDebounceTimer = null;
+  
+  function debounceLabelUpdate() {
+    // Clear existing timer
+    if (labelConfigDebounceTimer) {
+      clearTimeout(labelConfigDebounceTimer);
+    }
+    
+    // Update preview immediately for responsive UI
+    updatePreview();
+    
+    // Debounce the actual connection update and save
+    labelConfigDebounceTimer = setTimeout(() => {
+      saveConfig();
+      if (isEditingConnection) {
+        updateConnection();
+      } else {
+        checkAutoCreate();
+      }
+    }, 300); // 300ms delay
+  }
   let selectedConnectionId = null;
   let isEditingConnection = false;
   
@@ -834,10 +857,10 @@
 
   // Initialize UI
   function initializeUI() {
-    // Color selection
-    document.querySelectorAll('.color-option').forEach(option => {
+    // Arrow color selection (only for main arrow colors, not label colors)
+    document.querySelectorAll('[data-color]').forEach(option => {
       option.addEventListener('click', () => {
-        document.querySelectorAll('.color-option').forEach(o => o.classList.remove('selected'));
+        document.querySelectorAll('[data-color]').forEach(o => o.classList.remove('selected'));
         option.classList.add('selected');
         config.color = option.dataset.color;
         saveConfig();
@@ -946,19 +969,92 @@
       }
     });
     
-    // Label input (now in preview area)
+    // Label input (now in preview area) with debouncing
     const labelInput = document.getElementById('labelPreview');
+    let labelDebounceTimer = null;
+    
     labelInput.addEventListener('input', () => {
       config.label = labelInput.value;
-      saveConfig();
+      
+      // Update preview immediately for responsive UI
       updatePreview();
-      if (isEditingConnection) {
-        updateConnection();
-      } else {
-        checkAutoCreate();
+      
+      // Clear existing timer
+      if (labelDebounceTimer) {
+        clearTimeout(labelDebounceTimer);
       }
+      
+      // Debounce the actual connection update and save
+      labelDebounceTimer = setTimeout(() => {
+        saveConfig();
+        if (isEditingConnection) {
+          updateConnection();
+        } else {
+          checkAutoCreate();
+        }
+      }, 300); // 300ms delay
     });
     
+    // Label text color
+    document.querySelectorAll('[data-label-text-color]').forEach(option => {
+      option.addEventListener('click', () => {
+        document.querySelectorAll('[data-label-text-color]').forEach(o => o.classList.remove('selected'));
+        option.classList.add('selected');
+        config.labelTextColor = option.dataset.labelTextColor;
+        debounceLabelUpdate();
+      });
+    });
+    
+    // Label background color
+    document.querySelectorAll('[data-label-bg]').forEach(option => {
+      option.addEventListener('click', () => {
+        document.querySelectorAll('[data-label-bg]').forEach(o => o.classList.remove('selected'));
+        option.classList.add('selected');
+        config.labelBg = option.dataset.labelBg;
+        debounceLabelUpdate();
+      });
+    });
+    
+    // Label border color
+    document.querySelectorAll('[data-label-border]').forEach(option => {
+      option.addEventListener('click', () => {
+        document.querySelectorAll('[data-label-border]').forEach(o => o.classList.remove('selected'));
+        option.classList.add('selected');
+        config.labelBorderColor = option.dataset.labelBorder;
+        debounceLabelUpdate();
+      });
+    });
+    
+    // Label border width
+    document.querySelectorAll('[data-label-border-width]').forEach(option => {
+      option.addEventListener('click', () => {
+        document.querySelectorAll('[data-label-border-width]').forEach(o => o.classList.remove('selected'));
+        option.classList.add('selected');
+        config.labelBorderWidth = parseInt(option.dataset.labelBorderWidth);
+        debounceLabelUpdate();
+      });
+    });
+    
+    // Label border radius slider
+    const labelBorderRadiusSlider = document.getElementById('labelBorderRadius');
+    const labelBorderRadiusValue = document.getElementById('labelBorderRadiusValue');
+    
+    labelBorderRadiusSlider.addEventListener('input', () => {
+      config.labelBorderRadius = parseInt(labelBorderRadiusSlider.value);
+      labelBorderRadiusValue.textContent = labelBorderRadiusSlider.value;
+      debounceLabelUpdate();
+    });
+    
+    // Label padding slider
+    const labelPaddingSlider = document.getElementById('labelPadding');
+    const labelPaddingValue = document.getElementById('labelPaddingValue');
+    
+    labelPaddingSlider.addEventListener('input', () => {
+      config.labelPadding = parseInt(labelPaddingSlider.value);
+      labelPaddingValue.textContent = labelPaddingSlider.value;
+      debounceLabelUpdate();
+    });
+
     // Auto-create checkbox
     const autoCreateCheckbox = document.getElementById('autoCreate');
     autoCreateCheckbox.addEventListener('change', () => {
@@ -980,107 +1076,11 @@
         } 
       }, '*');
     });
-    
-    // Label text color
-    document.querySelectorAll('[data-label-text-color]').forEach(option => {
-      option.addEventListener('click', () => {
-        document.querySelectorAll('[data-label-text-color]').forEach(o => o.classList.remove('selected'));
-        option.classList.add('selected');
-        config.labelTextColor = option.dataset.labelTextColor;
-        saveConfig();
-        updatePreview();
-        if (isEditingConnection) {
-          updateConnection();
-        } else {
-          checkAutoCreate();
-        }
-      });
-    });
-    
-    // Label background color
-    document.querySelectorAll('[data-label-bg]').forEach(option => {
-      option.addEventListener('click', () => {
-        document.querySelectorAll('[data-label-bg]').forEach(o => o.classList.remove('selected'));
-        option.classList.add('selected');
-        config.labelBg = option.dataset.labelBg;
-        saveConfig();
-        updatePreview();
-        if (isEditingConnection) {
-          updateConnection();
-        } else {
-          checkAutoCreate();
-        }
-      });
-    });
-    
-    // Label border color
-    document.querySelectorAll('[data-label-border]').forEach(option => {
-      option.addEventListener('click', () => {
-        document.querySelectorAll('[data-label-border]').forEach(o => o.classList.remove('selected'));
-        option.classList.add('selected');
-        config.labelBorderColor = option.dataset.labelBorder;
-        saveConfig();
-        updatePreview();
-        if (isEditingConnection) {
-          updateConnection();
-        } else {
-          checkAutoCreate();
-        }
-      });
-    });
-    
-    // Label border width
-    document.querySelectorAll('[data-label-border-width]').forEach(option => {
-      option.addEventListener('click', () => {
-        document.querySelectorAll('[data-label-border-width]').forEach(o => o.classList.remove('selected'));
-        option.classList.add('selected');
-        config.labelBorderWidth = parseInt(option.dataset.labelBorderWidth);
-        saveConfig();
-        updatePreview();
-        if (isEditingConnection) {
-          updateConnection();
-        } else {
-          checkAutoCreate();
-        }
-      });
-    });
-    
-    // Label border radius slider
-    const labelBorderRadiusSlider = document.getElementById('labelBorderRadius');
-    const labelBorderRadiusValue = document.getElementById('labelBorderRadiusValue');
-    
-    labelBorderRadiusSlider.addEventListener('input', () => {
-      config.labelBorderRadius = parseInt(labelBorderRadiusSlider.value);
-      labelBorderRadiusValue.textContent = labelBorderRadiusSlider.value;
-      saveConfig();
-      updatePreview();
-      if (isEditingConnection) {
-        updateConnection();
-      } else {
-        checkAutoCreate();
-      }
-    });
-    
-    // Label padding slider
-    const labelPaddingSlider = document.getElementById('labelPadding');
-    const labelPaddingValue = document.getElementById('labelPaddingValue');
-    
-    labelPaddingSlider.addEventListener('input', () => {
-      config.labelPadding = parseInt(labelPaddingSlider.value);
-      labelPaddingValue.textContent = labelPaddingSlider.value;
-      saveConfig();
-      updatePreview();
-      if (isEditingConnection) {
-        updateConnection();
-      } else {
-        checkAutoCreate();
-      }
-    });
   }
   
   function updateConfigFromUI(newConfig) {
-    // Update color selection
-    document.querySelectorAll('.color-option').forEach(option => {
+    // Update main arrow color selection
+    document.querySelectorAll('[data-color]').forEach(option => {
       option.classList.toggle('selected', option.dataset.color === newConfig.color);
     });
     
