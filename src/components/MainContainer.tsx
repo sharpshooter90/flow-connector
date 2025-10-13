@@ -92,7 +92,10 @@ const MainContainer: React.FC<MainContainerProps> = ({
         onOpenChange={onSidebarOpenChange}
         modal={false}
       >
-        <SheetContent side="right" className="w-full max-w-xs">
+        <SheetContent
+          side="right"
+          className="w-full max-w-xs border-l border-gray-200"
+        >
           <Tabs
             value={sidebarTab}
             onValueChange={(value) =>
