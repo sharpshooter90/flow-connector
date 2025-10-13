@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { ConnectionConfig } from '../types';
 import TextInput from './ui/TextInput';
+import { buildPreviewGeometry } from '../utils/previewConnection';
 
 interface RightPanelProps {
   config: ConnectionConfig;
@@ -8,6 +9,8 @@ interface RightPanelProps {
 }
 
 const RightPanel: React.FC<RightPanelProps> = ({ config, updateConfig }) => {
+  const preview = useMemo(() => buildPreviewGeometry(config), [config]);
+
   return (
     <div className="flex-1 p-4 flex flex-col">
       {/* Preview Header */}
@@ -25,70 +28,74 @@ const RightPanel: React.FC<RightPanelProps> = ({ config, updateConfig }) => {
 
       {/* Preview Container */}
       <div className="flex-1 bg-white rounded-lg border border-gray-200 p-5 flex items-center justify-center">
-        <div className="relative w-60 h-40">
-          {/* Frame previews */}
-          <div className="absolute top-8 left-8 w-12 h-9 bg-blue-600 rounded border-2 border-blue-700"></div>
-          <div className="absolute bottom-8 right-8 w-12 h-9 bg-blue-600 rounded border-2 border-blue-700"></div>
-          
-          {/* Connection preview */}
-          <svg className="absolute inset-0 w-full h-full pointer-events-none">
-            <defs>
-              <filter id="preview-roughen-low">
-                <feTurbulence baseFrequency="0.04" numOctaves="3" result="noise" />
-                <feDisplacementMap in="SourceGraphic" in2="noise" scale="0.3" />
-              </filter>
-              <filter id="preview-roughen-high">
-                <feTurbulence baseFrequency="0.08" numOctaves="4" result="noise" />
-                <feDisplacementMap in="SourceGraphic" in2="noise" scale="0.8" />
-              </filter>
-            </defs>
-            
-            {/* Simple connection line for now */}
-            <g>
-              <path
-                d="M 56 52 L 80 52 L 80 128 L 176 128"
-                stroke={config.color}
-                strokeWidth={config.strokeWidth}
-                strokeDasharray={config.strokeStyle === 'dashed' ? '4,4' : config.strokeStyle === 'dotted' ? '2,2' : 'none'}
-                fill="none"
-                opacity={config.opacity / 100}
-                filter={config.sloppiness === 'low' ? 'url(#preview-roughen-low)' : config.sloppiness === 'high' ? 'url(#preview-roughen-high)' : 'none'}
+        <div
+          className="relative"
+          style={{ width: preview.canvas.width, height: preview.canvas.height }}
+        >
+          {preview.frames.map((frame, index) => (
+            <div
+              key={index}
+              className="absolute rounded border-2"
+              style={{
+                left: frame.x,
+                top: frame.y,
+                width: frame.width,
+                height: frame.height,
+                backgroundColor: '#2563eb',
+                borderColor: '#1d4ed8'
+              }}
+            />
+          ))}
+
+          <svg
+            className="absolute inset-0 w-full h-full pointer-events-none"
+            viewBox={`0 0 ${preview.canvas.width} ${preview.canvas.height}`}
+          >
+            <path
+              d={preview.path}
+              stroke={preview.color}
+              strokeWidth={preview.strokeWidth}
+              strokeDasharray={preview.strokeDasharray}
+              fill="none"
+              opacity={preview.opacity}
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+
+            {preview.arrowheads.map((arrow) => (
+              <polygon
+                key={arrow.type}
+                points={arrow.points}
+                fill={preview.color}
+                opacity={preview.opacity}
               />
-              
-              {/* Arrowhead */}
-              {config.arrowheads !== 'none' && (
-                <polygon
-                  points="173,125 176,128 173,131"
-                  fill={config.color}
-                  opacity={config.opacity / 100}
+            ))}
+
+            {preview.label && (
+              <g>
+                <rect
+                  x={preview.label.rect.x}
+                  y={preview.label.rect.y}
+                  width={preview.label.rect.width}
+                  height={preview.label.rect.height}
+                  fill={preview.label.background}
+                  stroke={preview.label.borderWidth > 0 ? preview.label.borderColor : 'none'}
+                  strokeWidth={preview.label.borderWidth}
+                  rx={preview.label.borderRadius}
+                  ry={preview.label.borderRadius}
                 />
-              )}
-              
-              {/* Label */}
-              {config.label && (
-                <g>
-                  <rect
-                    x="108"
-                    y="118"
-                    width={config.label.length * 6 + config.labelPadding * 2}
-                    height={config.labelFontSize + config.labelPadding * 2}
-                    fill={config.labelBg}
-                    stroke={config.labelBorderColor}
-                    strokeWidth={config.labelBorderWidth}
-                    rx={config.labelBorderRadius}
-                  />
-                  <text
-                    x={108 + config.labelPadding}
-                    y={118 + config.labelPadding + config.labelFontSize * 0.8}
-                    fontSize={config.labelFontSize}
-                    fill={config.labelTextColor}
-                    fontFamily="Inter, sans-serif"
-                  >
-                    {config.label}
-                  </text>
-                </g>
-              )}
-            </g>
+                <text
+                  x={preview.label.rect.x + preview.label.padding}
+                  y={preview.label.rect.y + preview.label.rect.height / 2}
+                  fontSize={preview.label.fontSize}
+                  fill={preview.label.textColor}
+                  fontFamily="Inter, sans-serif"
+                  dominantBaseline="middle"
+                >
+                  {preview.label.text}
+                </text>
+              </g>
+            )}
           </svg>
         </div>
       </div>
