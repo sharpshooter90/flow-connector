@@ -25,13 +25,19 @@ function App() {
   const handleFigmaMessage = useCallback((message: FigmaMessage) => {
     switch (message.type) {
       case 'selection-changed':
+        const frameCount = message.frameCount || 0;
+        const connectionCount = message.connectionCount || 0;
         setAppState(prev => ({
           ...prev,
-          frameCount: message.frameCount || 0,
-          connectionCount: message.connectionCount || 0,
+          frameCount,
+          connectionCount,
+          ...(connectionCount === 0 ? {
+            isEditingConnection: false,
+            selectedConnectionId: null
+          } : {}),
           status: {
             type: 'info',
-            message: message.frameCount === 2 
+            message: frameCount === 2 
               ? 'Ready to create connection' 
               : 'Select 2 frames with Shift+Click to create a connection'
           }
@@ -124,14 +130,14 @@ function App() {
     debouncedSave(newConfig, sendMessage);
 
     // Auto-create or update connection if applicable
-    if (appState.autoCreateEnabled && appState.frameCount === 2) {
-      sendMessage({ type: 'auto-create-connection', config: newConfig });
-    } else if (appState.isEditingConnection && appState.selectedConnectionId) {
+    if (appState.isEditingConnection && appState.selectedConnectionId) {
       sendMessage({ 
         type: 'update-connection', 
         connectionId: appState.selectedConnectionId,
         config: newConfig 
       });
+    } else if (appState.autoCreateEnabled && appState.frameCount === 2) {
+      sendMessage({ type: 'auto-create-connection', config: newConfig });
     }
   }, [appState.config, appState.autoCreateEnabled, appState.frameCount, appState.isEditingConnection, appState.selectedConnectionId, debouncedSave, sendMessage]);
 
