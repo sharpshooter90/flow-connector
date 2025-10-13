@@ -178,10 +178,11 @@ const PreviewFlowInner: React.FC<PreviewFlowProps> = ({
   }, [geometry, onRequestSidebar, previewData]);
 
   useEffect(() => {
+    const { zoom } = reactFlow.getViewport();
     reactFlow.fitView({ padding: 0.4, duration: 0 });
     const frameId = requestAnimationFrame(() => {
       const { x, y } = reactFlow.getViewport();
-      reactFlow.setViewport({ x, y, zoom: PREVIEW_SCALE }, { duration: 0 });
+      reactFlow.setViewport({ x, y, zoom: zoom || PREVIEW_SCALE }, { duration: 0 });
     });
     return () => cancelAnimationFrame(frameId);
   }, [reactFlow, previewData]);
