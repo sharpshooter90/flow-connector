@@ -2,7 +2,7 @@ import { ConnectionMetadata } from '../types/plugin';
 import { CONNECTION_PREFIX, LEGACY_CONNECTION_PREFIX, PLUGIN_DATA_KEY } from '../utils/constants';
 
 export class ConnectionManager {
-  private trackedConnections = new Map<string, ConnectionMetadata>();
+  private static trackedConnections = new Map<string, ConnectionMetadata>();
 
   isFlowConnection(node: SceneNode): boolean {
     return node.type === 'GROUP' && node.name.startsWith(CONNECTION_PREFIX);
@@ -48,26 +48,26 @@ export class ConnectionManager {
 
   trackConnections() {
     const connections = this.findAllConnections();
-    this.trackedConnections.clear();
+    ConnectionManager.trackedConnections.clear();
 
     for (const connection of connections) {
       const metadata = this.getConnectionMetadata(connection);
       if (metadata) {
-        this.trackedConnections.set(connection.id, metadata);
+        ConnectionManager.trackedConnections.set(connection.id, metadata);
       }
     }
   }
 
   getTrackedConnections() {
-    return this.trackedConnections;
+    return ConnectionManager.trackedConnections;
   }
 
   addTrackedConnection(connectionId: string, metadata: ConnectionMetadata) {
-    this.trackedConnections.set(connectionId, metadata);
+    ConnectionManager.trackedConnections.set(connectionId, metadata);
   }
 
   removeTrackedConnection(connectionId: string) {
-    this.trackedConnections.delete(connectionId);
+    ConnectionManager.trackedConnections.delete(connectionId);
   }
 
   migrateOldConnections() {

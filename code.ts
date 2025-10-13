@@ -155,11 +155,22 @@ async function handleUpdateConnection(msg: PluginMessage) {
   if (msg.connectionId && msg.config) {
     const currentViewport = captureViewport();
 
-    await connectionUpdater.updateConnection(msg.connectionId, msg.config);
+    const updatedConnection = await connectionUpdater.updateConnection(msg.connectionId, msg.config);
+    figma.currentPage.selection = [updatedConnection];
 
     setTimeout(() => {
       restoreViewport(currentViewport);
     }, 50);
+
+    const metadata = connectionManager.getConnectionMetadata(updatedConnection);
+    if (metadata) {
+      figma.ui.postMessage({
+        type: 'connection-selected',
+        config: metadata.config,
+        connectionId: updatedConnection.id,
+        connectionName: updatedConnection.name
+      });
+    }
 
     figma.ui.postMessage({
       type: 'success',
@@ -211,4 +222,3 @@ async function handleClearCache() {
 
   console.log('Plugin cache cleared');
 }
-
