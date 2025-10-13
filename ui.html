@@ -547,6 +547,11 @@
           </div>
         </div>
         
+        <div class="checkbox-container">
+          <input type="checkbox" id="avoidOverlap" checked>
+          <label for="avoidOverlap" style="margin: 0; font-weight: normal;">Avoid frame overlap</label>
+        </div>
+        
         <div class="form-group">
           <label>Opacity</label>
           <input type="range" id="opacity" min="0" max="100" value="100">
@@ -604,6 +609,26 @@
             <div class="option-button selected" data-label-border-width="1">1</div>
             <div class="option-button" data-label-border-width="2">2</div>
             <div class="option-button" data-label-border-width="3">3</div>
+          </div>
+        </div>
+        
+        <div class="form-group">
+          <label>Label Position</label>
+          <div class="option-grid">
+            <div class="option-button selected" data-label-position="center">Center</div>
+            <div class="option-button" data-label-position="top">Top</div>
+            <div class="option-button" data-label-position="bottom">Bottom</div>
+            <div class="option-button" style="visibility: hidden;"></div>
+          </div>
+        </div>
+        
+        <div class="form-group">
+          <label>Label Offset</label>
+          <input type="range" id="labelOffset" min="0" max="30" value="10">
+          <div class="range-container">
+            <span>0</span>
+            <span id="labelOffsetValue">10</span>
+            <span>30</span>
           </div>
         </div>
         
@@ -698,8 +723,8 @@
   let selectedConnectionId = null;
   let isEditingConnection = false;
   
-  // Load config from localStorage or use defaults
-  let config = loadConfig() || {
+  // Default config (will be overridden by saved config from backend)
+  let config = {
     color: '#2c2c2c',
     strokeWidth: 3,
     strokeStyle: 'solid',
@@ -709,8 +734,11 @@
     startPosition: 'auto',
     endPosition: 'auto',
     connectionOffset: 20,
+    avoidOverlap: true,
     opacity: 100,
     label: 'Label Text',
+    labelPosition: 'center',
+    labelOffset: 10,
     labelBg: '#ffffff',
     labelTextColor: '#333333',
     labelBorderColor: '#e0e0e0',
@@ -719,25 +747,124 @@
     labelPadding: 6
   };
   
-  // Local storage functions
+  // Figma storage functions
   function saveConfig() {
     try {
-      localStorage.setItem('flow-connector-config', JSON.stringify(config));
+      // Send config to backend for storage
+      parent.postMessage({ 
+        pluginMessage: { 
+          type: 'save-config', 
+          config: config 
+        } 
+      }, '*');
     } catch (error) {
-      console.warn('Failed to save config to localStorage:', error);
+      console.warn('Failed to save config:', error);
     }
   }
   
   function loadConfig() {
-    try {
-      const saved = localStorage.getItem('flow-connector-config');
-      return saved ? JSON.parse(saved) : null;
-    } catch (error) {
-      console.warn('Failed to load config from localStorage:', error);
-      return null;
-    }
+    // Config will be loaded by backend and sent to UI on initialization
+    return null; // Backend will send the config via message
   }
   
+  // Helper function to check if a line intersects with a rectangle (frame) - Preview version
+  function previewLineIntersectsRect(lineStart, lineEnd, rect) {
+    const padding = 5; // Smaller padding for preview
+    const expandedRect = {
+      x: rect.x - padding,
+      y: rect.y - padding,
+      width: rect.width + (padding * 2),
+      height: rect.height + (padding * 2)
+    };
+
+    const rectLeft = expandedRect.x;
+    const rectRight = expandedRect.x + expandedRect.width;
+    const rectTop = expandedRect.y;
+    const rectBottom = expandedRect.y + expandedRect.height;
+
+    if ((lineStart.x < rectLeft && lineEnd.x < rectLeft) ||
+        (lineStart.x > rectRight && lineEnd.x > rectRight) ||
+        (lineStart.y < rectTop && lineEnd.y < rectTop) ||
+        (lineStart.y > rectBottom && lineEnd.y > rectBottom)) {
+      return false;
+    }
+
+    const lineLeft = Math.min(lineStart.x, lineEnd.x);
+    const lineRight = Math.max(lineStart.x, lineEnd.x);
+    const lineTop = Math.min(lineStart.y, lineEnd.y);
+    const lineBottom = Math.max(lineStart.y, lineEnd.y);
+
+    return !(lineRight < rectLeft || lineLeft > rectRight || lineBottom < rectTop || lineTop > rectBottom);
+  }
+
+  // Helper function to determine the best routing path to avoid overlaps - Preview version
+  function calculatePreviewAvoidanceRoute(frame1, frame2, startPoint, endPoint, config) {
+    if (!config.avoidOverlap) {
+      return { startPoint, endPoint, waypoints: [] };
+    }
+
+    const directPathIntersectsFrame1 = previewLineIntersectsRect(startPoint, endPoint, frame1);
+    const directPathIntersectsFrame2 = previewLineIntersectsRect(startPoint, endPoint, frame2);
+
+    if (!directPathIntersectsFrame1 && !directPathIntersectsFrame2) {
+      return { startPoint, endPoint, waypoints: [] };
+    }
+
+    const dx = Math.abs(endPoint.x - startPoint.x);
+    const dy = Math.abs(endPoint.y - startPoint.y);
+    const isHorizontalPrimary = dx > dy;
+
+    let waypoints = [];
+
+    if (isHorizontalPrimary) {
+      const frame1Bottom = frame1.y + frame1.height;
+      const frame1Top = frame1.y;
+      const frame2Bottom = frame2.y + frame2.height;
+      const frame2Top = frame2.y;
+
+      const maxBottom = Math.max(frame1Bottom, frame2Bottom);
+      const minTop = Math.min(frame1Top, frame2Top);
+      
+      const clearance = config.connectionOffset + 10;
+      const routeAboveY = minTop - clearance;
+      const routeBelowY = maxBottom + clearance;
+      
+      const avgY = (startPoint.y + endPoint.y) / 2;
+      const useAbove = Math.abs(routeAboveY - avgY) < Math.abs(routeBelowY - avgY);
+      
+      const routeY = useAbove ? routeAboveY : routeBelowY;
+      
+      waypoints = [
+        { x: startPoint.x, y: routeY },
+        { x: endPoint.x, y: routeY }
+      ];
+    } else {
+      const frame1Right = frame1.x + frame1.width;
+      const frame1Left = frame1.x;
+      const frame2Right = frame2.x + frame2.width;
+      const frame2Left = frame2.x;
+
+      const maxRight = Math.max(frame1Right, frame2Right);
+      const minLeft = Math.min(frame1Left, frame2Left);
+      
+      const clearance = config.connectionOffset + 10;
+      const routeLeftX = minLeft - clearance;
+      const routeRightX = maxRight + clearance;
+      
+      const avgX = (startPoint.x + endPoint.x) / 2;
+      const useLeft = Math.abs(routeLeftX - avgX) < Math.abs(routeRightX - avgX);
+      
+      const routeX = useLeft ? routeLeftX : routeRightX;
+      
+      waypoints = [
+        { x: routeX, y: startPoint.y },
+        { x: routeX, y: endPoint.y }
+      ];
+    }
+
+    return { startPoint, endPoint, waypoints };
+  }
+
   // Calculate connection points for preview (similar to backend logic)
   function calculatePreviewConnectionPoints(frame1, frame2, config) {
     const frame1Center = {
@@ -846,7 +973,159 @@
       }
     }
 
-    return { startPoint, endPoint, startOffsetPoint, endOffsetPoint };
+    // Calculate avoidance routing if enabled
+    const avoidanceRoute = calculatePreviewAvoidanceRoute(frame1, frame2, startOffsetPoint, endOffsetPoint, config);
+
+    return { 
+      startPoint, 
+      endPoint, 
+      startOffsetPoint, 
+      endOffsetPoint,
+      waypoints: avoidanceRoute.waypoints
+    };
+  }
+
+  // Helper function to calculate the label position based on path and configuration - Preview version
+  function calculatePreviewLabelPosition(startPoint, endPoint, startOffsetPoint, endOffsetPoint, waypoints, config) {
+    // Validate input points and provide fallbacks
+    const safeStartPoint = { 
+      x: isNaN(startPoint?.x) ? 0 : startPoint.x, 
+      y: isNaN(startPoint?.y) ? 0 : startPoint.y 
+    };
+    const safeEndPoint = { 
+      x: isNaN(endPoint?.x) ? 100 : endPoint.x, 
+      y: isNaN(endPoint?.y) ? 100 : endPoint.y 
+    };
+    const safeStartOffsetPoint = { 
+      x: isNaN(startOffsetPoint?.x) ? safeStartPoint.x : startOffsetPoint.x, 
+      y: isNaN(startOffsetPoint?.y) ? safeStartPoint.y : startOffsetPoint.y 
+    };
+    const safeEndOffsetPoint = { 
+      x: isNaN(endOffsetPoint?.x) ? safeEndPoint.x : endOffsetPoint.x, 
+      y: isNaN(endOffsetPoint?.y) ? safeEndPoint.y : endOffsetPoint.y 
+    };
+
+    // Build the actual path points in order
+    const pathPoints = [safeStartPoint];
+    
+    // Add offset point if we have one
+    if (config.connectionOffset > 0) {
+      pathPoints.push(safeStartOffsetPoint);
+    }
+    
+    // Add all waypoints (with validation)
+    if (waypoints && waypoints.length > 0) {
+      for (const waypoint of waypoints) {
+        if (!isNaN(waypoint?.x) && !isNaN(waypoint?.y)) {
+          pathPoints.push(waypoint);
+        }
+      }
+    }
+    
+    // Add end offset point if we have one
+    if (config.connectionOffset > 0) {
+      pathPoints.push(safeEndOffsetPoint);
+    }
+    
+    // Add end point
+    pathPoints.push(safeEndPoint);
+    
+    // Calculate the total path length and find the center point
+    let totalLength = 0;
+    const segments = [];
+    
+    for (let i = 0; i < pathPoints.length - 1; i++) {
+      const start = pathPoints[i];
+      const end = pathPoints[i + 1];
+      const dx = end.x - start.x;
+      const dy = end.y - start.y;
+      const length = Math.sqrt(dx * dx + dy * dy);
+      
+      // Skip zero-length segments
+      if (length > 0) {
+        segments.push({ start, end, length });
+        totalLength += length;
+      }
+    }
+    
+    // Fallback to simple midpoint if no valid segments
+    if (segments.length === 0 || totalLength === 0) {
+      const fallbackCenter = {
+        x: (safeStartPoint.x + safeEndPoint.x) / 2,
+        y: (safeStartPoint.y + safeEndPoint.y) / 2
+      };
+      
+      // Apply simple offset for non-center positions
+      if (config.labelPosition === 'top') {
+        return { x: fallbackCenter.x, y: fallbackCenter.y - (config.labelOffset || 10) };
+      } else if (config.labelPosition === 'bottom') {
+        return { x: fallbackCenter.x, y: fallbackCenter.y + (config.labelOffset || 10) };
+      }
+      
+      return fallbackCenter;
+    }
+    
+    // Find the point at half the total length (path center)
+    const halfLength = totalLength / 2;
+    let currentLength = 0;
+    let pathCenter = { x: 0, y: 0 };
+    let pathAngle = 0;
+    
+    for (const segment of segments) {
+      if (currentLength + segment.length >= halfLength) {
+        // The midpoint is within this segment
+        const remainingLength = halfLength - currentLength;
+        const ratio = segment.length > 0 ? remainingLength / segment.length : 0;
+        
+        pathCenter = {
+          x: segment.start.x + (segment.end.x - segment.start.x) * ratio,
+          y: segment.start.y + (segment.end.y - segment.start.y) * ratio
+        };
+        
+        // Calculate the angle of this segment for offset positioning
+        pathAngle = Math.atan2(segment.end.y - segment.start.y, segment.end.x - segment.start.x);
+        break;
+      }
+      currentLength += segment.length;
+    }
+    
+    // Validate pathCenter and provide fallback
+    if (isNaN(pathCenter.x) || isNaN(pathCenter.y)) {
+      pathCenter = {
+        x: (safeStartPoint.x + safeEndPoint.x) / 2,
+        y: (safeStartPoint.y + safeEndPoint.y) / 2
+      };
+      pathAngle = Math.atan2(safeEndPoint.y - safeStartPoint.y, safeEndPoint.x - safeStartPoint.x);
+    }
+    
+    // Apply position offset based on label position setting
+    if (config.labelPosition === 'center') {
+      return pathCenter;
+    }
+    
+    // Calculate perpendicular offset for top/bottom positioning
+    const perpAngle = pathAngle + Math.PI / 2; // 90 degrees perpendicular
+    const offsetDistance = config.labelOffset || 10;
+    
+    let finalPosition = pathCenter;
+    
+    if (config.labelPosition === 'top') {
+      finalPosition = {
+        x: pathCenter.x + Math.cos(perpAngle) * offsetDistance,
+        y: pathCenter.y + Math.sin(perpAngle) * offsetDistance
+      };
+    } else if (config.labelPosition === 'bottom') {
+      finalPosition = {
+        x: pathCenter.x - Math.cos(perpAngle) * offsetDistance,
+        y: pathCenter.y - Math.sin(perpAngle) * offsetDistance
+      };
+    }
+    
+    // Final validation
+    return {
+      x: isNaN(finalPosition.x) ? pathCenter.x : finalPosition.x,
+      y: isNaN(finalPosition.y) ? pathCenter.y : finalPosition.y
+    };
   }
 
   // Preview update function
@@ -862,64 +1141,89 @@
     const frame2 = { x: 160, y: 95, width: 50, height: 35 };
     
     // Calculate connection points based on positioning config
-    const { startPoint, endPoint, startOffsetPoint, endOffsetPoint } = calculatePreviewConnectionPoints(frame1, frame2, config);
+    const { startPoint, endPoint, startOffsetPoint, endOffsetPoint, waypoints } = calculatePreviewConnectionPoints(frame1, frame2, config);
     
     // Create path based on arrow type
     let pathData = '';
-    if (config.arrowType === 'straight') {
-      // For straight connections with offset, create an elbow path
+    
+    // If we have waypoints (avoidance routing), create a path through them
+    if (waypoints.length > 0) {
+      pathData = `M ${startPoint.x} ${startPoint.y}`;
+      
+      // Add offset point if we have one
       if (config.connectionOffset > 0) {
-        pathData = `M ${startPoint.x} ${startPoint.y} L ${startOffsetPoint.x} ${startOffsetPoint.y} L ${endOffsetPoint.x} ${endOffsetPoint.y} L ${endPoint.x} ${endPoint.y}`;
-      } else {
-        pathData = `M ${startPoint.x} ${startPoint.y} L ${endPoint.x} ${endPoint.y}`;
+        pathData += ` L ${startOffsetPoint.x} ${startOffsetPoint.y}`;
       }
-    } else if (config.arrowType === 'elbow') {
-      // Create elbow path with offset points
-      if (config.connectionOffset > 0) {
-        const midX = (startOffsetPoint.x + endOffsetPoint.x) / 2;
-        const midY = (startOffsetPoint.y + endOffsetPoint.y) / 2;
-        pathData = `M ${startPoint.x} ${startPoint.y} L ${startOffsetPoint.x} ${startOffsetPoint.y} L ${midX} ${startOffsetPoint.y} L ${midX} ${endOffsetPoint.y} L ${endOffsetPoint.x} ${endOffsetPoint.y} L ${endPoint.x} ${endPoint.y}`;
-      } else {
-        const midX = (startPoint.x + endPoint.x) / 2;
-        pathData = `M ${startPoint.x} ${startPoint.y} L ${midX} ${startPoint.y} L ${midX} ${endPoint.y} L ${endPoint.x} ${endPoint.y}`;
+      
+      // Add all waypoints
+      for (const waypoint of waypoints) {
+        pathData += ` L ${waypoint.x} ${waypoint.y}`;
       }
-    } else { // curved
-      // Curved path with offset
+      
+      // Add end offset point if we have one
       if (config.connectionOffset > 0) {
-        const dx = endOffsetPoint.x - startOffsetPoint.x;
-        const dy = endOffsetPoint.y - startOffsetPoint.y;
-        const distance = Math.sqrt(dx * dx + dy * dy);
-        const curvature = distance * 0.3;
+        pathData += ` L ${endOffsetPoint.x} ${endOffsetPoint.y}`;
+      }
+      
+      // End at the final point
+      pathData += ` L ${endPoint.x} ${endPoint.y}`;
+    } else {
+      // Original logic for direct connections without waypoints
+      if (config.arrowType === 'straight') {
+        // For straight connections with offset, create an elbow path
+        if (config.connectionOffset > 0) {
+          pathData = `M ${startPoint.x} ${startPoint.y} L ${startOffsetPoint.x} ${startOffsetPoint.y} L ${endOffsetPoint.x} ${endOffsetPoint.y} L ${endPoint.x} ${endPoint.y}`;
+        } else {
+          pathData = `M ${startPoint.x} ${startPoint.y} L ${endPoint.x} ${endPoint.y}`;
+        }
+      } else if (config.arrowType === 'elbow') {
+        // Create elbow path with offset points
+        if (config.connectionOffset > 0) {
+          const midX = (startOffsetPoint.x + endOffsetPoint.x) / 2;
+          const midY = (startOffsetPoint.y + endOffsetPoint.y) / 2;
+          pathData = `M ${startPoint.x} ${startPoint.y} L ${startOffsetPoint.x} ${startOffsetPoint.y} L ${midX} ${startOffsetPoint.y} L ${midX} ${endOffsetPoint.y} L ${endOffsetPoint.x} ${endOffsetPoint.y} L ${endPoint.x} ${endPoint.y}`;
+        } else {
+          const midX = (startPoint.x + endPoint.x) / 2;
+          pathData = `M ${startPoint.x} ${startPoint.y} L ${midX} ${startPoint.y} L ${midX} ${endPoint.y} L ${endPoint.x} ${endPoint.y}`;
+        }
+      } else { // curved
+        // Curved path with offset
+        if (config.connectionOffset > 0) {
+          const dx = endOffsetPoint.x - startOffsetPoint.x;
+          const dy = endOffsetPoint.y - startOffsetPoint.y;
+          const distance = Math.sqrt(dx * dx + dy * dy);
+          const curvature = distance * 0.3;
 
-        const controlPoint1 = {
-          x: startOffsetPoint.x + (Math.abs(dx) > Math.abs(dy) ? curvature : 0),
-          y: startOffsetPoint.y + (Math.abs(dy) > Math.abs(dx) ? curvature * Math.sign(dy) : 0)
-        };
+          const controlPoint1 = {
+            x: startOffsetPoint.x + (Math.abs(dx) > Math.abs(dy) ? curvature : 0),
+            y: startOffsetPoint.y + (Math.abs(dy) > Math.abs(dx) ? curvature * Math.sign(dy) : 0)
+          };
 
-        const controlPoint2 = {
-          x: endOffsetPoint.x - (Math.abs(dx) > Math.abs(dy) ? curvature : 0),
-          y: endOffsetPoint.y - (Math.abs(dy) > Math.abs(dx) ? curvature * Math.sign(dy) : 0)
-        };
+          const controlPoint2 = {
+            x: endOffsetPoint.x - (Math.abs(dx) > Math.abs(dy) ? curvature : 0),
+            y: endOffsetPoint.y - (Math.abs(dy) > Math.abs(dx) ? curvature * Math.sign(dy) : 0)
+          };
 
-        pathData = `M ${startPoint.x} ${startPoint.y} L ${startOffsetPoint.x} ${startOffsetPoint.y} C ${controlPoint1.x} ${controlPoint1.y} ${controlPoint2.x} ${controlPoint2.y} ${endOffsetPoint.x} ${endOffsetPoint.y} L ${endPoint.x} ${endPoint.y}`;
-      } else {
-        // Original curved path without offset
-        const dx = endPoint.x - startPoint.x;
-        const dy = endPoint.y - startPoint.y;
-        const distance = Math.sqrt(dx * dx + dy * dy);
-        const curvature = distance * 0.3;
-        
-        const controlPoint1 = {
-          x: startPoint.x + (Math.abs(dx) > Math.abs(dy) ? curvature : 0),
-          y: startPoint.y + (Math.abs(dy) > Math.abs(dx) ? curvature * Math.sign(dy) : 0)
-        };
-        
-        const controlPoint2 = {
-          x: endPoint.x - (Math.abs(dx) > Math.abs(dy) ? curvature : 0),
-          y: endPoint.y - (Math.abs(dy) > Math.abs(dx) ? curvature * Math.sign(dy) : 0)
-        };
-        
-        pathData = `M ${startPoint.x} ${startPoint.y} C ${controlPoint1.x} ${controlPoint1.y} ${controlPoint2.x} ${controlPoint2.y} ${endPoint.x} ${endPoint.y}`;
+          pathData = `M ${startPoint.x} ${startPoint.y} L ${startOffsetPoint.x} ${startOffsetPoint.y} C ${controlPoint1.x} ${controlPoint1.y} ${controlPoint2.x} ${controlPoint2.y} ${endOffsetPoint.x} ${endOffsetPoint.y} L ${endPoint.x} ${endPoint.y}`;
+        } else {
+          // Original curved path without offset
+          const dx = endPoint.x - startPoint.x;
+          const dy = endPoint.y - startPoint.y;
+          const distance = Math.sqrt(dx * dx + dy * dy);
+          const curvature = distance * 0.3;
+          
+          const controlPoint1 = {
+            x: startPoint.x + (Math.abs(dx) > Math.abs(dy) ? curvature : 0),
+            y: startPoint.y + (Math.abs(dy) > Math.abs(dx) ? curvature * Math.sign(dy) : 0)
+          };
+          
+          const controlPoint2 = {
+            x: endPoint.x - (Math.abs(dx) > Math.abs(dy) ? curvature : 0),
+            y: endPoint.y - (Math.abs(dy) > Math.abs(dx) ? curvature * Math.sign(dy) : 0)
+          };
+          
+          pathData = `M ${startPoint.x} ${startPoint.y} C ${controlPoint1.x} ${controlPoint1.y} ${controlPoint2.x} ${controlPoint2.y} ${endPoint.x} ${endPoint.y}`;
+        }
       }
     }
     
@@ -962,8 +1266,10 @@
     
     // Add label if present
     if (config.label.trim()) {
-      const midX = (startPoint.x + endPoint.x) / 2;
-      const midY = (startPoint.y + endPoint.y) / 2;
+      // Calculate the label position based on configuration
+      const labelPosition = calculatePreviewLabelPosition(startPoint, endPoint, startOffsetPoint, endOffsetPoint, waypoints, config);
+      const midX = labelPosition.x;
+      const midY = labelPosition.y;
       
       // Create background rectangle
       const labelBg = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
@@ -1197,6 +1503,19 @@
       }
     });
     
+    // Avoid overlap checkbox
+    const avoidOverlapCheckbox = document.getElementById('avoidOverlap');
+    avoidOverlapCheckbox.addEventListener('change', () => {
+      config.avoidOverlap = avoidOverlapCheckbox.checked;
+      saveConfig();
+      updatePreview();
+      if (isEditingConnection) {
+        updateConnection();
+      } else {
+        checkAutoCreate();
+      }
+    });
+    
     // Label input (now in preview area) with debouncing
     const labelInput = document.getElementById('labelPreview');
     let labelDebounceTimer = null;
@@ -1283,6 +1602,26 @@
       debounceLabelUpdate();
     });
 
+    // Label position
+    document.querySelectorAll('[data-label-position]').forEach(option => {
+      option.addEventListener('click', () => {
+        document.querySelectorAll('[data-label-position]').forEach(o => o.classList.remove('selected'));
+        option.classList.add('selected');
+        config.labelPosition = option.dataset.labelPosition;
+        debounceLabelUpdate();
+      });
+    });
+
+    // Label offset slider
+    const labelOffsetSlider = document.getElementById('labelOffset');
+    const labelOffsetValue = document.getElementById('labelOffsetValue');
+    
+    labelOffsetSlider.addEventListener('input', () => {
+      config.labelOffset = parseInt(labelOffsetSlider.value);
+      labelOffsetValue.textContent = labelOffsetSlider.value;
+      debounceLabelUpdate();
+    });
+
     // Auto-create checkbox
     const autoCreateCheckbox = document.getElementById('autoCreate');
     autoCreateCheckbox.addEventListener('change', () => {
@@ -1351,6 +1690,9 @@
     document.getElementById('connectionOffset').value = newConfig.connectionOffset;
     document.getElementById('connectionOffsetValue').textContent = newConfig.connectionOffset;
     
+    // Update avoid overlap
+    document.getElementById('avoidOverlap').checked = newConfig.avoidOverlap;
+    
     // Update opacity
     document.getElementById('opacity').value = newConfig.opacity;
     document.getElementById('opacityValue').textContent = newConfig.opacity;
@@ -1385,6 +1727,15 @@
     // Update label padding
     document.getElementById('labelPadding').value = newConfig.labelPadding;
     document.getElementById('labelPaddingValue').textContent = newConfig.labelPadding;
+    
+    // Update label position
+    document.querySelectorAll('[data-label-position]').forEach(option => {
+      option.classList.toggle('selected', option.dataset.labelPosition === newConfig.labelPosition);
+    });
+    
+    // Update label offset
+    document.getElementById('labelOffset').value = newConfig.labelOffset;
+    document.getElementById('labelOffsetValue').textContent = newConfig.labelOffset;
     
     // Update config object
     config = { ...newConfig };
@@ -1454,6 +1805,13 @@
     if (msg.type === 'error') {
       showStatus(msg.message, 'error');
     }
+    
+    if (msg.type === 'config-loaded') {
+      // Update config with loaded data
+      if (msg.config) {
+        updateConfigFromUI(msg.config);
+      }
+    }
   };
   
   function updateUI() {
@@ -1519,10 +1877,12 @@
   initializeTabs();
   initializeUI();
   
-  // Load saved config and update UI
-  if (config) {
-    updateConfigFromUI(config);
-  }
+  // Request saved config from backend
+  parent.postMessage({ 
+    pluginMessage: { 
+      type: 'load-config'
+    } 
+  }, '*');
   
   // Initial preview update
   updatePreview();

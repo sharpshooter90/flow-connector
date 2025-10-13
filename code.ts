@@ -10,8 +10,11 @@ interface ConnectionConfig {
   startPosition: 'auto' | 'top' | 'right' | 'bottom' | 'left';
   endPosition: 'auto' | 'top' | 'right' | 'bottom' | 'left';
   connectionOffset: number;
+  avoidOverlap: boolean;
   opacity: number;
   label: string;
+  labelPosition: 'center' | 'top' | 'bottom';
+  labelOffset: number;
   labelBg: string;
   labelTextColor: string;
   labelBorderColor: string;
@@ -52,8 +55,11 @@ const defaultConfig: ConnectionConfig = {
   startPosition: 'auto',
   endPosition: 'auto',
   connectionOffset: 20,
+  avoidOverlap: true,
   opacity: 100,
   label: 'Label Text',
+  labelPosition: 'center',
+  labelOffset: 10,
   labelBg: '#ffffff',
   labelTextColor: '#333333',
   labelBorderColor: '#e0e0e0',
@@ -317,6 +323,131 @@ initializePlugin().catch(error => {
   trackConnections();
 });
 
+// Helper function to check if a line intersects with a rectangle (frame)
+function lineIntersectsRect(lineStart: { x: number, y: number }, lineEnd: { x: number, y: number }, rect: { x: number, y: number, width: number, height: number }): boolean {
+  // Expand the rectangle slightly to add padding
+  const padding = 10;
+  const expandedRect = {
+    x: rect.x - padding,
+    y: rect.y - padding,
+    width: rect.width + (padding * 2),
+    height: rect.height + (padding * 2)
+  };
+
+  // Check if line intersects with any of the four sides of the rectangle
+  const rectLeft = expandedRect.x;
+  const rectRight = expandedRect.x + expandedRect.width;
+  const rectTop = expandedRect.y;
+  const rectBottom = expandedRect.y + expandedRect.height;
+
+  // Simple line-rectangle intersection check
+  // If both points are on the same side of the rectangle, no intersection
+  if ((lineStart.x < rectLeft && lineEnd.x < rectLeft) ||
+    (lineStart.x > rectRight && lineEnd.x > rectRight) ||
+    (lineStart.y < rectTop && lineEnd.y < rectTop) ||
+    (lineStart.y > rectBottom && lineEnd.y > rectBottom)) {
+    return false;
+  }
+
+  // More detailed intersection check would go here, but for simplicity
+  // we'll use a bounding box approach
+  const lineLeft = Math.min(lineStart.x, lineEnd.x);
+  const lineRight = Math.max(lineStart.x, lineEnd.x);
+  const lineTop = Math.min(lineStart.y, lineEnd.y);
+  const lineBottom = Math.max(lineStart.y, lineEnd.y);
+
+  return !(lineRight < rectLeft || lineLeft > rectRight || lineBottom < rectTop || lineTop > rectBottom);
+}
+
+// Helper function to determine the best routing path to avoid overlaps
+function calculateAvoidanceRoute(frame1: FrameNode, frame2: FrameNode, startPoint: { x: number, y: number }, endPoint: { x: number, y: number }, config: ConnectionConfig) {
+  if (!config.avoidOverlap) {
+    return { startPoint, endPoint, waypoints: [] };
+  }
+
+  // Check if direct path intersects with either frame
+  const frame1Rect = { x: frame1.x, y: frame1.y, width: frame1.width, height: frame1.height };
+  const frame2Rect = { x: frame2.x, y: frame2.y, width: frame2.width, height: frame2.height };
+
+  const directPathIntersectsFrame1 = lineIntersectsRect(startPoint, endPoint, frame1Rect);
+  const directPathIntersectsFrame2 = lineIntersectsRect(startPoint, endPoint, frame2Rect);
+
+  if (!directPathIntersectsFrame1 && !directPathIntersectsFrame2) {
+    return { startPoint, endPoint, waypoints: [] };
+  }
+
+  // Determine if this is a horizontal or vertical primary connection
+  const dx = Math.abs(endPoint.x - startPoint.x);
+  const dy = Math.abs(endPoint.y - startPoint.y);
+  const isHorizontalPrimary = dx > dy;
+
+  let waypoints: { x: number, y: number }[] = [];
+
+  if (isHorizontalPrimary) {
+    // For horizontal connections, route above or below
+    const frame1Bottom = frame1.y + frame1.height;
+    const frame1Top = frame1.y;
+    const frame2Bottom = frame2.y + frame2.height;
+    const frame2Top = frame2.y;
+
+    // Determine if we should go above or below
+    const maxBottom = Math.max(frame1Bottom, frame2Bottom);
+    const minTop = Math.min(frame1Top, frame2Top);
+
+    // Calculate clearance needed
+    const clearance = config.connectionOffset + 20;
+
+    // Try routing above first (usually cleaner)
+    const routeAboveY = minTop - clearance;
+
+    // Try routing below
+    const routeBelowY = maxBottom + clearance;
+
+    // Choose the route that's closer to the average Y position
+    const avgY = (startPoint.y + endPoint.y) / 2;
+    const useAbove = Math.abs(routeAboveY - avgY) < Math.abs(routeBelowY - avgY);
+
+    const routeY = useAbove ? routeAboveY : routeBelowY;
+
+    waypoints = [
+      { x: startPoint.x, y: routeY },
+      { x: endPoint.x, y: routeY }
+    ];
+  } else {
+    // For vertical connections, route left or right
+    const frame1Right = frame1.x + frame1.width;
+    const frame1Left = frame1.x;
+    const frame2Right = frame2.x + frame2.width;
+    const frame2Left = frame2.x;
+
+    // Determine if we should go left or right
+    const maxRight = Math.max(frame1Right, frame2Right);
+    const minLeft = Math.min(frame1Left, frame2Left);
+
+    // Calculate clearance needed
+    const clearance = config.connectionOffset + 20;
+
+    // Try routing left first
+    const routeLeftX = minLeft - clearance;
+
+    // Try routing right
+    const routeRightX = maxRight + clearance;
+
+    // Choose the route that's closer to the average X position
+    const avgX = (startPoint.x + endPoint.x) / 2;
+    const useLeft = Math.abs(routeLeftX - avgX) < Math.abs(routeRightX - avgX);
+
+    const routeX = useLeft ? routeLeftX : routeRightX;
+
+    waypoints = [
+      { x: routeX, y: startPoint.y },
+      { x: routeX, y: endPoint.y }
+    ];
+  }
+
+  return { startPoint, endPoint, waypoints };
+}
+
 function calculateConnectionPoints(frame1: FrameNode, frame2: FrameNode, config: ConnectionConfig) {
   const frame1Center = {
     x: frame1.x + frame1.width / 2,
@@ -424,7 +555,16 @@ function calculateConnectionPoints(frame1: FrameNode, frame2: FrameNode, config:
     }
   }
 
-  return { startPoint, endPoint, startOffsetPoint, endOffsetPoint };
+  // Calculate avoidance routing if enabled
+  const avoidanceRoute = calculateAvoidanceRoute(frame1, frame2, startOffsetPoint, endOffsetPoint, config);
+
+  return {
+    startPoint,
+    endPoint,
+    startOffsetPoint,
+    endOffsetPoint,
+    waypoints: avoidanceRoute.waypoints
+  };
 }
 
 function createArrowHead(endPoint: { x: number, y: number }, angle: number, config: ConnectionConfig) {
@@ -497,7 +637,33 @@ function hexToRgb(hex: string): RGB {
   } : { r: 0, g: 0, b: 0 };
 }
 
-function createCurvedPath(startPoint: { x: number, y: number }, endPoint: { x: number, y: number }, startOffsetPoint: { x: number, y: number }, endOffsetPoint: { x: number, y: number }, config: ConnectionConfig): string {
+function createCurvedPath(startPoint: { x: number, y: number }, endPoint: { x: number, y: number }, startOffsetPoint: { x: number, y: number }, endOffsetPoint: { x: number, y: number }, waypoints: { x: number, y: number }[], config: ConnectionConfig): string {
+  // If we have waypoints (avoidance routing), create a path through them
+  if (waypoints.length > 0) {
+    let pathData = `M ${startPoint.x} ${startPoint.y}`;
+
+    // Add offset point if we have one
+    if (config.connectionOffset > 0) {
+      pathData += ` L ${startOffsetPoint.x} ${startOffsetPoint.y}`;
+    }
+
+    // Add all waypoints
+    for (const waypoint of waypoints) {
+      pathData += ` L ${waypoint.x} ${waypoint.y}`;
+    }
+
+    // Add end offset point if we have one
+    if (config.connectionOffset > 0) {
+      pathData += ` L ${endOffsetPoint.x} ${endOffsetPoint.y}`;
+    }
+
+    // End at the final point
+    pathData += ` L ${endPoint.x} ${endPoint.y}`;
+
+    return pathData;
+  }
+
+  // Original logic for direct connections without waypoints
   if (config.arrowType === 'straight') {
     // For straight connections with offset, create an elbow path
     if (config.connectionOffset > 0) {
@@ -601,12 +767,155 @@ async function updateConnection(connectionId: string, newConfig: ConnectionConfi
   return newConnection;
 }
 
+// Helper function to calculate the center point of the actual path
+function calculateLabelPosition(startPoint: { x: number, y: number }, endPoint: { x: number, y: number }, startOffsetPoint: { x: number, y: number }, endOffsetPoint: { x: number, y: number }, waypoints: { x: number, y: number }[], config: ConnectionConfig): { x: number, y: number } {
+  // Validate input points and provide fallbacks
+  const safeStartPoint = {
+    x: isNaN(startPoint.x) ? 0 : startPoint.x,
+    y: isNaN(startPoint.y) ? 0 : startPoint.y
+  };
+  const safeEndPoint = {
+    x: isNaN(endPoint.x) ? 100 : endPoint.x,
+    y: isNaN(endPoint.y) ? 100 : endPoint.y
+  };
+  const safeStartOffsetPoint = {
+    x: isNaN(startOffsetPoint?.x) ? safeStartPoint.x : startOffsetPoint.x,
+    y: isNaN(startOffsetPoint?.y) ? safeStartPoint.y : startOffsetPoint.y
+  };
+  const safeEndOffsetPoint = {
+    x: isNaN(endOffsetPoint?.x) ? safeEndPoint.x : endOffsetPoint.x,
+    y: isNaN(endOffsetPoint?.y) ? safeEndPoint.y : endOffsetPoint.y
+  };
+
+  // Build the actual path points in order
+  const pathPoints: { x: number, y: number }[] = [safeStartPoint];
+
+  // Add offset point if we have one
+  if (config.connectionOffset > 0) {
+    pathPoints.push(safeStartOffsetPoint);
+  }
+
+  // Add all waypoints (with validation)
+  if (waypoints && waypoints.length > 0) {
+    for (const waypoint of waypoints) {
+      if (!isNaN(waypoint.x) && !isNaN(waypoint.y)) {
+        pathPoints.push(waypoint);
+      }
+    }
+  }
+
+  // Add end offset point if we have one
+  if (config.connectionOffset > 0) {
+    pathPoints.push(safeEndOffsetPoint);
+  }
+
+  // Add end point
+  pathPoints.push(safeEndPoint);
+
+  // Calculate the total path length and find the center point
+  let totalLength = 0;
+  const segments: { start: { x: number, y: number }, end: { x: number, y: number }, length: number }[] = [];
+
+  for (let i = 0; i < pathPoints.length - 1; i++) {
+    const start = pathPoints[i];
+    const end = pathPoints[i + 1];
+    const dx = end.x - start.x;
+    const dy = end.y - start.y;
+    const length = Math.sqrt(dx * dx + dy * dy);
+
+    // Skip zero-length segments
+    if (length > 0) {
+      segments.push({ start, end, length });
+      totalLength += length;
+    }
+  }
+
+  // Fallback to simple midpoint if no valid segments
+  if (segments.length === 0 || totalLength === 0) {
+    const fallbackCenter = {
+      x: (safeStartPoint.x + safeEndPoint.x) / 2,
+      y: (safeStartPoint.y + safeEndPoint.y) / 2
+    };
+
+    // Apply simple offset for non-center positions
+    if (config.labelPosition === 'top') {
+      return { x: fallbackCenter.x, y: fallbackCenter.y - (config.labelOffset || 10) };
+    } else if (config.labelPosition === 'bottom') {
+      return { x: fallbackCenter.x, y: fallbackCenter.y + (config.labelOffset || 10) };
+    }
+
+    return fallbackCenter;
+  }
+
+  // Find the point at half the total length (path center)
+  const halfLength = totalLength / 2;
+  let currentLength = 0;
+  let pathCenter = { x: 0, y: 0 };
+  let pathAngle = 0;
+
+  for (const segment of segments) {
+    if (currentLength + segment.length >= halfLength) {
+      // The midpoint is within this segment
+      const remainingLength = halfLength - currentLength;
+      const ratio = segment.length > 0 ? remainingLength / segment.length : 0;
+
+      pathCenter = {
+        x: segment.start.x + (segment.end.x - segment.start.x) * ratio,
+        y: segment.start.y + (segment.end.y - segment.start.y) * ratio
+      };
+
+      // Calculate the angle of this segment for offset positioning
+      pathAngle = Math.atan2(segment.end.y - segment.start.y, segment.end.x - segment.start.x);
+      break;
+    }
+    currentLength += segment.length;
+  }
+
+  // Validate pathCenter and provide fallback
+  if (isNaN(pathCenter.x) || isNaN(pathCenter.y)) {
+    pathCenter = {
+      x: (safeStartPoint.x + safeEndPoint.x) / 2,
+      y: (safeStartPoint.y + safeEndPoint.y) / 2
+    };
+    pathAngle = Math.atan2(safeEndPoint.y - safeStartPoint.y, safeEndPoint.x - safeStartPoint.x);
+  }
+
+  // Apply position offset based on label position setting
+  if (config.labelPosition === 'center') {
+    return pathCenter;
+  }
+
+  // Calculate perpendicular offset for top/bottom positioning
+  const perpAngle = pathAngle + Math.PI / 2; // 90 degrees perpendicular
+  const offsetDistance = config.labelOffset || 10;
+
+  let finalPosition = pathCenter;
+
+  if (config.labelPosition === 'top') {
+    finalPosition = {
+      x: pathCenter.x + Math.cos(perpAngle) * offsetDistance,
+      y: pathCenter.y + Math.sin(perpAngle) * offsetDistance
+    };
+  } else if (config.labelPosition === 'bottom') {
+    finalPosition = {
+      x: pathCenter.x - Math.cos(perpAngle) * offsetDistance,
+      y: pathCenter.y - Math.sin(perpAngle) * offsetDistance
+    };
+  }
+
+  // Final validation
+  return {
+    x: isNaN(finalPosition.x) ? pathCenter.x : finalPosition.x,
+    y: isNaN(finalPosition.y) ? pathCenter.y : finalPosition.y
+  };
+}
+
 async function createConnection(frame1: FrameNode, frame2: FrameNode, config: ConnectionConfig) {
-  const { startPoint, endPoint, startOffsetPoint, endOffsetPoint } = calculateConnectionPoints(frame1, frame2, config);
+  const { startPoint, endPoint, startOffsetPoint, endOffsetPoint, waypoints } = calculateConnectionPoints(frame1, frame2, config);
 
   // Create the main line
   const line = figma.createVector();
-  let pathData = createCurvedPath(startPoint, endPoint, startOffsetPoint, endOffsetPoint, config);
+  let pathData = createCurvedPath(startPoint, endPoint, startOffsetPoint, endOffsetPoint, waypoints, config);
   pathData = addSloppiness(pathData, config);
 
   line.vectorPaths = [{
@@ -687,14 +996,11 @@ async function createConnection(frame1: FrameNode, frame2: FrameNode, config: Co
       // Add text to the frame
       labelFrame.appendChild(label);
 
-      // Position label frame at the middle of the line
-      const midPoint = {
-        x: (startPoint.x + endPoint.x) / 2,
-        y: (startPoint.y + endPoint.y) / 2
-      };
+      // Calculate the label position based on configuration
+      const labelPosition = calculateLabelPosition(startPoint, endPoint, startOffsetPoint, endOffsetPoint, waypoints, config);
 
-      labelFrame.x = midPoint.x - labelFrame.width / 2;
-      labelFrame.y = midPoint.y - labelFrame.height / 2;
+      labelFrame.x = labelPosition.x - labelFrame.width / 2;
+      labelFrame.y = labelPosition.y - labelFrame.height / 2;
     } catch (error) {
       console.error('Failed to create label:', error);
       // Continue without label if creation fails
@@ -809,6 +1115,29 @@ figma.ui.onmessage = async (msg: any) => {
     autoUpdateEnabled = msg.enabled ?? true;
     if (autoUpdateEnabled) {
       trackConnections(); // Re-track connections when enabled
+    }
+  }
+
+  if (msg.type === 'save-config') {
+    try {
+      await figma.clientStorage.setAsync('flow-connector-config', JSON.stringify(msg.config));
+    } catch (error) {
+      console.error('Failed to save config:', error);
+    }
+  }
+
+  if (msg.type === 'load-config') {
+    try {
+      const savedConfig = await figma.clientStorage.getAsync('flow-connector-config');
+      if (savedConfig) {
+        const config = JSON.parse(savedConfig);
+        figma.ui.postMessage({
+          type: 'config-loaded',
+          config: config
+        });
+      }
+    } catch (error) {
+      console.error('Failed to load config:', error);
     }
   }
 
