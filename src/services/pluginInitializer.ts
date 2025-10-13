@@ -1,6 +1,7 @@
 import { ConnectionManager } from './connectionManager';
 import { SelectionManager } from './selectionManager';
 import { ConnectionUpdater } from './connectionUpdater';
+import { CONNECTION_PREFIX } from '../utils/constants';
 
 export class PluginInitializer {
   private connectionManager = new ConnectionManager();
@@ -27,7 +28,7 @@ export class PluginInitializer {
 
               let parent = frameNode.parent;
               while (parent) {
-                if (parent.type === 'GROUP' && parent.name.startsWith('@Flow Connection:')) {
+                if (parent.type === 'GROUP' && parent.name.startsWith(CONNECTION_PREFIX)) {
                   break;
                 }
                 parent = parent.parent;

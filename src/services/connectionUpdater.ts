@@ -2,6 +2,7 @@ import { ConnectionConfig, ConnectionPoints } from '../types/plugin';
 import { ConnectionManager } from './connectionManager';
 import { ConnectionCreator } from './connectionCreator';
 import { PathCalculator } from './pathCalculator';
+import { captureViewport, restoreViewport } from '../utils/viewport';
 
 export class ConnectionUpdater {
   private connectionManager = new ConnectionManager();
@@ -69,10 +70,7 @@ export class ConnectionUpdater {
 
         if (frame1 && frame2) {
           const currentSelection = figma.currentPage.selection;
-          const currentViewport = {
-            center: figma.viewport.center,
-            zoom: figma.viewport.zoom
-          };
+          const currentViewport = captureViewport();
 
           connection.remove();
           const newConnection = await this.connectionCreator.createConnection(frame1, frame2, metadata.config);
@@ -88,8 +86,7 @@ export class ConnectionUpdater {
           }
 
           setTimeout(() => {
-            figma.viewport.center = currentViewport.center;
-            figma.viewport.zoom = currentViewport.zoom;
+            restoreViewport(currentViewport);
           }, 50);
         }
       } catch (error) {

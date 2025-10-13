@@ -1,5 +1,5 @@
 import { ConnectionMetadata } from '../types/plugin';
-import { CONNECTION_PREFIX, PLUGIN_DATA_KEY } from '../utils/constants';
+import { CONNECTION_PREFIX, LEGACY_CONNECTION_PREFIX, PLUGIN_DATA_KEY } from '../utils/constants';
 
 export class ConnectionManager {
   private trackedConnections = new Map<string, ConnectionMetadata>();
@@ -73,17 +73,14 @@ export class ConnectionManager {
   migrateOldConnections() {
     const allGroups = figma.currentPage.findAll(node =>
       node.type === 'GROUP' && 
-      node.name.startsWith('Flow Connection:') && 
+      node.name.startsWith(LEGACY_CONNECTION_PREFIX) && 
       !node.name.startsWith(CONNECTION_PREFIX)
     ) as GroupNode[];
 
     for (const group of allGroups) {
-      const metadata = this.getConnectionMetadata(group);
-      if (metadata) {
-        const oldName = group.name;
-        group.name = '@' + oldName;
-        console.log(`Migrated connection: ${oldName} → ${group.name}`);
-      }
+      const oldName = group.name;
+      group.name = oldName.replace(LEGACY_CONNECTION_PREFIX, CONNECTION_PREFIX);
+      console.log(`Migrated connection: ${oldName} → ${group.name}`);
     }
 
     if (allGroups.length > 0) {

@@ -1,4 +1,5 @@
 import { Point, Rectangle } from '../types/plugin';
+import { captureViewport, restoreViewport } from './viewport';
 
 export function hexToRgb(hex: string): RGB {
   const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
@@ -43,14 +44,10 @@ export function lineIntersectsRect(
 }
 
 export function preserveViewport(operation: () => void | Promise<void>, delay: number = 50) {
-  const currentViewport = {
-    center: figma.viewport.center,
-    zoom: figma.viewport.zoom
-  };
+  const currentViewport = captureViewport();
 
   const restore = () => {
-    figma.viewport.center = currentViewport.center;
-    figma.viewport.zoom = currentViewport.zoom;
+    restoreViewport(currentViewport);
   };
 
   if (operation.constructor.name === 'AsyncFunction') {

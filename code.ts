@@ -9,6 +9,7 @@ import { SelectionManager } from './src/services/selectionManager';
 import { StorageManager } from './src/services/storageManager';
 import { PluginInitializer } from './src/services/pluginInitializer';
 import { ConnectionManager } from './src/services/connectionManager';
+import { captureViewport, restoreViewport } from './src/utils/viewport';
 
 // Show the UI
 figma.showUI(__html__, { width: 600, height: 520 });
@@ -124,17 +125,13 @@ async function handleCreateConnection(msg: PluginMessage) {
   }
 
   if (msg.config) {
-    const currentViewport = {
-      center: figma.viewport.center,
-      zoom: figma.viewport.zoom
-    };
+    const currentViewport = captureViewport();
 
     const newConnection = await connectionCreator.createConnection(frames[0], frames[1], msg.config);
     figma.currentPage.selection = [newConnection];
 
     setTimeout(() => {
-      figma.viewport.center = currentViewport.center;
-      figma.viewport.zoom = currentViewport.zoom;
+      restoreViewport(currentViewport);
     }, 50);
 
     const metadata = connectionManager.getConnectionMetadata(newConnection);
@@ -156,16 +153,12 @@ async function handleCreateConnection(msg: PluginMessage) {
 
 async function handleUpdateConnection(msg: PluginMessage) {
   if (msg.connectionId && msg.config) {
-    const currentViewport = {
-      center: figma.viewport.center,
-      zoom: figma.viewport.zoom
-    };
+    const currentViewport = captureViewport();
 
     await connectionUpdater.updateConnection(msg.connectionId, msg.config);
 
     setTimeout(() => {
-      figma.viewport.center = currentViewport.center;
-      figma.viewport.zoom = currentViewport.zoom;
+      restoreViewport(currentViewport);
     }, 50);
 
     figma.ui.postMessage({
@@ -180,17 +173,13 @@ async function handleAutoCreateConnection(msg: PluginMessage) {
   const frames = selection.filter(node => node.type === 'FRAME') as FrameNode[];
 
   if (frames.length === 2 && msg.config) {
-    const currentViewport = {
-      center: figma.viewport.center,
-      zoom: figma.viewport.zoom
-    };
+    const currentViewport = captureViewport();
 
     const newConnection = await connectionCreator.createConnection(frames[0], frames[1], msg.config);
     figma.currentPage.selection = [newConnection];
 
     setTimeout(() => {
-      figma.viewport.center = currentViewport.center;
-      figma.viewport.zoom = currentViewport.zoom;
+      restoreViewport(currentViewport);
     }, 50);
 
     const metadata = connectionManager.getConnectionMetadata(newConnection);
@@ -222,5 +211,4 @@ async function handleClearCache() {
 
   console.log('Plugin cache cleared');
 }
-
 

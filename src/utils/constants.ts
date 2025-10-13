@@ -26,5 +26,6 @@ export const DEFAULT_CONFIG: ConnectionConfig = {
 
 export const PLUGIN_VERSION = '1.0';
 export const CONNECTION_PREFIX = '@Flow Connection:';
+export const LEGACY_CONNECTION_PREFIX = 'Flow Connection:';
 export const PLUGIN_DATA_KEY = 'flow-connector-config';
 export const STORAGE_CONFIG_KEY = 'flow-connector-config';

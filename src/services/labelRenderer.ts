@@ -138,7 +138,7 @@ export class LabelRenderer {
     try {
       try {
         await figma.loadFontAsync({ family: "Inter", style: "Regular" });
-      } catch {
+      } catch (error) {
         await figma.loadFontAsync({ family: "Helvetica", style: "Regular" });
       }
 
