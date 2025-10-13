@@ -49,14 +49,50 @@ const MainContainer: React.FC<MainContainerProps> = ({
 }) => {
   return (
     <div className="flex h-screen flex-col bg-gray-50">
-      <header className="flex items-center justify-between border-b border-gray-200 bg-white px-6 py-3 shadow-sm">
+      <header
+        className={`flex items-center justify-between border-b px-6 py-3 shadow-sm transition-colors ${
+          appState.isEditingConnection
+            ? "border-orange-200 bg-orange-50"
+            : "border-blue-200 bg-blue-50"
+        }`}
+      >
         <div>
-          <h1 className="text-sm font-semibold text-gray-900">
-            Flow Connector
-          </h1>
-          <p className="text-xs text-gray-500">
-            Preview updates as you fine-tune the connection.
-          </p>
+          {appState.isEditingConnection ? (
+            <>
+              <h1 className="text-sm font-semibold text-orange-900">
+                Editing Connection
+              </h1>
+              <p className="text-xs text-orange-700">
+                {appState.selectedConnectionName || "Flow Connection"}
+                {appState.connectedFrames.length === 2 && (
+                  <>
+                    {" "}
+                    •{" "}
+                    <span className="font-medium">
+                      {appState.connectedFrames[0].name}
+                    </span>
+                    {" → "}
+                    <span className="font-medium">
+                      {appState.connectedFrames[1].name}
+                    </span>
+                  </>
+                )}
+              </p>
+            </>
+          ) : (
+            <>
+              <h1 className="text-sm font-semibold text-blue-900">
+                Flow Connector
+              </h1>
+              <p className="text-xs text-blue-700">
+                Select 2 frames with{" "}
+                <kbd className="px-1.5 py-0.5 bg-blue-100 rounded text-[10px] font-mono border border-blue-300">
+                  Shift+Click
+                </kbd>{" "}
+                to create a connection
+              </p>
+            </>
+          )}
         </div>
         <div className="flex items-center gap-2">
           <Button
@@ -81,6 +117,8 @@ const MainContainer: React.FC<MainContainerProps> = ({
       <main className="relative flex flex-1 overflow-hidden">
         <PreviewFlow
           config={appState.config}
+          frameCount={appState.frameCount}
+          isEditingConnection={appState.isEditingConnection}
           onRequestSidebar={onRequestSidebar}
           onRequestLabelEdit={onRequestLabelEdit}
           onRequestArrowEdit={onRequestArrowEdit}

@@ -81,14 +81,16 @@ export const PropertiesPanel: React.FC<PropertiesPanelProps> = ({
 
       <SheetFooter className="gap-3 sticky bottom-0 bg-white">
         <Button variant="outline" className="flex-1" onClick={cancelConnection}>
-          Cancel
+          {appState.isEditingConnection ? "Done" : "Cancel"}
         </Button>
         <Button
           className="flex-1"
           onClick={createConnection}
-          disabled={appState.frameCount !== 2}
+          disabled={!appState.isEditingConnection && appState.frameCount !== 2}
         >
-          Create Connection
+          {appState.isEditingConnection
+            ? "Update Connection"
+            : "Create Connection"}
         </Button>
       </SheetFooter>
     </>

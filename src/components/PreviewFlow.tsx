@@ -26,6 +26,8 @@ type SidebarTarget = "properties" | "settings";
 
 interface PreviewFlowProps {
   config: ConnectionConfig;
+  frameCount: number;
+  isEditingConnection: boolean;
   onRequestSidebar: (target: SidebarTarget) => void;
   onRequestLabelEdit: () => void;
   onRequestArrowEdit: () => void;
@@ -81,6 +83,8 @@ const FlowViewportControls: React.FC = () => {
 
 const PreviewFlowInner: React.FC<PreviewFlowProps> = ({
   config,
+  frameCount,
+  isEditingConnection,
   onRequestSidebar,
   onRequestLabelEdit,
   onRequestArrowEdit,
@@ -104,7 +108,7 @@ const PreviewFlowInner: React.FC<PreviewFlowProps> = ({
         }
       : null;
 
-    const pathType =
+    const pathType: "bezier" | "smoothstep" | "straight" =
       config.arrowType === "elbow"
         ? "smoothstep"
         : config.arrowType === "straight"
@@ -150,12 +154,19 @@ const PreviewFlowInner: React.FC<PreviewFlowProps> = ({
 
   const nodes: Node[] = useMemo(() => {
     const [source, target] = previewData.frames;
+    // Mute only when not editing and frames aren't selected
+    const isMuted = frameCount !== 2 && !isEditingConnection;
     return [
       {
         id: "source",
         type: "frame",
         position: { x: source.x, y: source.y },
-        data: { width: source.width, height: source.height, label: "Frame A" },
+        data: {
+          width: source.width,
+          height: source.height,
+          label: "Frame A",
+          muted: isMuted,
+        },
         draggable: false,
         selectable: false,
         focusable: false,
@@ -165,16 +176,24 @@ const PreviewFlowInner: React.FC<PreviewFlowProps> = ({
         id: "target",
         type: "frame",
         position: { x: target.x, y: target.y },
-        data: { width: target.width, height: target.height, label: "Frame B" },
+        data: {
+          width: target.width,
+          height: target.height,
+          label: "Frame B",
+          muted: isMuted,
+        },
         draggable: false,
         selectable: false,
         focusable: false,
         connectable: false,
       },
     ];
-  }, [previewData]);
+  }, [previewData, frameCount, isEditingConnection]);
 
   const edges: Edge<PreviewEdgeData>[] = useMemo(() => {
+    // Mute only when not editing and frames aren't selected
+    const isMuted = frameCount !== 2 && !isEditingConnection;
+
     return [
       {
         id: "preview-edge",
@@ -185,25 +204,40 @@ const PreviewFlowInner: React.FC<PreviewFlowProps> = ({
         type: "preview",
         data: {
           path: previewData.path,
-          stroke: geometry.color,
+          stroke: isMuted ? "#d1d5db" : geometry.color,
           strokeWidth: previewData.strokeWidth,
-          opacity: geometry.opacity,
+          opacity: isMuted ? 0.4 : geometry.opacity,
           strokeDasharray: previewData.strokeDasharray,
           arrowheads: previewData.arrowheads,
           pathType: previewData.pathType,
           borderRadius: previewData.borderRadius,
-          label: previewData.label,
+          label:
+            isMuted && previewData.label
+              ? {
+                  ...previewData.label,
+                  textColor: "#9ca3af",
+                  background: "rgba(243, 244, 246, 0.9)",
+                  borderColor: "rgba(209, 213, 219, 0.8)",
+                }
+              : previewData.label,
           tooltip: previewData.tooltip,
           onEdgeClick: onRequestArrowEdit,
           onLabelClick: onRequestLabelEdit,
         },
         selectable: false,
         focusable: false,
-        animated: false,
+        animated: isMuted,
         interactionWidth: Math.max(previewData.strokeWidth, 1) + 16,
       },
     ];
-  }, [geometry, onRequestArrowEdit, onRequestLabelEdit, previewData]);
+  }, [
+    geometry,
+    onRequestArrowEdit,
+    onRequestLabelEdit,
+    previewData,
+    frameCount,
+    isEditingConnection,
+  ]);
 
   useEffect(() => {
     const { zoom } = reactFlow.getViewport();
@@ -242,13 +276,7 @@ const PreviewFlowInner: React.FC<PreviewFlowProps> = ({
         proOptions={{ hideAttribution: true }}
         onPaneClick={() => onRequestSidebar("properties")}
       >
-        <Background
-          id="preview-dots"
-          variant="dots"
-          gap={22}
-          size={1}
-          color="#e5e7eb"
-        />
+        <Background id="preview-dots" gap={22} size={1} color="#e5e7eb" />
         <MiniMap
           position="bottom-left"
           pannable

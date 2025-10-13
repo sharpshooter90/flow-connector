@@ -1,104 +1,123 @@
-import { useState, useCallback, useRef, useEffect } from 'react';
-import { AppState, FigmaMessage, defaultConfig, ConnectionConfig } from './types';
-import { useFigmaMessages, useDebouncedSave } from './hooks/useFigmaMessages';
-import MainContainer from './components/MainContainer';
+import { useState, useCallback, useRef, useEffect } from "react";
+import {
+  AppState,
+  FigmaMessage,
+  defaultConfig,
+  ConnectionConfig,
+} from "./types";
+import { useFigmaMessages, useDebouncedSave } from "./hooks/useFigmaMessages";
+import MainContainer from "./components/MainContainer";
 
 function App() {
   const [appState, setAppState] = useState<AppState>({
     config: defaultConfig,
     status: {
-      type: 'info',
-      message: 'Select 2 frames with Shift+Click to create a connection'
+      type: "info",
+      message: "Select 2 frames with Shift+Click to create a connection",
     },
     selectedConnectionId: null,
+    selectedConnectionName: null,
     isEditingConnection: false,
     frameCount: 0,
     connectionCount: 0,
+    connectedFrames: [],
     autoCreateEnabled: true,
     autoUpdateEnabled: true,
-    activeTab: 'arrow'
+    activeTab: "arrow",
   });
 
   const debouncedSave = useDebouncedSave();
   const sendMessageRef = useRef<((msg: any) => void) | null>(null);
   const [isSidebarOpen, setSidebarOpen] = useState(false);
-  const [sidebarTab, setSidebarTab] = useState<'properties' | 'settings'>('properties');
+  const [sidebarTab, setSidebarTab] = useState<"properties" | "settings">(
+    "properties"
+  );
   const labelInputRef = useRef<HTMLInputElement | null>(null);
 
   const handleFigmaMessage = useCallback((message: FigmaMessage) => {
     switch (message.type) {
-      case 'selection-changed':
+      case "selection-changed":
         const frameCount = message.frameCount || 0;
         const connectionCount = message.connectionCount || 0;
-        setAppState(prev => ({
+        setAppState((prev) => ({
           ...prev,
           frameCount,
           connectionCount,
-          ...(connectionCount === 0 ? {
-            isEditingConnection: false,
-            selectedConnectionId: null
-          } : {}),
+          ...(connectionCount === 0
+            ? {
+                isEditingConnection: false,
+                selectedConnectionId: null,
+                selectedConnectionName: null,
+                connectedFrames: [],
+              }
+            : {}),
           status: {
-            type: 'info',
-            message: frameCount === 2 
-              ? 'Ready to create connection' 
-              : 'Select 2 frames with Shift+Click to create a connection'
-          }
+            type: "info",
+            message:
+              frameCount === 2
+                ? "Ready to create connection"
+                : "Select 2 frames with Shift+Click to create a connection",
+          },
         }));
         break;
 
-      case 'connection-selected':
+      case "connection-selected":
         if (message.config && message.connectionId) {
-          setAppState(prev => ({
+          setAppState((prev) => ({
             ...prev,
             config: message.config!,
             selectedConnectionId: message.connectionId!,
+            selectedConnectionName: message.connectionName || null,
+            connectedFrames: message.frames || [],
             isEditingConnection: true,
             status: {
-              type: 'editing',
-              message: `Editing: ${message.connectionName || 'Connection'}`
-            }
+              type: "editing",
+              message: `Editing: ${message.connectionName || "Connection"}`,
+            },
           }));
         }
         break;
 
-      case 'config-loaded':
+      case "config-loaded":
         if (message.config) {
-          setAppState(prev => ({
+          setAppState((prev) => ({
             ...prev,
-            config: { ...prev.config, ...message.config }
+            config: { ...prev.config, ...message.config },
           }));
         }
         break;
 
-      case 'connection-created':
-        setAppState(prev => ({
+      case "connection-created":
+        setAppState((prev) => ({
           ...prev,
           status: {
-            type: 'success',
-            message: 'Connection created successfully!'
-          }
+            type: "success",
+            message: "Connection created successfully!",
+          },
         }));
         break;
 
-      case 'get-config':
-        console.log('Received get-config request, sending auto-create with config:', appState.config);
+      case "get-config":
+        console.log(
+          "Received get-config request, sending auto-create with config:",
+          appState.config
+        );
         // Send current config back to Figma for auto-creation
         if (sendMessageRef.current) {
-          sendMessageRef.current({ 
-            type: 'auto-create-connection', 
-            config: appState.config 
+          sendMessageRef.current({
+            type: "auto-create-connection",
+            config: appState.config,
           });
         }
         break;
 
-      case 'error':
-        setAppState(prev => ({
+      case "error":
+        setAppState((prev) => ({
           ...prev,
           status: {
-            type: 'error',
-            message: 'An error occurred. Please try again.'
-          }
+            type: "error",
+            message: "An error occurred. Please try again.",
+          },
         }));
         break;
 
@@ -114,58 +133,84 @@ function App() {
     sendMessageRef.current = sendMessage;
   }, [sendMessage]);
 
-  const openSidebar = useCallback((target: 'properties' | 'settings') => {
+  const openSidebar = useCallback((target: "properties" | "settings") => {
     setSidebarTab(target);
     setSidebarOpen(true);
   }, []);
 
   // Load initial config and settings when app starts
   useEffect(() => {
-    sendMessage({ type: 'load-config' });
-    sendMessage({ type: 'toggle-auto-create', enabled: appState.autoCreateEnabled });
-    sendMessage({ type: 'toggle-auto-update', enabled: appState.autoUpdateEnabled });
+    sendMessage({ type: "load-config" });
+    sendMessage({
+      type: "toggle-auto-create",
+      enabled: appState.autoCreateEnabled,
+    });
+    sendMessage({
+      type: "toggle-auto-update",
+      enabled: appState.autoUpdateEnabled,
+    });
   }, [sendMessage]); // Only run once when component mounts
 
-  const updateConfig = useCallback((updates: Partial<ConnectionConfig>) => {
-    const newConfig = { ...appState.config, ...updates };
-    
-    setAppState(prev => ({
-      ...prev,
-      config: newConfig
-    }));
+  const updateConfig = useCallback(
+    (updates: Partial<ConnectionConfig>) => {
+      const newConfig = { ...appState.config, ...updates };
 
-    // Debounced save to Figma
-    debouncedSave(newConfig, sendMessage);
+      setAppState((prev) => ({
+        ...prev,
+        config: newConfig,
+      }));
 
-    // Auto-create or update connection if applicable
-    if (appState.isEditingConnection && appState.selectedConnectionId) {
-      sendMessage({ 
-        type: 'update-connection', 
-        connectionId: appState.selectedConnectionId,
-        config: newConfig 
-      });
-    } else if (appState.autoCreateEnabled && appState.frameCount === 2) {
-      sendMessage({ type: 'auto-create-connection', config: newConfig });
-    }
-  }, [appState.config, appState.autoCreateEnabled, appState.frameCount, appState.isEditingConnection, appState.selectedConnectionId, debouncedSave, sendMessage]);
+      // Debounced save to Figma
+      debouncedSave(newConfig, sendMessage);
 
-  const updateAppState = useCallback((updates: Partial<AppState>) => {
-    setAppState(prev => ({ ...prev, ...updates }));
-    
-    // Send auto-create/auto-update settings to backend
-    if ('autoCreateEnabled' in updates) {
-      console.log('Sending auto-create setting:', updates.autoCreateEnabled);
-      sendMessage({ type: 'toggle-auto-create', enabled: updates.autoCreateEnabled });
-    }
-    if ('autoUpdateEnabled' in updates) {
-      console.log('Sending auto-update setting:', updates.autoUpdateEnabled);
-      sendMessage({ type: 'toggle-auto-update', enabled: updates.autoUpdateEnabled });
-    }
-  }, [sendMessage]);
+      // Auto-create or update connection if applicable
+      if (appState.isEditingConnection && appState.selectedConnectionId) {
+        sendMessage({
+          type: "update-connection",
+          connectionId: appState.selectedConnectionId,
+          config: newConfig,
+        });
+      } else if (appState.autoCreateEnabled && appState.frameCount === 2) {
+        sendMessage({ type: "auto-create-connection", config: newConfig });
+      }
+    },
+    [
+      appState.config,
+      appState.autoCreateEnabled,
+      appState.frameCount,
+      appState.isEditingConnection,
+      appState.selectedConnectionId,
+      debouncedSave,
+      sendMessage,
+    ]
+  );
+
+  const updateAppState = useCallback(
+    (updates: Partial<AppState>) => {
+      setAppState((prev) => ({ ...prev, ...updates }));
+
+      // Send auto-create/auto-update settings to backend
+      if ("autoCreateEnabled" in updates) {
+        console.log("Sending auto-create setting:", updates.autoCreateEnabled);
+        sendMessage({
+          type: "toggle-auto-create",
+          enabled: updates.autoCreateEnabled,
+        });
+      }
+      if ("autoUpdateEnabled" in updates) {
+        console.log("Sending auto-update setting:", updates.autoUpdateEnabled);
+        sendMessage({
+          type: "toggle-auto-update",
+          enabled: updates.autoUpdateEnabled,
+        });
+      }
+    },
+    [sendMessage]
+  );
 
   const handleLabelEditRequest = useCallback(() => {
-    openSidebar('properties');
-    updateAppState({ activeTab: 'label' });
+    openSidebar("properties");
+    updateAppState({ activeTab: "label" });
     requestAnimationFrame(() => {
       const input = labelInputRef.current;
       if (input) {
@@ -176,29 +221,31 @@ function App() {
   }, [openSidebar, updateAppState]);
 
   const handleArrowEditRequest = useCallback(() => {
-    openSidebar('properties');
-    updateAppState({ activeTab: 'arrow' });
+    openSidebar("properties");
+    updateAppState({ activeTab: "arrow" });
   }, [openSidebar, updateAppState]);
 
   const createConnection = useCallback(() => {
-    sendMessage({ type: 'create-connection', config: appState.config });
+    sendMessage({ type: "create-connection", config: appState.config });
   }, [sendMessage, appState.config]);
 
   const cancelConnection = useCallback(() => {
-    setAppState(prev => ({
+    setAppState((prev) => ({
       ...prev,
       selectedConnectionId: null,
+      selectedConnectionName: null,
+      connectedFrames: [],
       isEditingConnection: false,
       status: {
-        type: 'info',
-        message: 'Select 2 frames with Shift+Click to create a connection'
-      }
+        type: "info",
+        message: "Select 2 frames with Shift+Click to create a connection",
+      },
     }));
-    sendMessage({ type: 'cancel-connection' });
+    sendMessage({ type: "cancel-connection" });
   }, [sendMessage]);
 
   const clearCache = useCallback(() => {
-    sendMessage({ type: 'clear-cache' });
+    sendMessage({ type: "clear-cache" });
   }, [sendMessage]);
 
   return (

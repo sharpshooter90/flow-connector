@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   EdgeLabelRenderer,
   EdgeProps,
@@ -23,7 +23,7 @@ export interface PreviewEdgeLabel {
   borderWidth: number;
   borderRadius: number;
   padding: number;
-  position: 'center' | 'top' | 'bottom';
+  position: "center" | "top" | "bottom";
   offset: number;
 }
 
@@ -52,6 +52,8 @@ const ConnectionPreviewEdge: React.FC<EdgeProps<PreviewEdgeData>> = ({
   sourcePosition,
   targetPosition,
 }) => {
+  const [isHovered, setIsHovered] = useState(false);
+  const [isLabelHovered, setIsLabelHovered] = useState(false);
   const [bezierPath, baseLabelX, baseLabelY] = getBezierPath({
     sourceX,
     sourceY,
@@ -188,6 +190,23 @@ const ConnectionPreviewEdge: React.FC<EdgeProps<PreviewEdgeData>> = ({
 
   const edgeGroup = (
     <g className="react-flow__edge">
+      {/* Hover outline - appears behind the main path */}
+      <path
+        className="react-flow__edge-outline"
+        d={edgePath}
+        fill="none"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        style={{
+          stroke,
+          strokeWidth: strokeWidth + 8,
+          strokeDasharray: data?.strokeDasharray,
+          opacity: isHovered ? 0.3 : 0,
+          transition: "opacity 0.15s ease-in-out",
+          pointerEvents: "none",
+        }}
+      />
+      {/* Main edge path */}
       <path
         className="react-flow__edge-path"
         d={edgePath}
@@ -201,12 +220,18 @@ const ConnectionPreviewEdge: React.FC<EdgeProps<PreviewEdgeData>> = ({
           opacity,
         }}
       />
+      {/* Invisible interaction path for clicking and hovering */}
       <path
         d={edgePath}
         fill="none"
         className="pointer-events-auto"
         onClick={handleClick}
-        style={{ stroke: "transparent", strokeWidth: Math.max(strokeWidth, 1) + 16 }}
+        onMouseEnter={() => setIsHovered(true)}
+        onMouseLeave={() => setIsHovered(false)}
+        style={{
+          stroke: "transparent",
+          strokeWidth: Math.max(strokeWidth, 1) + 16,
+        }}
       />
       {arrowElements}
       {data?.label ? (
@@ -228,10 +253,17 @@ const ConnectionPreviewEdge: React.FC<EdgeProps<PreviewEdgeData>> = ({
                   : "none",
               lineHeight: 1,
               whiteSpace: "nowrap",
-              boxShadow: "0 1px 4px rgba(15, 23, 42, 0.12)",
+              boxShadow: isLabelHovered
+                ? `0 1px 4px rgba(15, 23, 42, 0.12), 0 0 0 4px ${
+                    data.label.borderColor || data.label.textColor
+                  }30`
+                : "0 1px 4px rgba(15, 23, 42, 0.12)",
               cursor: "text",
+              transition: "box-shadow 0.15s ease-in-out",
             }}
             onClick={handleLabelClick}
+            onMouseEnter={() => setIsLabelHovered(true)}
+            onMouseLeave={() => setIsLabelHovered(false)}
             role="button"
             tabIndex={0}
             onKeyDown={(event) => {
