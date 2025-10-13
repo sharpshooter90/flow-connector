@@ -1,5 +1,12 @@
 import React from "react";
-import { EdgeLabelRenderer, EdgeProps, getBezierPath } from "reactflow";
+import {
+  EdgeLabelRenderer,
+  EdgeProps,
+  Position,
+  getBezierPath,
+  getSmoothStepPath,
+  getStraightPath,
+} from "reactflow";
 import {
   Tooltip,
   TooltipContent,
@@ -26,11 +33,13 @@ export interface PreviewEdgeData {
   opacity?: number;
   strokeWidth?: number;
   strokeDasharray?: string;
-  arrowPaths?: string[];
+  arrowheads?: Array<"start" | "end">;
   label?: PreviewEdgeLabel | null;
   tooltip?: string;
   onEdgeClick?: () => void;
   onLabelClick?: () => void;
+  pathType?: "bezier" | "smoothstep" | "straight";
+  borderRadius?: number;
 }
 
 const ConnectionPreviewEdge: React.FC<EdgeProps<PreviewEdgeData>> = ({
@@ -43,7 +52,7 @@ const ConnectionPreviewEdge: React.FC<EdgeProps<PreviewEdgeData>> = ({
   sourcePosition,
   targetPosition,
 }) => {
-  const [autoPath, labelX, labelY] = getBezierPath({
+  const [bezierPath, baseLabelX, baseLabelY] = getBezierPath({
     sourceX,
     sourceY,
     sourcePosition,
@@ -52,17 +61,48 @@ const ConnectionPreviewEdge: React.FC<EdgeProps<PreviewEdgeData>> = ({
     targetPosition,
   });
 
-  const edgePath =
-    data?.path && !data.path.includes("NaN") && data.path.trim().length > 0
-      ? data.path
-      : autoPath;
+  let edgePath = bezierPath;
+  let labelX = baseLabelX;
+  let labelY = baseLabelY;
+
+  if (data?.pathType === "smoothstep") {
+    const [smoothPath, smoothLabelX, smoothLabelY] = getSmoothStepPath({
+      sourceX,
+      sourceY,
+      sourcePosition,
+      targetX,
+      targetY,
+      targetPosition,
+      borderRadius: data?.borderRadius ?? 12,
+    });
+    edgePath = smoothPath;
+    labelX = smoothLabelX;
+    labelY = smoothLabelY;
+  } else if (data?.pathType === "straight") {
+    const [straightPath, straightLabelX, straightLabelY] = getStraightPath({
+      sourceX,
+      sourceY,
+      sourcePosition,
+      targetX,
+      targetY,
+      targetPosition,
+    });
+    edgePath = straightPath;
+    labelX = straightLabelX;
+    labelY = straightLabelY;
+  } else if (
+    !data?.pathType &&
+    data?.path &&
+    !data.path.includes("NaN") &&
+    data.path.trim().length > 0
+  ) {
+    edgePath = data.path;
+  }
   const stroke = data?.stroke ?? "#1d4ed8";
   const strokeWidth = data?.strokeWidth ?? 2;
   const opacity = data?.opacity ?? 1;
   const tooltipText = data?.tooltip ?? data?.label?.text ?? "";
-  const arrowPaths = (data?.arrowPaths ?? []).filter(
-    (arrowPath) => arrowPath && !arrowPath.includes("NaN")
-  );
+  const arrowheads = data?.arrowheads ?? [];
   let labelXAdjusted = labelX;
   let labelYAdjusted = labelY;
 
@@ -95,6 +135,57 @@ const ConnectionPreviewEdge: React.FC<EdgeProps<PreviewEdgeData>> = ({
     triggerLabelInteraction();
   };
 
+  const arrowSize = Math.max(strokeWidth * 2, 10);
+
+  const buildArrowPath = (
+    x: number,
+    y: number,
+    position: Position,
+    size: number
+  ) => {
+    switch (position) {
+      case Position.Left:
+        return `M ${x} ${y} L ${x + size} ${y - size / 2} L ${x + size} ${
+          y + size / 2
+        } Z`;
+      case Position.Right:
+        return `M ${x} ${y} L ${x - size} ${y - size / 2} L ${x - size} ${
+          y + size / 2
+        } Z`;
+      case Position.Up:
+        return `M ${x} ${y} L ${x - size / 2} ${y + size} L ${x + size / 2} ${
+          y + size
+        } Z`;
+      case Position.Down:
+        return `M ${x} ${y} L ${x - size / 2} ${y - size} L ${x + size / 2} ${
+          y - size
+        } Z`;
+      default:
+        return `M ${x} ${y} L ${x + size} ${y - size / 2} L ${x + size} ${
+          y + size / 2
+        } Z`;
+    }
+  };
+
+  const arrowElements = arrowheads.map((type, index) => {
+    const isEnd = type === "end";
+    const position = isEnd ? targetPosition : sourcePosition;
+    const x = isEnd ? targetX : sourceX;
+    const y = isEnd ? targetY : sourceY;
+    const path = buildArrowPath(x, y, position, arrowSize);
+
+    return (
+      <path
+        key={`${id}-arrow-${type}-${index}`}
+        d={path}
+        fill={stroke}
+        stroke={stroke}
+        opacity={opacity}
+        className="pointer-events-none"
+      />
+    );
+  });
+
   const edgeGroup = (
     <g className="react-flow__edge">
       <path
@@ -117,16 +208,7 @@ const ConnectionPreviewEdge: React.FC<EdgeProps<PreviewEdgeData>> = ({
         onClick={handleClick}
         style={{ stroke: "transparent", strokeWidth: Math.max(strokeWidth, 1) + 16 }}
       />
-      {arrowPaths.map((arrowPath, index) => (
-        <path
-          key={`${id}-arrow-${index}`}
-          d={arrowPath}
-          fill={stroke}
-          stroke={stroke}
-          opacity={opacity}
-          className="pointer-events-none"
-        />
-      ))}
+      {arrowElements}
       {data?.label ? (
         <EdgeLabelRenderer>
           <div

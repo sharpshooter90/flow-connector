@@ -104,14 +104,35 @@ const PreviewFlowInner: React.FC<PreviewFlowProps> = ({
         }
       : null;
 
+    const pathType =
+      config.arrowType === "elbow"
+        ? "smoothstep"
+        : config.arrowType === "straight"
+        ? "straight"
+        : "bezier";
+
+    const arrowheads: Array<"start" | "end"> =
+      config.arrowheads === "both"
+        ? ["start", "end"]
+        : config.arrowheads === "end"
+        ? ["end"]
+        : [];
+
+    const borderRadius =
+      pathType === "smoothstep"
+        ? Math.max(config.connectionOffset ?? 0, 12)
+        : undefined;
+
     return {
       frames: geometry.frames,
       path: geometry.path,
-      arrowPaths: geometry.arrowheads.map((arrow) => arrow.path),
       strokeWidth: Math.max(geometry.strokeWidth, 1),
       strokeDasharray: geometry.strokeDasharray,
       tooltip: labelText || "Connection preview",
       label: labelStyle,
+      arrowheads,
+      pathType,
+      borderRadius,
     };
   }, [config, geometry]);
   const nodeTypeMap = useMemo<NodeTypes>(
@@ -168,7 +189,9 @@ const PreviewFlowInner: React.FC<PreviewFlowProps> = ({
           strokeWidth: previewData.strokeWidth,
           opacity: geometry.opacity,
           strokeDasharray: previewData.strokeDasharray,
-          arrowPaths: previewData.arrowPaths,
+          arrowheads: previewData.arrowheads,
+          pathType: previewData.pathType,
+          borderRadius: previewData.borderRadius,
           label: previewData.label,
           tooltip: previewData.tooltip,
           onEdgeClick: onRequestArrowEdit,

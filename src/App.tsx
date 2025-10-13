@@ -24,7 +24,6 @@ function App() {
   const [isSidebarOpen, setSidebarOpen] = useState(false);
   const [sidebarTab, setSidebarTab] = useState<'properties' | 'settings'>('properties');
   const labelInputRef = useRef<HTMLInputElement | null>(null);
-  const [lastZoom, setLastZoom] = useState<number | null>(null);
 
   const handleFigmaMessage = useCallback((message: FigmaMessage) => {
     switch (message.type) {
