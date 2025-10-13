@@ -24,6 +24,7 @@ function App() {
   const [isSidebarOpen, setSidebarOpen] = useState(false);
   const [sidebarTab, setSidebarTab] = useState<'properties' | 'settings'>('properties');
   const labelInputRef = useRef<HTMLInputElement | null>(null);
+  const [lastZoom, setLastZoom] = useState<number | null>(null);
 
   const handleFigmaMessage = useCallback((message: FigmaMessage) => {
     switch (message.type) {
@@ -175,6 +176,11 @@ function App() {
     });
   }, [openSidebar, updateAppState]);
 
+  const handleArrowEditRequest = useCallback(() => {
+    openSidebar('properties');
+    updateAppState({ activeTab: 'arrow' });
+  }, [openSidebar, updateAppState]);
+
   const createConnection = useCallback(() => {
     sendMessage({ type: 'create-connection', config: appState.config });
   }, [sendMessage, appState.config]);
@@ -210,6 +216,7 @@ function App() {
       onSidebarTabChange={setSidebarTab}
       onRequestSidebar={openSidebar}
       onRequestLabelEdit={handleLabelEditRequest}
+      onRequestArrowEdit={handleArrowEditRequest}
       labelInputRef={labelInputRef}
     />
   );

@@ -27,6 +27,7 @@ interface MainContainerProps {
   onSidebarTabChange: (tab: "properties" | "settings") => void;
   onRequestSidebar: (target: "properties" | "settings") => void;
   onRequestLabelEdit: () => void;
+  onRequestArrowEdit: () => void;
   labelInputRef?: React.RefObject<HTMLInputElement>;
 }
 
@@ -43,6 +44,7 @@ const MainContainer: React.FC<MainContainerProps> = ({
   onSidebarTabChange,
   onRequestSidebar,
   onRequestLabelEdit,
+  onRequestArrowEdit,
   labelInputRef,
 }) => {
   return (
@@ -81,6 +83,7 @@ const MainContainer: React.FC<MainContainerProps> = ({
           config={appState.config}
           onRequestSidebar={onRequestSidebar}
           onRequestLabelEdit={onRequestLabelEdit}
+          onRequestArrowEdit={onRequestArrowEdit}
         />
       </main>
 

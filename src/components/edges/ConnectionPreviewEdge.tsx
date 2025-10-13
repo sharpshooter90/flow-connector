@@ -100,27 +100,29 @@ const ConnectionPreviewEdge: React.FC<EdgeProps<PreviewEdgeData>> = ({
       <path
         className="react-flow__edge-path"
         d={edgePath}
-        stroke={stroke}
-        strokeWidth={strokeWidth}
-        strokeDasharray={data?.strokeDasharray}
-        opacity={opacity}
         fill="none"
         strokeLinecap="round"
         strokeLinejoin="round"
+        style={{
+          stroke,
+          strokeWidth,
+          strokeDasharray: data?.strokeDasharray,
+          opacity,
+        }}
       />
       <path
         d={edgePath}
-        stroke="transparent"
-        strokeWidth={Math.max(strokeWidth, 1) + 16}
         fill="none"
         className="pointer-events-auto"
         onClick={handleClick}
+        style={{ stroke: "transparent", strokeWidth: Math.max(strokeWidth, 1) + 16 }}
       />
       {arrowPaths.map((arrowPath, index) => (
         <path
           key={`${id}-arrow-${index}`}
           d={arrowPath}
           fill={stroke}
+          stroke={stroke}
           opacity={opacity}
           className="pointer-events-none"
         />

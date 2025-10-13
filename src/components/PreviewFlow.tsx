@@ -28,6 +28,7 @@ interface PreviewFlowProps {
   config: ConnectionConfig;
   onRequestSidebar: (target: SidebarTarget) => void;
   onRequestLabelEdit: () => void;
+  onRequestArrowEdit: () => void;
 }
 
 const FlowViewportControls: React.FC = () => {
@@ -82,6 +83,7 @@ const PreviewFlowInner: React.FC<PreviewFlowProps> = ({
   config,
   onRequestSidebar,
   onRequestLabelEdit,
+  onRequestArrowEdit,
 }) => {
   const reactFlow = useReactFlow();
   const geometry = useMemo(() => buildPreviewGeometry(config), [config]);
@@ -169,7 +171,7 @@ const PreviewFlowInner: React.FC<PreviewFlowProps> = ({
           arrowPaths: previewData.arrowPaths,
           label: previewData.label,
           tooltip: previewData.tooltip,
-          onEdgeClick: () => onRequestSidebar("properties"),
+          onEdgeClick: onRequestArrowEdit,
           onLabelClick: onRequestLabelEdit,
         },
         selectable: false,
@@ -178,7 +180,7 @@ const PreviewFlowInner: React.FC<PreviewFlowProps> = ({
         interactionWidth: Math.max(previewData.strokeWidth, 1) + 16,
       },
     ];
-  }, [geometry, onRequestSidebar, onRequestLabelEdit, previewData]);
+  }, [geometry, onRequestArrowEdit, onRequestLabelEdit, previewData]);
 
   useEffect(() => {
     const { zoom } = reactFlow.getViewport();
