@@ -30,6 +30,7 @@ export interface PreviewEdgeData {
   label?: PreviewEdgeLabel | null;
   tooltip?: string;
   onEdgeClick?: () => void;
+  onLabelClick?: () => void;
 }
 
 const ConnectionPreviewEdge: React.FC<EdgeProps<PreviewEdgeData>> = ({
@@ -79,6 +80,19 @@ const ConnectionPreviewEdge: React.FC<EdgeProps<PreviewEdgeData>> = ({
   ) => {
     event.stopPropagation();
     data?.onEdgeClick?.();
+  };
+
+  const triggerLabelInteraction = () => {
+    if (data?.onLabelClick) {
+      data.onLabelClick();
+    } else {
+      data?.onEdgeClick?.();
+    }
+  };
+
+  const handleLabelClick = (event: React.MouseEvent<HTMLDivElement>) => {
+    event.stopPropagation();
+    triggerLabelInteraction();
   };
 
   const edgeGroup = (
@@ -131,8 +145,17 @@ const ConnectionPreviewEdge: React.FC<EdgeProps<PreviewEdgeData>> = ({
               lineHeight: 1,
               whiteSpace: "nowrap",
               boxShadow: "0 1px 4px rgba(15, 23, 42, 0.12)",
+              cursor: "text",
             }}
-            onClick={handleClick}
+            onClick={handleLabelClick}
+            role="button"
+            tabIndex={0}
+            onKeyDown={(event) => {
+              if (event.key === "Enter" || event.key === " ") {
+                event.preventDefault();
+                triggerLabelInteraction();
+              }
+            }}
           >
             {data.label.text}
           </div>

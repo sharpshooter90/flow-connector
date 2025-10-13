@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo } from 'react';
+import React, { useCallback, useEffect, useMemo } from "react";
 import ReactFlow, {
   Background,
   Edge,
@@ -9,24 +9,25 @@ import ReactFlow, {
   ReactFlowProvider,
   useReactFlow,
   useStoreApi,
-} from 'reactflow';
-import 'reactflow/dist/style.css';
-import { ConnectionConfig } from '../types';
-import { buildPreviewGeometry } from '../utils/previewConnection';
-import PreviewFrameNode from './nodes/PreviewFrameNode';
+} from "reactflow";
+import "reactflow/dist/style.css";
+import { ConnectionConfig } from "../types";
+import { buildPreviewGeometry } from "../utils/previewConnection";
+import PreviewFrameNode from "./nodes/PreviewFrameNode";
 import ConnectionPreviewEdge, {
   PreviewEdgeData,
-} from './edges/ConnectionPreviewEdge';
-import { Button } from './ui/button';
-import { Maximize2, ZoomIn, ZoomOut } from 'lucide-react';
+} from "./edges/ConnectionPreviewEdge";
+import { Button } from "./ui/button";
+import { Maximize2, ZoomIn, ZoomOut } from "lucide-react";
 
 const PREVIEW_SCALE = 0.3;
 
-type SidebarTarget = 'properties' | 'settings';
+type SidebarTarget = "properties" | "settings";
 
 interface PreviewFlowProps {
   config: ConnectionConfig;
   onRequestSidebar: (target: SidebarTarget) => void;
+  onRequestLabelEdit: () => void;
 }
 
 const FlowViewportControls: React.FC = () => {
@@ -80,22 +81,23 @@ const FlowViewportControls: React.FC = () => {
 const PreviewFlowInner: React.FC<PreviewFlowProps> = ({
   config,
   onRequestSidebar,
+  onRequestLabelEdit,
 }) => {
   const reactFlow = useReactFlow();
   const geometry = useMemo(() => buildPreviewGeometry(config), [config]);
   const previewData = useMemo(() => {
-    const labelText = config.label?.trim() || '';
+    const labelText = config.label?.trim() || "";
     const labelStyle = labelText
       ? {
           text: labelText,
           fontSize: Math.max(config.labelFontSize || 12, 8),
-          textColor: config.labelTextColor || '#374151',
-          background: config.labelBg || 'rgba(255,255,255,0.9)',
-          borderColor: config.labelBorderColor || 'rgba(209,213,219,0.8)',
+          textColor: config.labelTextColor || "#374151",
+          background: config.labelBg || "rgba(255,255,255,0.9)",
+          borderColor: config.labelBorderColor || "rgba(209,213,219,0.8)",
           borderWidth: Math.max(config.labelBorderWidth ?? 0, 0),
           borderRadius: Math.max(config.labelBorderRadius ?? 0, 0),
           padding: Math.max(config.labelPadding ?? 0, 0),
-          position: config.labelPosition ?? 'center',
+          position: config.labelPosition ?? "center",
           offset: config.labelOffset ?? 10,
         }
       : null;
@@ -106,7 +108,7 @@ const PreviewFlowInner: React.FC<PreviewFlowProps> = ({
       arrowPaths: geometry.arrowheads.map((arrow) => arrow.path),
       strokeWidth: Math.max(geometry.strokeWidth, 1),
       strokeDasharray: geometry.strokeDasharray,
-      tooltip: labelText || 'Connection preview',
+      tooltip: labelText || "Connection preview",
       label: labelStyle,
     };
   }, [config, geometry]);
@@ -127,20 +129,20 @@ const PreviewFlowInner: React.FC<PreviewFlowProps> = ({
     const [source, target] = previewData.frames;
     return [
       {
-        id: 'source',
-        type: 'frame',
+        id: "source",
+        type: "frame",
         position: { x: source.x, y: source.y },
-        data: { width: source.width, height: source.height, label: 'Frame A' },
+        data: { width: source.width, height: source.height, label: "Frame A" },
         draggable: false,
         selectable: false,
         focusable: false,
         connectable: false,
       },
       {
-        id: 'target',
-        type: 'frame',
+        id: "target",
+        type: "frame",
         position: { x: target.x, y: target.y },
-        data: { width: target.width, height: target.height, label: 'Frame B' },
+        data: { width: target.width, height: target.height, label: "Frame B" },
         draggable: false,
         selectable: false,
         focusable: false,
@@ -152,12 +154,12 @@ const PreviewFlowInner: React.FC<PreviewFlowProps> = ({
   const edges: Edge<PreviewEdgeData>[] = useMemo(() => {
     return [
       {
-        id: 'preview-edge',
-        source: 'source',
-        sourceHandle: 'frame-source',
-        target: 'target',
-        targetHandle: 'frame-target',
-        type: 'preview',
+        id: "preview-edge",
+        source: "source",
+        sourceHandle: "frame-source",
+        target: "target",
+        targetHandle: "frame-target",
+        type: "preview",
         data: {
           path: previewData.path,
           stroke: geometry.color,
@@ -167,7 +169,8 @@ const PreviewFlowInner: React.FC<PreviewFlowProps> = ({
           arrowPaths: previewData.arrowPaths,
           label: previewData.label,
           tooltip: previewData.tooltip,
-          onEdgeClick: () => onRequestSidebar('properties'),
+          onEdgeClick: () => onRequestSidebar("properties"),
+          onLabelClick: onRequestLabelEdit,
         },
         selectable: false,
         focusable: false,
@@ -175,14 +178,17 @@ const PreviewFlowInner: React.FC<PreviewFlowProps> = ({
         interactionWidth: Math.max(previewData.strokeWidth, 1) + 16,
       },
     ];
-  }, [geometry, onRequestSidebar, previewData]);
+  }, [geometry, onRequestSidebar, onRequestLabelEdit, previewData]);
 
   useEffect(() => {
     const { zoom } = reactFlow.getViewport();
     reactFlow.fitView({ padding: 0.4, duration: 0 });
     const frameId = requestAnimationFrame(() => {
       const { x, y } = reactFlow.getViewport();
-      reactFlow.setViewport({ x, y, zoom: zoom || PREVIEW_SCALE }, { duration: 0 });
+      reactFlow.setViewport(
+        { x, y, zoom: zoom || PREVIEW_SCALE },
+        { duration: 0 }
+      );
     });
     return () => cancelAnimationFrame(frameId);
   }, [reactFlow, previewData]);
@@ -209,9 +215,15 @@ const PreviewFlowInner: React.FC<PreviewFlowProps> = ({
         preventScrolling={false}
         className="bg-white"
         proOptions={{ hideAttribution: true }}
-        onPaneClick={() => onRequestSidebar('properties')}
+        onPaneClick={() => onRequestSidebar("properties")}
       >
-        <Background id="preview-dots" variant="dots" gap={22} size={1} color="#e5e7eb" />
+        <Background
+          id="preview-dots"
+          variant="dots"
+          gap={22}
+          size={1}
+          color="#e5e7eb"
+        />
         <MiniMap
           position="bottom-left"
           pannable

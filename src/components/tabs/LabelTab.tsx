@@ -1,15 +1,17 @@
-import React, { memo } from 'react';
+import React, { memo, RefObject } from 'react';
 import { ConnectionConfig } from '../../types';
 import ColorPicker from '../ui/ColorPicker';
 import OptionSelector from '../ui/OptionSelector';
 import RangeSlider from '../ui/RangeSlider';
+import TextInput from '../ui/TextInput';
 
 interface LabelTabProps {
   config: ConnectionConfig;
   updateConfig: (updates: Partial<ConnectionConfig>) => void;
+  inputRef?: RefObject<HTMLInputElement>;
 }
 
-const LabelTab: React.FC<LabelTabProps> = memo(({ config, updateConfig }) => {
+const LabelTab: React.FC<LabelTabProps> = memo(({ config, updateConfig, inputRef }) => {
   const textColors = [
     '#333333', '#ffffff', '#dc3545', '#28a745', '#1976d2', '#ff9800'
   ];
@@ -37,6 +39,14 @@ const LabelTab: React.FC<LabelTabProps> = memo(({ config, updateConfig }) => {
 
   return (
     <div className="space-y-4">
+      <TextInput
+        ref={inputRef}
+        value={config.label}
+        onChange={(label) => updateConfig({ label })}
+        label="Label Text"
+        placeholder="Enter label text"
+      />
+
       <ColorPicker
         value={config.labelTextColor}
         colors={textColors}

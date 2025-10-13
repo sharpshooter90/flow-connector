@@ -23,6 +23,7 @@ function App() {
   const sendMessageRef = useRef<((msg: any) => void) | null>(null);
   const [isSidebarOpen, setSidebarOpen] = useState(false);
   const [sidebarTab, setSidebarTab] = useState<'properties' | 'settings'>('properties');
+  const labelInputRef = useRef<HTMLInputElement | null>(null);
 
   const handleFigmaMessage = useCallback((message: FigmaMessage) => {
     switch (message.type) {
@@ -162,6 +163,18 @@ function App() {
     }
   }, [sendMessage]);
 
+  const handleLabelEditRequest = useCallback(() => {
+    openSidebar('properties');
+    updateAppState({ activeTab: 'label' });
+    requestAnimationFrame(() => {
+      const input = labelInputRef.current;
+      if (input) {
+        input.focus({ preventScroll: true });
+        input.select();
+      }
+    });
+  }, [openSidebar, updateAppState]);
+
   const createConnection = useCallback(() => {
     sendMessage({ type: 'create-connection', config: appState.config });
   }, [sendMessage, appState.config]);
@@ -196,6 +209,8 @@ function App() {
       sidebarTab={sidebarTab}
       onSidebarTabChange={setSidebarTab}
       onRequestSidebar={openSidebar}
+      onRequestLabelEdit={handleLabelEditRequest}
+      labelInputRef={labelInputRef}
     />
   );
 }

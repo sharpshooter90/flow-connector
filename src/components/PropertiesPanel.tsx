@@ -1,9 +1,9 @@
-import React from 'react';
-import { AppState, ConnectionConfig } from '../types';
-import ArrowTab from './tabs/ArrowTab';
-import LabelTab from './tabs/LabelTab';
-import { SheetBody, SheetFooter } from './ui/sheet';
-import { Button } from './ui/button';
+import React from "react";
+import { AppState, ConnectionConfig } from "../types";
+import ArrowTab from "./tabs/ArrowTab";
+import LabelTab from "./tabs/LabelTab";
+import { SheetBody, SheetFooter } from "./ui/sheet";
+import { Button } from "./ui/button";
 
 interface PropertiesPanelProps {
   appState: AppState;
@@ -11,13 +11,14 @@ interface PropertiesPanelProps {
   updateAppState: (updates: Partial<AppState>) => void;
   createConnection: () => void;
   cancelConnection: () => void;
+  labelInputRef?: React.RefObject<HTMLInputElement>;
 }
 
 const statusClasses = {
-  success: 'text-green-700 bg-green-50 border-green-200',
-  error: 'text-red-700 bg-red-50 border-red-200',
-  editing: 'text-orange-700 bg-orange-50 border-orange-200',
-  info: 'text-blue-700 bg-blue-50 border-blue-200',
+  success: "text-green-700 bg-green-50 border-green-200",
+  error: "text-red-700 bg-red-50 border-red-200",
+  editing: "text-orange-700 bg-orange-50 border-orange-200",
+  info: "text-blue-700 bg-blue-50 border-blue-200",
 };
 
 export const PropertiesPanel: React.FC<PropertiesPanelProps> = ({
@@ -26,8 +27,10 @@ export const PropertiesPanel: React.FC<PropertiesPanelProps> = ({
   updateAppState,
   createConnection,
   cancelConnection,
+  labelInputRef,
 }) => {
-  const statusVariant = statusClasses[appState.status.type] ?? statusClasses.info;
+  const statusVariant =
+    statusClasses[appState.status.type] ?? statusClasses.info;
 
   return (
     <>
@@ -42,21 +45,21 @@ export const PropertiesPanel: React.FC<PropertiesPanelProps> = ({
           <div className="flex rounded-lg bg-gray-100 p-1 text-xs font-semibold uppercase tracking-wide text-gray-500">
             <button
               className={`flex-1 rounded-md px-3 py-2 transition-colors ${
-                appState.activeTab === 'arrow'
-                  ? 'bg-white text-gray-900 shadow-sm'
-                  : 'hover:text-gray-700'
+                appState.activeTab === "arrow"
+                  ? "bg-white text-gray-900 shadow-sm"
+                  : "hover:text-gray-700"
               }`}
-              onClick={() => updateAppState({ activeTab: 'arrow' })}
+              onClick={() => updateAppState({ activeTab: "arrow" })}
             >
               Arrow
             </button>
             <button
               className={`flex-1 rounded-md px-3 py-2 transition-colors ${
-                appState.activeTab === 'label'
-                  ? 'bg-white text-gray-900 shadow-sm'
-                  : 'hover:text-gray-700'
+                appState.activeTab === "label"
+                  ? "bg-white text-gray-900 shadow-sm"
+                  : "hover:text-gray-700"
               }`}
-              onClick={() => updateAppState({ activeTab: 'label' })}
+              onClick={() => updateAppState({ activeTab: "label" })}
             >
               Label
             </button>
@@ -64,20 +67,20 @@ export const PropertiesPanel: React.FC<PropertiesPanelProps> = ({
         </div>
 
         <div className="space-y-6">
-          {appState.activeTab === 'arrow' ? (
+          {appState.activeTab === "arrow" ? (
             <ArrowTab config={appState.config} updateConfig={updateConfig} />
           ) : (
-            <LabelTab config={appState.config} updateConfig={updateConfig} />
+            <LabelTab
+              config={appState.config}
+              updateConfig={updateConfig}
+              inputRef={labelInputRef}
+            />
           )}
         </div>
       </SheetBody>
 
-      <SheetFooter className="gap-3">
-        <Button
-          variant="outline"
-          className="flex-1"
-          onClick={cancelConnection}
-        >
+      <SheetFooter className="gap-3 sticky bottom-0 bg-white">
+        <Button variant="outline" className="flex-1" onClick={cancelConnection}>
           Cancel
         </Button>
         <Button
