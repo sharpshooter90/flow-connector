@@ -5,11 +5,12 @@
   "main": "code.js",
   "scripts": {
     "dev": "vite",
-    "build": "tsc && vite build && npm run build:rename && npm run build:copy",
+    "build": "npm run build:code && npm run build:ui && cp manifest.json dist/",
+    "build:ui": "tsc && vite build && npm run build:rename && npm run build:copy",
     "build:code": "tsc -p tsconfig.figma.json",
     "build:rename": "mv dist/index.html dist/ui.html",
     "build:copy": "cp dist/ui.html ui.html",
-    "build:all": "npm run build:code && npm run build && cp manifest.json dist/",
+    "build:all": "npm run build",
     "preview": "vite preview",
     "lint": "eslint --ext .ts,.tsx --ignore-pattern node_modules .",
     "lint:fix": "eslint --ext .ts,.tsx --ignore-pattern node_modules --fix ."

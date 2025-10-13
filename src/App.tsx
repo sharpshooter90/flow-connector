@@ -166,6 +166,10 @@ function App() {
     sendMessage({ type: 'cancel-connection' });
   }, [sendMessage]);
 
+  const clearCache = useCallback(() => {
+    sendMessage({ type: 'clear-cache' });
+  }, [sendMessage]);
+
   return (
     <MainContainer
       appState={appState}
@@ -173,6 +177,7 @@ function App() {
       updateAppState={updateAppState}
       createConnection={createConnection}
       cancelConnection={cancelConnection}
+      clearCache={clearCache}
     />
   );
 }

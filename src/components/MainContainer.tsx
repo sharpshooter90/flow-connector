@@ -9,6 +9,7 @@ interface MainContainerProps {
   updateAppState: (updates: Partial<AppState>) => void;
   createConnection: () => void;
   cancelConnection: () => void;
+  clearCache: () => void;
 }
 
 const MainContainer: React.FC<MainContainerProps> = ({
@@ -16,7 +17,8 @@ const MainContainer: React.FC<MainContainerProps> = ({
   updateConfig,
   updateAppState,
   createConnection,
-  cancelConnection
+  cancelConnection,
+  clearCache
 }) => {
   return (
     <div className="h-screen bg-gray-50">
@@ -27,6 +29,7 @@ const MainContainer: React.FC<MainContainerProps> = ({
           updateAppState={updateAppState}
           createConnection={createConnection}
           cancelConnection={cancelConnection}
+          clearCache={clearCache}
         />
         <RightPanel
           config={appState.config}

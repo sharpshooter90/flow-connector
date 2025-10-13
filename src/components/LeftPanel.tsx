@@ -10,6 +10,7 @@ interface LeftPanelProps {
   updateAppState: (updates: Partial<AppState>) => void;
   createConnection: () => void;
   cancelConnection: () => void;
+  clearCache: () => void;
 }
 
 const LeftPanel: React.FC<LeftPanelProps> = ({
@@ -17,7 +18,8 @@ const LeftPanel: React.FC<LeftPanelProps> = ({
   updateConfig,
   updateAppState,
   createConnection,
-  cancelConnection
+  cancelConnection,
+  clearCache
 }) => {
   const getStatusClasses = () => {
     switch (appState.status.type) {
@@ -36,7 +38,16 @@ const LeftPanel: React.FC<LeftPanelProps> = ({
     <div className="w-80 bg-white border-r border-gray-200 flex flex-col h-full">
       <div className="flex-1 p-4 overflow-y-auto pb-20">
         {/* Header */}
-        <h2 className="text-sm font-semibold text-gray-900 mb-3">Flow Connector</h2>
+        <div className="flex items-center justify-between mb-3">
+          <h2 className="text-sm font-semibold text-gray-900">Flow Connector</h2>
+          <button
+            onClick={clearCache}
+            className="text-xs text-gray-500 hover:text-gray-700 px-2 py-1 rounded hover:bg-gray-100 transition-colors"
+            title="Clear cache and reset plugin data"
+          >
+            Clear Cache
+          </button>
+        </div>
 
         {/* Status */}
         <div className={`text-xs rounded px-3 py-2 mb-3 border ${getStatusClasses()}`}>
