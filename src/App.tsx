@@ -1,31 +1,180 @@
-import React from 'react'
+import { useState, useCallback, useRef, useEffect } from 'react';
+import { AppState, FigmaMessage, defaultConfig, ConnectionConfig } from './types';
+import { useFigmaMessages, useDebouncedSave } from './hooks/useFigmaMessages';
+import MainContainer from './components/MainContainer';
 
 function App() {
+  const [appState, setAppState] = useState<AppState>({
+    config: defaultConfig,
+    status: {
+      type: 'info',
+      message: 'Select 2 frames with Shift+Click to create a connection'
+    },
+    selectedConnectionId: null,
+    isEditingConnection: false,
+    frameCount: 0,
+    connectionCount: 0,
+    autoCreateEnabled: true,
+    autoUpdateEnabled: true,
+    activeTab: 'arrow'
+  });
+
+  const debouncedSave = useDebouncedSave();
+  const sendMessageRef = useRef<((msg: any) => void) | null>(null);
+
+  const handleFigmaMessage = useCallback((message: FigmaMessage) => {
+    switch (message.type) {
+      case 'selection-changed':
+        setAppState(prev => ({
+          ...prev,
+          frameCount: message.frameCount || 0,
+          connectionCount: message.connectionCount || 0,
+          status: {
+            type: 'info',
+            message: message.frameCount === 2 
+              ? 'Ready to create connection' 
+              : 'Select 2 frames with Shift+Click to create a connection'
+          }
+        }));
+        break;
+
+      case 'connection-selected':
+        if (message.config && message.connectionId) {
+          setAppState(prev => ({
+            ...prev,
+            config: message.config!,
+            selectedConnectionId: message.connectionId!,
+            isEditingConnection: true,
+            status: {
+              type: 'editing',
+              message: `Editing: ${message.connectionName || 'Connection'}`
+            }
+          }));
+        }
+        break;
+
+      case 'config-loaded':
+        if (message.config) {
+          setAppState(prev => ({
+            ...prev,
+            config: { ...prev.config, ...message.config }
+          }));
+        }
+        break;
+
+      case 'connection-created':
+        setAppState(prev => ({
+          ...prev,
+          status: {
+            type: 'success',
+            message: 'Connection created successfully!'
+          }
+        }));
+        break;
+
+      case 'get-config':
+        console.log('Received get-config request, sending auto-create with config:', appState.config);
+        // Send current config back to Figma for auto-creation
+        if (sendMessageRef.current) {
+          sendMessageRef.current({ 
+            type: 'auto-create-connection', 
+            config: appState.config 
+          });
+        }
+        break;
+
+      case 'error':
+        setAppState(prev => ({
+          ...prev,
+          status: {
+            type: 'error',
+            message: 'An error occurred. Please try again.'
+          }
+        }));
+        break;
+
+      default:
+        break;
+    }
+  }, []);
+
+  const { sendMessage } = useFigmaMessages({ onMessage: handleFigmaMessage });
+
+  // Store sendMessage in ref for use in message handler
+  useEffect(() => {
+    sendMessageRef.current = sendMessage;
+  }, [sendMessage]);
+
+  // Load initial config and settings when app starts
+  useEffect(() => {
+    sendMessage({ type: 'load-config' });
+    sendMessage({ type: 'toggle-auto-create', enabled: appState.autoCreateEnabled });
+    sendMessage({ type: 'toggle-auto-update', enabled: appState.autoUpdateEnabled });
+  }, [sendMessage]); // Only run once when component mounts
+
+  const updateConfig = useCallback((updates: Partial<ConnectionConfig>) => {
+    const newConfig = { ...appState.config, ...updates };
+    
+    setAppState(prev => ({
+      ...prev,
+      config: newConfig
+    }));
+
+    // Debounced save to Figma
+    debouncedSave(newConfig, sendMessage);
+
+    // Auto-create or update connection if applicable
+    if (appState.autoCreateEnabled && appState.frameCount === 2) {
+      sendMessage({ type: 'auto-create-connection', config: newConfig });
+    } else if (appState.isEditingConnection && appState.selectedConnectionId) {
+      sendMessage({ 
+        type: 'update-connection', 
+        connectionId: appState.selectedConnectionId,
+        config: newConfig 
+      });
+    }
+  }, [appState.config, appState.autoCreateEnabled, appState.frameCount, appState.isEditingConnection, appState.selectedConnectionId, debouncedSave, sendMessage]);
+
+  const updateAppState = useCallback((updates: Partial<AppState>) => {
+    setAppState(prev => ({ ...prev, ...updates }));
+    
+    // Send auto-create/auto-update settings to backend
+    if ('autoCreateEnabled' in updates) {
+      console.log('Sending auto-create setting:', updates.autoCreateEnabled);
+      sendMessage({ type: 'toggle-auto-create', enabled: updates.autoCreateEnabled });
+    }
+    if ('autoUpdateEnabled' in updates) {
+      console.log('Sending auto-update setting:', updates.autoUpdateEnabled);
+      sendMessage({ type: 'toggle-auto-update', enabled: updates.autoUpdateEnabled });
+    }
+  }, [sendMessage]);
+
+  const createConnection = useCallback(() => {
+    sendMessage({ type: 'create-connection', config: appState.config });
+  }, [sendMessage, appState.config]);
+
+  const cancelConnection = useCallback(() => {
+    setAppState(prev => ({
+      ...prev,
+      selectedConnectionId: null,
+      isEditingConnection: false,
+      status: {
+        type: 'info',
+        message: 'Select 2 frames with Shift+Click to create a connection'
+      }
+    }));
+    sendMessage({ type: 'cancel-connection' });
+  }, [sendMessage]);
+
   return (
-    <div className="h-screen bg-gray-50">
-      <div className="flex h-full">
-        {/* Left Panel */}
-        <div className="w-80 bg-white border-r border-gray-200 p-4">
-          <h2 className="text-sm font-semibold text-gray-900 mb-4">Flow Connector</h2>
-          <div className="text-xs text-blue-600 bg-blue-50 border border-blue-200 rounded px-3 py-2">
-            Select 2 frames with Shift+Click to create a connection
-          </div>
-        </div>
-        
-        {/* Right Panel */}
-        <div className="flex-1 p-4">
-          <div className="mb-4">
-            <h3 className="text-xs font-semibold text-gray-600 uppercase tracking-wide mb-3">
-              Preview
-            </h3>
-          </div>
-          <div className="bg-white rounded-lg border border-gray-200 p-5 h-64 flex items-center justify-center">
-            <div className="text-gray-500 text-sm">Preview will appear here</div>
-          </div>
-        </div>
-      </div>
-    </div>
-  )
+    <MainContainer
+      appState={appState}
+      updateConfig={updateConfig}
+      updateAppState={updateAppState}
+      createConnection={createConnection}
+      cancelConnection={cancelConnection}
+    />
+  );
 }
 
-export default App
+export default App;

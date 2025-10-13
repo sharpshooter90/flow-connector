@@ -1,26 +1,22 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import tailwindcss from '@tailwindcss/vite'
+import { viteSingleFile } from 'vite-plugin-singlefile'
 import path from 'path'
 
 // https://vitejs.dev/config/
 export default defineConfig({
-  plugins: [react(), tailwindcss()],
+  plugins: [react(), tailwindcss(), viteSingleFile()],
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
     },
   },
+  base: './', // Use relative paths for assets
   build: {
     outDir: 'dist',
     rollupOptions: {
-      input: {
-        ui: 'index.html'
-      },
-      output: {
-        entryFileNames: 'ui.js',
-        assetFileNames: 'ui.[ext]'
-      }
+      input: 'index.html'
     }
   },
   server: {

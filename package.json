@@ -5,9 +5,11 @@
   "main": "code.js",
   "scripts": {
     "dev": "vite",
-    "build": "tsc && vite build",
-    "build:code": "tsc code.ts --outDir dist --target es6",
-    "build:all": "npm run build:code && npm run build",
+    "build": "tsc && vite build && npm run build:rename && npm run build:copy",
+    "build:code": "tsc -p tsconfig.figma.json",
+    "build:rename": "mv dist/index.html dist/ui.html",
+    "build:copy": "cp dist/ui.html ui.html",
+    "build:all": "npm run build:code && npm run build && cp manifest.json dist/",
     "preview": "vite preview",
     "lint": "eslint --ext .ts,.tsx --ignore-pattern node_modules .",
     "lint:fix": "eslint --ext .ts,.tsx --ignore-pattern node_modules --fix ."
@@ -26,7 +28,8 @@
     "eslint": "^8.54.0",
     "tailwindcss": "^4.1.14",
     "typescript": "^5.3.2",
-    "vite": "^7.1.9"
+    "vite": "^7.1.9",
+    "vite-plugin-singlefile": "^2.3.0"
   },
   "eslintConfig": {
     "extends": [
