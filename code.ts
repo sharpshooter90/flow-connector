@@ -15,6 +15,7 @@ interface ConnectionConfig {
   label: string;
   labelPosition: 'center' | 'top' | 'bottom';
   labelOffset: number;
+  labelFontSize: number;
   labelBg: string;
   labelTextColor: string;
   labelBorderColor: string;
@@ -60,6 +61,7 @@ const defaultConfig: ConnectionConfig = {
   label: 'Label Text',
   labelPosition: 'center',
   labelOffset: 10,
+  labelFontSize: 12,
   labelBg: '#ffffff',
   labelTextColor: '#333333',
   labelBorderColor: '#e0e0e0',
@@ -967,7 +969,7 @@ async function createConnection(frame1: FrameNode, frame2: FrameNode, config: Co
       // Create text
       const label = figma.createText();
       label.characters = config.label;
-      label.fontSize = 12;
+      label.fontSize = config.labelFontSize;
       label.fills = [{ type: 'SOLID', color: hexToRgb(config.labelTextColor) }];
 
       // Create auto-layout frame for the label

@@ -6,12 +6,12 @@
     height: 100vh;
     overflow: hidden;
   }
-  
+
   .main-container {
     display: flex;
     height: 100vh;
   }
-  
+
   .left-panel {
     width: 280px;
     padding: 16px;
@@ -21,13 +21,14 @@
     flex-direction: column;
     height: 100vh;
   }
-  
+
   .left-panel-content {
     flex: 1;
     overflow-y: auto;
-    padding-bottom: 80px; /* Space for sticky buttons */
+    padding-bottom: 80px;
+    /* Space for sticky buttons */
   }
-  
+
   .right-panel {
     flex: 1;
     padding: 16px;
@@ -35,11 +36,11 @@
     display: flex;
     flex-direction: column;
   }
-  
+
   .preview-header {
     margin-bottom: 16px;
   }
-  
+
   .preview-header h3 {
     margin: 0 0 12px 0;
     font-size: 12px;
@@ -48,11 +49,11 @@
     text-transform: uppercase;
     letter-spacing: 0.5px;
   }
-  
+
   .preview-label-input {
     margin-bottom: 16px;
   }
-  
+
   .preview-label-input label {
     display: block;
     margin-bottom: 4px;
@@ -62,7 +63,7 @@
     text-transform: uppercase;
     letter-spacing: 0.5px;
   }
-  
+
   .preview-label-input input {
     width: 100%;
     padding: 8px 12px;
@@ -71,21 +72,21 @@
     font-size: 12px;
     box-sizing: border-box;
   }
-  
+
   h2 {
     margin: 0 0 12px 0;
     color: #1a1a1a;
     font-size: 14px;
     font-weight: 600;
   }
-  
+
   .status {
     padding: 6px 10px;
     border-radius: 4px;
     margin-bottom: 12px;
     font-size: 11px;
   }
-  
+
   .preview-container {
     flex: 1;
     background: white;
@@ -97,13 +98,13 @@
     justify-content: center;
     position: relative;
   }
-  
+
   .preview-canvas {
     width: 240px;
     height: 160px;
     position: relative;
   }
-  
+
   .frame-preview {
     position: absolute;
     width: 50px;
@@ -112,57 +113,57 @@
     border-radius: 6px;
     border: 2px solid #1565c0;
   }
-  
+
   .frame-1 {
     top: 30px;
     left: 30px;
   }
-  
+
   .frame-2 {
     top: 95px;
     right: 30px;
   }
-  
+
   .connection-preview {
     position: absolute;
     top: 0;
     left: 0;
     pointer-events: none;
   }
-  
+
   .connection-preview svg {
     width: 240px;
     height: 160px;
   }
-  
+
   .status.info {
     background: #e3f2fd;
     color: #1976d2;
     border: 1px solid #bbdefb;
   }
-  
+
   .status.success {
     background: #e8f5e8;
     color: #2e7d32;
     border: 1px solid #c8e6c9;
   }
-  
+
   .status.error {
     background: #ffebee;
     color: #c62828;
     border: 1px solid #ffcdd2;
   }
-  
+
   .status.editing {
     background: #fff3e0;
     color: #f57c00;
     border: 1px solid #ffcc02;
   }
-  
+
   .form-group {
     margin-bottom: 10px;
   }
-  
+
   label {
     display: block;
     margin-bottom: 4px;
@@ -172,14 +173,14 @@
     text-transform: uppercase;
     letter-spacing: 0.5px;
   }
-  
+
   .color-grid {
     display: grid;
     grid-template-columns: repeat(6, 1fr);
     gap: 4px;
     margin-bottom: 4px;
   }
-  
+
   .color-option {
     width: 24px;
     height: 24px;
@@ -188,19 +189,19 @@
     cursor: pointer;
     transition: all 0.2s;
   }
-  
+
   .color-option.selected {
     border-color: #0066cc;
     transform: scale(1.1);
   }
-  
+
   .option-grid {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
     gap: 4px;
     margin-bottom: 4px;
   }
-  
+
   .option-button {
     padding: 6px 3px;
     border: 2px solid #e0e0e0;
@@ -216,22 +217,22 @@
     min-height: 28px;
     position: relative;
   }
-  
+
   .option-button.selected {
     border-color: #7c4dff;
     background: #7c4dff;
     color: white;
   }
-  
+
   .option-button:hover {
     border-color: #7c4dff;
   }
-  
+
   input[type="range"] {
     width: 100%;
     margin: 8px 0;
   }
-  
+
   .range-container {
     display: flex;
     justify-content: space-between;
@@ -240,25 +241,25 @@
     color: #666;
     margin-top: 4px;
   }
-  
+
   .checkbox-container {
     display: flex;
     align-items: center;
     gap: 4px;
     margin-bottom: 8px;
   }
-  
+
   .checkbox-container label {
     font-size: 10px;
     text-transform: none;
     letter-spacing: normal;
   }
-  
+
   input[type="checkbox"] {
     width: auto;
   }
-  
-.button-group {
+
+  .button-group {
     position: absolute;
     bottom: 0;
     left: 0;
@@ -269,8 +270,8 @@
     border-top: 1px solid #e0e0e0;
     padding: 16px;
     z-index: 9;
-}
-  
+  }
+
   button {
     flex: 1;
     padding: 8px 12px;
@@ -281,30 +282,30 @@
     cursor: pointer;
     transition: background-color 0.2s;
   }
-  
+
   .primary {
     background: #0066cc;
     color: white;
   }
-  
+
   .primary:hover {
     background: #0052a3;
   }
-  
+
   .primary:disabled {
     background: #ccc;
     cursor: not-allowed;
   }
-  
+
   .secondary {
     background: #f0f0f0;
     color: #333;
   }
-  
+
   .secondary:hover {
     background: #e0e0e0;
   }
-  
+
   input[type="text"] {
     width: 100%;
     padding: 4px 6px;
@@ -313,37 +314,80 @@
     font-size: 10px;
     box-sizing: border-box;
   }
-  
+
   /* Custom stroke width indicators */
-  .stroke-width-1::after { content: ''; position: absolute; width: 16px; height: 1px; background: #333; }
-  .stroke-width-2::after { content: ''; position: absolute; width: 16px; height: 2px; background: #333; }
-  .stroke-width-3::after { content: ''; position: absolute; width: 16px; height: 3px; background: #333; }
-  .stroke-width-4::after { content: ''; position: absolute; width: 16px; height: 4px; background: #333; }
-  
+  .stroke-width-1::after {
+    content: '';
+    position: absolute;
+    width: 16px;
+    height: 1px;
+    background: #333;
+  }
+
+  .stroke-width-2::after {
+    content: '';
+    position: absolute;
+    width: 16px;
+    height: 2px;
+    background: #333;
+  }
+
+  .stroke-width-3::after {
+    content: '';
+    position: absolute;
+    width: 16px;
+    height: 3px;
+    background: #333;
+  }
+
+  .stroke-width-4::after {
+    content: '';
+    position: absolute;
+    width: 16px;
+    height: 4px;
+    background: #333;
+  }
+
   /* Custom stroke style indicators */
-  .stroke-solid::after { content: ''; position: absolute; width: 16px; height: 2px; background: #333; }
-  .stroke-dashed::after { 
-    content: ''; 
-    position: absolute; 
-    width: 16px; 
-    height: 2px; 
+  .stroke-solid::after {
+    content: '';
+    position: absolute;
+    width: 16px;
+    height: 2px;
+    background: #333;
+  }
+
+  .stroke-dashed::after {
+    content: '';
+    position: absolute;
+    width: 16px;
+    height: 2px;
     background: linear-gradient(to right, #333 40%, transparent 40%, transparent 60%, #333 60%);
     background-size: 4px 2px;
   }
-  .stroke-dotted::after { 
-    content: ''; 
-    position: absolute; 
-    width: 16px; 
-    height: 2px; 
+
+  .stroke-dotted::after {
+    content: '';
+    position: absolute;
+    width: 16px;
+    height: 2px;
     background: linear-gradient(to right, #333 25%, transparent 25%, transparent 75%, #333 75%);
     background-size: 3px 2px;
   }
-  
+
   /* Custom sloppiness indicators */
-  .sloppiness-none svg { filter: none; }
-  .sloppiness-low svg { filter: url(#roughen-low); }
-  .sloppiness-high svg { filter: url(#roughen-high); }
-  
+  .sloppiness-none svg {
+    filter: none;
+  }
+
+  .sloppiness-low svg {
+    filter: url(#roughen-low);
+  }
+
+  .sloppiness-high svg {
+    filter: url(#roughen-high);
+  }
+
   /* SVG icons */
   .option-button svg {
     width: 18px;
@@ -352,18 +396,18 @@
     fill: none;
     stroke-width: 1.5;
   }
-  
+
   .option-button.selected svg {
     stroke: white;
   }
-  
+
   /* Tab styles */
   .tabs {
     display: flex;
     margin-bottom: 12px;
     border-bottom: 1px solid #e0e0e0;
   }
-  
+
   .tab {
     flex: 1;
     padding: 8px 12px;
@@ -378,16 +422,16 @@
     color: #666;
     transition: all 0.2s;
   }
-  
+
   .tab.active {
     color: #0066cc;
     border-bottom-color: #0066cc;
   }
-  
+
   .tab-content {
     display: none;
   }
-  
+
   .tab-content.active {
     display: block;
   }
@@ -397,40 +441,40 @@
   <div class="left-panel">
     <div class="left-panel-content">
       <h2>Flow Connector</h2>
-      
+
       <div id="status" class="status info">
         Select 2 frames with Shift+Click to create a connection
       </div>
-      
+
       <div class="checkbox-container">
         <input type="checkbox" id="autoCreate" checked>
         <label for="autoCreate" style="margin: 0; font-weight: normal;">Auto-create on selection</label>
       </div>
-      
+
       <div class="checkbox-container">
         <input type="checkbox" id="autoUpdate" checked>
         <label for="autoUpdate" style="margin: 0; font-weight: normal;">Auto-update when frames move</label>
       </div>
-      
+
       <!-- Tabs -->
       <div class="tabs">
         <button class="tab active" data-tab="arrow">Arrow</button>
         <button class="tab" data-tab="label">Label</button>
       </div>
-  
-  <!-- SVG Filters for sloppiness effect -->
-  <svg width="0" height="0" style="position: absolute;">
-    <defs>
-      <filter id="roughen-low">
-        <feTurbulence baseFrequency="0.04" numOctaves="3" result="noise"/>
-        <feDisplacementMap in="SourceGraphic" in2="noise" scale="0.5"/>
-      </filter>
-      <filter id="roughen-high">
-        <feTurbulence baseFrequency="0.08" numOctaves="4" result="noise"/>
-        <feDisplacementMap in="SourceGraphic" in2="noise" scale="1.2"/>
-      </filter>
-    </defs>
-  </svg>
+
+      <!-- SVG Filters for sloppiness effect -->
+      <svg width="0" height="0" style="position: absolute;">
+        <defs>
+          <filter id="roughen-low">
+            <feTurbulence baseFrequency="0.04" numOctaves="3" result="noise" />
+            <feDisplacementMap in="SourceGraphic" in2="noise" scale="0.5" />
+          </filter>
+          <filter id="roughen-high">
+            <feTurbulence baseFrequency="0.08" numOctaves="4" result="noise" />
+            <feDisplacementMap in="SourceGraphic" in2="noise" scale="1.2" />
+          </filter>
+        </defs>
+      </svg>
 
       <!-- Arrow Tab Content -->
       <div class="tab-content active" id="arrow-tab">
@@ -445,7 +489,7 @@
             <div class="color-option" data-color="#2196f3" style="background: #2196f3;"></div>
           </div>
         </div>
-        
+
         <div class="form-group">
           <label>Stroke width</label>
           <div class="option-grid">
@@ -455,7 +499,7 @@
             <div class="option-button stroke-width-4" data-width="4"></div>
           </div>
         </div>
-        
+
         <div class="form-group">
           <label>Stroke style</label>
           <div class="option-grid">
@@ -465,55 +509,79 @@
             <div class="option-button" style="visibility: hidden;"></div>
           </div>
         </div>
-        
+
         <div class="form-group">
           <label>Sloppiness</label>
           <div class="option-grid">
             <div class="option-button sloppiness-none" data-sloppiness="none">
-              <svg><line x1="2" y1="6" x2="18" y2="6"/></svg>
+              <svg>
+                <line x1="2" y1="6" x2="18" y2="6" />
+              </svg>
             </div>
             <div class="option-button selected sloppiness-low" data-sloppiness="low">
-              <svg><line x1="2" y1="6" x2="18" y2="6" class="low-rough"/></svg>
+              <svg>
+                <line x1="2" y1="6" x2="18" y2="6" class="low-rough" />
+              </svg>
             </div>
             <div class="option-button sloppiness-high" data-sloppiness="high">
-              <svg><path d="M2,6 Q6,4 10,6 T18,6" class="high-rough"/></svg>
+              <svg>
+                <path d="M2,6 Q6,4 10,6 T18,6" class="high-rough" />
+              </svg>
             </div>
             <div class="option-button" style="visibility: hidden;"></div>
           </div>
         </div>
-        
+
         <div class="form-group">
           <label>Arrow type</label>
           <div class="option-grid">
             <div class="option-button" data-arrow-type="straight">
-              <svg><line x1="2" y1="5" x2="16" y2="5"/><polygon points="13,2 16,5 13,8" fill="currentColor"/></svg>
+              <svg>
+                <line x1="2" y1="5" x2="16" y2="5" />
+                <polygon points="13,2 16,5 13,8" fill="currentColor" />
+              </svg>
             </div>
             <div class="option-button" data-arrow-type="curved">
-              <svg><path d="M2,5 Q9,1 16,5"/><polygon points="13,2 16,5 13,8" fill="currentColor"/></svg>
+              <svg>
+                <path d="M2,5 Q9,1 16,5" />
+                <polygon points="13,2 16,5 13,8" fill="currentColor" />
+              </svg>
             </div>
             <div class="option-button selected" data-arrow-type="elbow">
-              <svg><path d="M2,5 L9,5 L9,2 L16,2"/><polygon points="13,0 16,2 13,4" fill="currentColor"/></svg>
+              <svg>
+                <path d="M2,5 L9,5 L9,2 L16,2" />
+                <polygon points="13,0 16,2 13,4" fill="currentColor" />
+              </svg>
             </div>
             <div class="option-button" style="visibility: hidden;"></div>
           </div>
         </div>
-        
+
         <div class="form-group">
           <label>Arrowheads</label>
           <div class="option-grid">
             <div class="option-button" data-arrowheads="none">
-              <svg><line x1="2" y1="5" x2="16" y2="5"/></svg>
+              <svg>
+                <line x1="2" y1="5" x2="16" y2="5" />
+              </svg>
             </div>
             <div class="option-button selected" data-arrowheads="end">
-              <svg><line x1="2" y1="5" x2="16" y2="5"/><polygon points="13,2 16,5 13,8" fill="currentColor"/></svg>
+              <svg>
+                <line x1="2" y1="5" x2="16" y2="5" />
+                <polygon points="13,2 16,5 13,8" fill="currentColor" />
+              </svg>
             </div>
             <div class="option-button" data-arrowheads="both">
-              <svg><line x1="2" y1="5" x2="16" y2="5"/><polygon points="5,2 2,5 5,8" fill="currentColor"/><polygon points="13,2 16,5 13,8" fill="currentColor"/></svg>
+              <svg>
+                <line x1="2" y1="5" x2="16" y2="5" />
+                <polygon points="5,2 2,5 5,8" fill="currentColor" />
+                <polygon points="13,2 16,5 13,8" fill="currentColor" />
+              </svg>
             </div>
             <div class="option-button" style="visibility: hidden;"></div>
           </div>
         </div>
-        
+
         <div class="form-group">
           <label>Start Position</label>
           <div class="option-grid">
@@ -525,7 +593,7 @@
             <div class="option-button" style="visibility: hidden;"></div>
           </div>
         </div>
-        
+
         <div class="form-group">
           <label>End Position</label>
           <div class="option-grid">
@@ -537,7 +605,7 @@
             <div class="option-button" style="visibility: hidden;"></div>
           </div>
         </div>
-        
+
         <div class="form-group">
           <label>Connection Offset</label>
           <input type="range" id="connectionOffset" min="0" max="50" value="20">
@@ -547,12 +615,12 @@
             <span>50</span>
           </div>
         </div>
-        
+
         <div class="checkbox-container">
           <input type="checkbox" id="avoidOverlap" checked>
           <label for="avoidOverlap" style="margin: 0; font-weight: normal;">Avoid frame overlap</label>
         </div>
-        
+
         <div class="form-group">
           <label>Opacity</label>
           <input type="range" id="opacity" min="0" max="100" value="100">
@@ -563,26 +631,28 @@
           </div>
         </div>
       </div>
-      
+
       <!-- Label Tab Content -->
       <div class="tab-content" id="label-tab">
-        
+
         <div class="form-group">
           <label>Text Color</label>
           <div class="color-grid">
             <div class="color-option selected" data-label-text-color="#333333" style="background: #333333;"></div>
-            <div class="color-option" data-label-text-color="#ffffff" style="background: #ffffff; border: 1px solid #ddd;"></div>
+            <div class="color-option" data-label-text-color="#ffffff"
+              style="background: #ffffff; border: 1px solid #ddd;"></div>
             <div class="color-option" data-label-text-color="#dc3545" style="background: #dc3545;"></div>
             <div class="color-option" data-label-text-color="#28a745" style="background: #28a745;"></div>
             <div class="color-option" data-label-text-color="#1976d2" style="background: #1976d2;"></div>
             <div class="color-option" data-label-text-color="#ff9800" style="background: #ff9800;"></div>
           </div>
         </div>
-        
+
         <div class="form-group">
           <label>Background Color</label>
           <div class="color-grid">
-            <div class="color-option selected" data-label-bg="#ffffff" style="background: #ffffff; border: 1px solid #ddd;"></div>
+            <div class="color-option selected" data-label-bg="#ffffff"
+              style="background: #ffffff; border: 1px solid #ddd;"></div>
             <div class="color-option" data-label-bg="#f8f9fa" style="background: #f8f9fa;"></div>
             <div class="color-option" data-label-bg="#333333" style="background: #333333;"></div>
             <div class="color-option" data-label-bg="#1976d2" style="background: #1976d2;"></div>
@@ -590,7 +660,7 @@
             <div class="color-option" data-label-bg="#ff9800" style="background: #ff9800;"></div>
           </div>
         </div>
-        
+
         <div class="form-group">
           <label>Border Color</label>
           <div class="color-grid">
@@ -602,7 +672,7 @@
             <div class="color-option" data-label-border="#ff9800" style="background: #ff9800;"></div>
           </div>
         </div>
-        
+
         <div class="form-group">
           <label>Border Width</label>
           <div class="option-grid">
@@ -612,7 +682,7 @@
             <div class="option-button" data-label-border-width="3">3</div>
           </div>
         </div>
-        
+
         <div class="form-group">
           <label>Label Position</label>
           <div class="option-grid">
@@ -622,7 +692,7 @@
             <div class="option-button" style="visibility: hidden;"></div>
           </div>
         </div>
-        
+
         <div class="form-group">
           <label>Label Offset</label>
           <input type="range" id="labelOffset" min="0" max="30" value="10">
@@ -632,7 +702,17 @@
             <span>30</span>
           </div>
         </div>
-        
+
+        <div class="form-group">
+          <label>Font Size</label>
+          <input type="range" id="labelFontSize" min="8" max="24" value="12">
+          <div class="range-container">
+            <span>8</span>
+            <span id="labelFontSizeValue">12</span>
+            <span>24</span>
+          </div>
+        </div>
+
         <div class="form-group">
           <label>Border Radius</label>
           <input type="range" id="labelBorderRadius" min="0" max="12" value="4">
@@ -642,7 +722,7 @@
             <span>12</span>
           </div>
         </div>
-        
+
         <div class="form-group">
           <label>Padding</label>
           <input type="range" id="labelPadding" min="2" max="12" value="6">
@@ -654,13 +734,13 @@
         </div>
       </div>
     </div>
-    
+
     <div class="button-group">
       <button id="create" class="primary" disabled>Create Connection</button>
       <button id="cancel" class="secondary">Cancel</button>
     </div>
   </div>
-  
+
   <div class="right-panel">
     <div class="preview-header">
       <h3>Preview</h3>
@@ -677,12 +757,12 @@
           <svg id="previewSvg">
             <defs>
               <filter id="preview-roughen-low">
-                <feTurbulence baseFrequency="0.04" numOctaves="3" result="noise"/>
-                <feDisplacementMap in="SourceGraphic" in2="noise" scale="0.3"/>
+                <feTurbulence baseFrequency="0.04" numOctaves="3" result="noise" />
+                <feDisplacementMap in="SourceGraphic" in2="noise" scale="0.3" />
               </filter>
               <filter id="preview-roughen-high">
-                <feTurbulence baseFrequency="0.08" numOctaves="4" result="noise"/>
-                <feDisplacementMap in="SourceGraphic" in2="noise" scale="0.8"/>
+                <feTurbulence baseFrequency="0.08" numOctaves="4" result="noise" />
+                <feDisplacementMap in="SourceGraphic" in2="noise" scale="0.8" />
               </filter>
             </defs>
             <g id="previewConnection">
@@ -698,19 +778,19 @@
 <script>
   let frameCount = 0;
   let connectionCount = 0;
-  
+
   // Shared debouncer for label configuration changes
   let labelConfigDebounceTimer = null;
-  
+
   function debounceLabelUpdate() {
     // Clear existing timer
     if (labelConfigDebounceTimer) {
       clearTimeout(labelConfigDebounceTimer);
     }
-    
+
     // Update preview immediately for responsive UI
     updatePreview();
-    
+
     // Debounce the actual connection update and save
     labelConfigDebounceTimer = setTimeout(() => {
       saveConfig();
@@ -723,7 +803,7 @@
   }
   let selectedConnectionId = null;
   let isEditingConnection = false;
-  
+
   // Default config (will be overridden by saved config from backend)
   let config = {
     color: '#2c2c2c',
@@ -740,6 +820,7 @@
     label: 'Label Text',
     labelPosition: 'center',
     labelOffset: 10,
+    labelFontSize: 12,
     labelBg: '#ffffff',
     labelTextColor: '#333333',
     labelBorderColor: '#e0e0e0',
@@ -747,27 +828,27 @@
     labelBorderRadius: 4,
     labelPadding: 6
   };
-  
+
   // Figma storage functions
   function saveConfig() {
     try {
       // Send config to backend for storage
-      parent.postMessage({ 
-        pluginMessage: { 
-          type: 'save-config', 
-          config: config 
-        } 
+      parent.postMessage({
+        pluginMessage: {
+          type: 'save-config',
+          config: config
+        }
       }, '*');
     } catch (error) {
       console.warn('Failed to save config:', error);
     }
   }
-  
+
   function loadConfig() {
     // Config will be loaded by backend and sent to UI on initialization
     return null; // Backend will send the config via message
   }
-  
+
   // Helper function to check if a line intersects with a rectangle (frame) - Preview version
   function previewLineIntersectsRect(lineStart, lineEnd, rect) {
     const padding = 5; // Smaller padding for preview
@@ -784,9 +865,9 @@
     const rectBottom = expandedRect.y + expandedRect.height;
 
     if ((lineStart.x < rectLeft && lineEnd.x < rectLeft) ||
-        (lineStart.x > rectRight && lineEnd.x > rectRight) ||
-        (lineStart.y < rectTop && lineEnd.y < rectTop) ||
-        (lineStart.y > rectBottom && lineEnd.y > rectBottom)) {
+      (lineStart.x > rectRight && lineEnd.x > rectRight) ||
+      (lineStart.y < rectTop && lineEnd.y < rectTop) ||
+      (lineStart.y > rectBottom && lineEnd.y > rectBottom)) {
       return false;
     }
 
@@ -825,16 +906,16 @@
 
       const maxBottom = Math.max(frame1Bottom, frame2Bottom);
       const minTop = Math.min(frame1Top, frame2Top);
-      
+
       const clearance = config.connectionOffset + 10;
       const routeAboveY = minTop - clearance;
       const routeBelowY = maxBottom + clearance;
-      
+
       const avgY = (startPoint.y + endPoint.y) / 2;
       const useAbove = Math.abs(routeAboveY - avgY) < Math.abs(routeBelowY - avgY);
-      
+
       const routeY = useAbove ? routeAboveY : routeBelowY;
-      
+
       waypoints = [
         { x: startPoint.x, y: routeY },
         { x: endPoint.x, y: routeY }
@@ -847,16 +928,16 @@
 
       const maxRight = Math.max(frame1Right, frame2Right);
       const minLeft = Math.min(frame1Left, frame2Left);
-      
+
       const clearance = config.connectionOffset + 10;
       const routeLeftX = minLeft - clearance;
       const routeRightX = maxRight + clearance;
-      
+
       const avgX = (startPoint.x + endPoint.x) / 2;
       const useLeft = Math.abs(routeLeftX - avgX) < Math.abs(routeRightX - avgX);
-      
+
       const routeX = useLeft ? routeLeftX : routeRightX;
-      
+
       waypoints = [
         { x: routeX, y: startPoint.y },
         { x: routeX, y: endPoint.y }
@@ -977,10 +1058,10 @@
     // Calculate avoidance routing if enabled
     const avoidanceRoute = calculatePreviewAvoidanceRoute(frame1, frame2, startOffsetPoint, endOffsetPoint, config);
 
-    return { 
-      startPoint, 
-      endPoint, 
-      startOffsetPoint, 
+    return {
+      startPoint,
+      endPoint,
+      startOffsetPoint,
       endOffsetPoint,
       waypoints: avoidanceRoute.waypoints
     };
@@ -989,31 +1070,31 @@
   // Helper function to calculate the label position based on path and configuration - Preview version
   function calculatePreviewLabelPosition(startPoint, endPoint, startOffsetPoint, endOffsetPoint, waypoints, config) {
     // Validate input points and provide fallbacks
-    const safeStartPoint = { 
-      x: isNaN(startPoint?.x) ? 0 : startPoint.x, 
-      y: isNaN(startPoint?.y) ? 0 : startPoint.y 
+    const safeStartPoint = {
+      x: isNaN(startPoint?.x) ? 0 : startPoint.x,
+      y: isNaN(startPoint?.y) ? 0 : startPoint.y
     };
-    const safeEndPoint = { 
-      x: isNaN(endPoint?.x) ? 100 : endPoint.x, 
-      y: isNaN(endPoint?.y) ? 100 : endPoint.y 
+    const safeEndPoint = {
+      x: isNaN(endPoint?.x) ? 100 : endPoint.x,
+      y: isNaN(endPoint?.y) ? 100 : endPoint.y
     };
-    const safeStartOffsetPoint = { 
-      x: isNaN(startOffsetPoint?.x) ? safeStartPoint.x : startOffsetPoint.x, 
-      y: isNaN(startOffsetPoint?.y) ? safeStartPoint.y : startOffsetPoint.y 
+    const safeStartOffsetPoint = {
+      x: isNaN(startOffsetPoint?.x) ? safeStartPoint.x : startOffsetPoint.x,
+      y: isNaN(startOffsetPoint?.y) ? safeStartPoint.y : startOffsetPoint.y
     };
-    const safeEndOffsetPoint = { 
-      x: isNaN(endOffsetPoint?.x) ? safeEndPoint.x : endOffsetPoint.x, 
-      y: isNaN(endOffsetPoint?.y) ? safeEndPoint.y : endOffsetPoint.y 
+    const safeEndOffsetPoint = {
+      x: isNaN(endOffsetPoint?.x) ? safeEndPoint.x : endOffsetPoint.x,
+      y: isNaN(endOffsetPoint?.y) ? safeEndPoint.y : endOffsetPoint.y
     };
 
     // Build the actual path points in order
     const pathPoints = [safeStartPoint];
-    
+
     // Add offset point if we have one
     if (config.connectionOffset > 0) {
       pathPoints.push(safeStartOffsetPoint);
     }
-    
+
     // Add all waypoints (with validation)
     if (waypoints && waypoints.length > 0) {
       for (const waypoint of waypoints) {
@@ -1022,74 +1103,74 @@
         }
       }
     }
-    
+
     // Add end offset point if we have one
     if (config.connectionOffset > 0) {
       pathPoints.push(safeEndOffsetPoint);
     }
-    
+
     // Add end point
     pathPoints.push(safeEndPoint);
-    
+
     // Calculate the total path length and find the center point
     let totalLength = 0;
     const segments = [];
-    
+
     for (let i = 0; i < pathPoints.length - 1; i++) {
       const start = pathPoints[i];
       const end = pathPoints[i + 1];
       const dx = end.x - start.x;
       const dy = end.y - start.y;
       const length = Math.sqrt(dx * dx + dy * dy);
-      
+
       // Skip zero-length segments
       if (length > 0) {
         segments.push({ start, end, length });
         totalLength += length;
       }
     }
-    
+
     // Fallback to simple midpoint if no valid segments
     if (segments.length === 0 || totalLength === 0) {
       const fallbackCenter = {
         x: (safeStartPoint.x + safeEndPoint.x) / 2,
         y: (safeStartPoint.y + safeEndPoint.y) / 2
       };
-      
+
       // Apply simple offset for non-center positions
       if (config.labelPosition === 'top') {
         return { x: fallbackCenter.x, y: fallbackCenter.y - (config.labelOffset || 10) };
       } else if (config.labelPosition === 'bottom') {
         return { x: fallbackCenter.x, y: fallbackCenter.y + (config.labelOffset || 10) };
       }
-      
+
       return fallbackCenter;
     }
-    
+
     // Find the point at half the total length (path center)
     const halfLength = totalLength / 2;
     let currentLength = 0;
     let pathCenter = { x: 0, y: 0 };
     let pathAngle = 0;
-    
+
     for (const segment of segments) {
       if (currentLength + segment.length >= halfLength) {
         // The midpoint is within this segment
         const remainingLength = halfLength - currentLength;
         const ratio = segment.length > 0 ? remainingLength / segment.length : 0;
-        
+
         pathCenter = {
           x: segment.start.x + (segment.end.x - segment.start.x) * ratio,
           y: segment.start.y + (segment.end.y - segment.start.y) * ratio
         };
-        
+
         // Calculate the angle of this segment for offset positioning
         pathAngle = Math.atan2(segment.end.y - segment.start.y, segment.end.x - segment.start.x);
         break;
       }
       currentLength += segment.length;
     }
-    
+
     // Validate pathCenter and provide fallback
     if (isNaN(pathCenter.x) || isNaN(pathCenter.y)) {
       pathCenter = {
@@ -1098,17 +1179,17 @@
       };
       pathAngle = Math.atan2(safeEndPoint.y - safeStartPoint.y, safeEndPoint.x - safeStartPoint.x);
     }
-    
+
     // Apply position offset based on label position setting
     console.log('Preview label position logic:', config.labelPosition, pathCenter, pathAngle); // Debug log
     if (config.labelPosition === 'center') {
       return pathCenter;
     }
-    
+
     // For top/bottom positioning, move along the path towards start/end
     const offsetDistance = config.labelOffset || 10;
     let finalPosition = pathCenter;
-    
+
     if (config.labelPosition === 'top') {
       // "Top" means closer to the start of the arrow (tail end)
       // Move backwards along the path from center
@@ -1126,7 +1207,7 @@
       };
       console.log('Bottom position calculated (towards end):', finalPosition); // Debug log
     }
-    
+
     // Final validation
     return {
       x: isNaN(finalPosition.x) ? pathCenter.x : finalPosition.x,
@@ -1138,39 +1219,39 @@
   function updatePreview() {
     const svg = document.getElementById('previewSvg');
     const connection = document.getElementById('previewConnection');
-    
+
     // Clear previous connection
     connection.innerHTML = '';
-    
+
     // Frame positions (relative to preview canvas)
     const frame1 = { x: 30, y: 30, width: 50, height: 35 };
     const frame2 = { x: 160, y: 95, width: 50, height: 35 };
-    
+
     // Calculate connection points based on positioning config
     const { startPoint, endPoint, startOffsetPoint, endOffsetPoint, waypoints } = calculatePreviewConnectionPoints(frame1, frame2, config);
-    
+
     // Create path based on arrow type
     let pathData = '';
-    
+
     // If we have waypoints (avoidance routing), create a path through them
     if (waypoints.length > 0) {
       pathData = `M ${startPoint.x} ${startPoint.y}`;
-      
+
       // Add offset point if we have one
       if (config.connectionOffset > 0) {
         pathData += ` L ${startOffsetPoint.x} ${startOffsetPoint.y}`;
       }
-      
+
       // Add all waypoints
       for (const waypoint of waypoints) {
         pathData += ` L ${waypoint.x} ${waypoint.y}`;
       }
-      
+
       // Add end offset point if we have one
       if (config.connectionOffset > 0) {
         pathData += ` L ${endOffsetPoint.x} ${endOffsetPoint.y}`;
       }
-      
+
       // End at the final point
       pathData += ` L ${endPoint.x} ${endPoint.y}`;
     } else {
@@ -1217,22 +1298,22 @@
           const dy = endPoint.y - startPoint.y;
           const distance = Math.sqrt(dx * dx + dy * dy);
           const curvature = distance * 0.3;
-          
+
           const controlPoint1 = {
             x: startPoint.x + (Math.abs(dx) > Math.abs(dy) ? curvature : 0),
             y: startPoint.y + (Math.abs(dy) > Math.abs(dx) ? curvature * Math.sign(dy) : 0)
           };
-          
+
           const controlPoint2 = {
             x: endPoint.x - (Math.abs(dx) > Math.abs(dy) ? curvature : 0),
             y: endPoint.y - (Math.abs(dy) > Math.abs(dx) ? curvature * Math.sign(dy) : 0)
           };
-          
+
           pathData = `M ${startPoint.x} ${startPoint.y} C ${controlPoint1.x} ${controlPoint1.y} ${controlPoint2.x} ${controlPoint2.y} ${endPoint.x} ${endPoint.y}`;
         }
       }
     }
-    
+
     // Create main line
     const line = document.createElementNS('http://www.w3.org/2000/svg', 'path');
     line.setAttribute('d', pathData);
@@ -1240,36 +1321,36 @@
     line.setAttribute('stroke-width', config.strokeWidth);
     line.setAttribute('fill', 'none');
     line.setAttribute('opacity', config.opacity / 100);
-    
+
     // Apply stroke style
     if (config.strokeStyle === 'dashed') {
       line.setAttribute('stroke-dasharray', '5,5');
     } else if (config.strokeStyle === 'dotted') {
       line.setAttribute('stroke-dasharray', '2,3');
     }
-    
+
     // Apply sloppiness filter
     if (config.sloppiness === 'low') {
       line.setAttribute('filter', 'url(#preview-roughen-low)');
     } else if (config.sloppiness === 'high') {
       line.setAttribute('filter', 'url(#preview-roughen-high)');
     }
-    
+
     connection.appendChild(line);
-    
+
     // Add arrowheads
     if (config.arrowheads === 'end' || config.arrowheads === 'both') {
       const angle = Math.atan2(endPoint.y - startPoint.y, endPoint.x - startPoint.x);
       const arrowHead = createPreviewArrowHead(endPoint.x, endPoint.y, angle);
       connection.appendChild(arrowHead);
     }
-    
+
     if (config.arrowheads === 'both') {
       const angle = Math.atan2(endPoint.y - startPoint.y, endPoint.x - startPoint.x) + Math.PI;
       const arrowHead = createPreviewArrowHead(startPoint.x, startPoint.y, angle);
       connection.appendChild(arrowHead);
     }
-    
+
     // Add label if present
     if (config.label.trim()) {
       // Calculate the label position based on configuration
@@ -1278,14 +1359,14 @@
       console.log('Label position result:', labelPosition); // Debug log
       const midX = labelPosition.x;
       const midY = labelPosition.y;
-      
+
       // Create background rectangle
       const labelBg = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
-      const textWidth = config.label.length * 6; // Approximate text width
-      const textHeight = 12;
+      const textWidth = config.label.length * (config.labelFontSize * 0.6); // Approximate text width based on font size
+      const textHeight = config.labelFontSize;
       const bgWidth = textWidth + (config.labelPadding * 2);
       const bgHeight = textHeight + (config.labelPadding * 2);
-      
+
       labelBg.setAttribute('x', midX - bgWidth / 2);
       labelBg.setAttribute('y', midY - bgHeight / 2);
       labelBg.setAttribute('width', bgWidth);
@@ -1295,9 +1376,9 @@
       labelBg.setAttribute('stroke-width', config.labelBorderWidth);
       labelBg.setAttribute('rx', config.labelBorderRadius);
       labelBg.setAttribute('opacity', config.opacity / 100);
-      
+
       connection.appendChild(labelBg);
-      
+
       // Create text
       const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
       text.setAttribute('x', midX);
@@ -1305,34 +1386,34 @@
       text.setAttribute('text-anchor', 'middle');
       text.setAttribute('dominant-baseline', 'middle');
       text.setAttribute('fill', config.labelTextColor);
-      text.setAttribute('font-size', '10');
+      text.setAttribute('font-size', config.labelFontSize);
       text.setAttribute('font-family', 'Inter, sans-serif');
       text.setAttribute('opacity', config.opacity / 100);
       text.textContent = config.label;
-      
+
       connection.appendChild(text);
     }
   }
-  
+
   function createPreviewArrowHead(x, y, angle) {
     const arrowLength = 8;
     const arrowAngle = Math.PI / 6;
-    
+
     const x1 = x - arrowLength * Math.cos(angle - arrowAngle);
     const y1 = y - arrowLength * Math.sin(angle - arrowAngle);
     const x2 = x - arrowLength * Math.cos(angle + arrowAngle);
     const y2 = y - arrowLength * Math.sin(angle + arrowAngle);
-    
+
     const arrowHead = document.createElementNS('http://www.w3.org/2000/svg', 'path');
     arrowHead.setAttribute('d', `M ${x1} ${y1} L ${x} ${y} L ${x2} ${y2}`);
     arrowHead.setAttribute('stroke', config.color);
     arrowHead.setAttribute('stroke-width', config.strokeWidth);
     arrowHead.setAttribute('fill', 'none');
     arrowHead.setAttribute('opacity', config.opacity / 100);
-    
+
     return arrowHead;
   }
-  
+
   // Tab functionality
   function initializeTabs() {
     document.querySelectorAll('.tab').forEach(tab => {
@@ -1340,7 +1421,7 @@
         // Remove active class from all tabs and content
         document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
         document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-        
+
         // Add active class to clicked tab and corresponding content
         tab.classList.add('active');
         const tabId = tab.dataset.tab + '-tab';
@@ -1366,7 +1447,7 @@
         }
       });
     });
-    
+
     // Stroke width
     document.querySelectorAll('[data-width]').forEach(option => {
       option.addEventListener('click', () => {
@@ -1382,7 +1463,7 @@
         }
       });
     });
-    
+
     // Stroke style
     document.querySelectorAll('[data-style]').forEach(option => {
       option.addEventListener('click', () => {
@@ -1398,7 +1479,7 @@
         }
       });
     });
-    
+
     // Sloppiness
     document.querySelectorAll('[data-sloppiness]').forEach(option => {
       option.addEventListener('click', () => {
@@ -1414,7 +1495,7 @@
         }
       });
     });
-    
+
     // Arrow type
     document.querySelectorAll('[data-arrow-type]').forEach(option => {
       option.addEventListener('click', () => {
@@ -1430,7 +1511,7 @@
         }
       });
     });
-    
+
     // Arrowheads
     document.querySelectorAll('[data-arrowheads]').forEach(option => {
       option.addEventListener('click', () => {
@@ -1446,7 +1527,7 @@
         }
       });
     });
-    
+
     // Start position
     document.querySelectorAll('[data-start-position]').forEach(option => {
       option.addEventListener('click', () => {
@@ -1462,7 +1543,7 @@
         }
       });
     });
-    
+
     // End position
     document.querySelectorAll('[data-end-position]').forEach(option => {
       option.addEventListener('click', () => {
@@ -1478,11 +1559,11 @@
         }
       });
     });
-    
+
     // Opacity slider
     const opacitySlider = document.getElementById('opacity');
     const opacityValue = document.getElementById('opacityValue');
-    
+
     opacitySlider.addEventListener('input', () => {
       config.opacity = parseInt(opacitySlider.value);
       opacityValue.textContent = opacitySlider.value;
@@ -1494,11 +1575,11 @@
         checkAutoCreate();
       }
     });
-    
+
     // Connection offset slider
     const connectionOffsetSlider = document.getElementById('connectionOffset');
     const connectionOffsetValue = document.getElementById('connectionOffsetValue');
-    
+
     connectionOffsetSlider.addEventListener('input', () => {
       config.connectionOffset = parseInt(connectionOffsetSlider.value);
       connectionOffsetValue.textContent = connectionOffsetSlider.value;
@@ -1510,7 +1591,7 @@
         checkAutoCreate();
       }
     });
-    
+
     // Avoid overlap checkbox
     const avoidOverlapCheckbox = document.getElementById('avoidOverlap');
     avoidOverlapCheckbox.addEventListener('change', () => {
@@ -1523,22 +1604,22 @@
         checkAutoCreate();
       }
     });
-    
+
     // Label input (now in preview area) with debouncing
     const labelInput = document.getElementById('labelPreview');
     let labelDebounceTimer = null;
-    
+
     labelInput.addEventListener('input', () => {
       config.label = labelInput.value;
-      
+
       // Update preview immediately for responsive UI
       updatePreview();
-      
+
       // Clear existing timer
       if (labelDebounceTimer) {
         clearTimeout(labelDebounceTimer);
       }
-      
+
       // Debounce the actual connection update and save
       labelDebounceTimer = setTimeout(() => {
         saveConfig();
@@ -1549,7 +1630,7 @@
         }
       }, 300); // 300ms delay
     });
-    
+
     // Label text color
     document.querySelectorAll('[data-label-text-color]').forEach(option => {
       option.addEventListener('click', () => {
@@ -1559,7 +1640,7 @@
         debounceLabelUpdate();
       });
     });
-    
+
     // Label background color
     document.querySelectorAll('[data-label-bg]').forEach(option => {
       option.addEventListener('click', () => {
@@ -1569,7 +1650,7 @@
         debounceLabelUpdate();
       });
     });
-    
+
     // Label border color
     document.querySelectorAll('[data-label-border]').forEach(option => {
       option.addEventListener('click', () => {
@@ -1579,7 +1660,7 @@
         debounceLabelUpdate();
       });
     });
-    
+
     // Label border width
     document.querySelectorAll('[data-label-border-width]').forEach(option => {
       option.addEventListener('click', () => {
@@ -1589,21 +1670,21 @@
         debounceLabelUpdate();
       });
     });
-    
+
     // Label border radius slider
     const labelBorderRadiusSlider = document.getElementById('labelBorderRadius');
     const labelBorderRadiusValue = document.getElementById('labelBorderRadiusValue');
-    
+
     labelBorderRadiusSlider.addEventListener('input', () => {
       config.labelBorderRadius = parseInt(labelBorderRadiusSlider.value);
       labelBorderRadiusValue.textContent = labelBorderRadiusSlider.value;
       debounceLabelUpdate();
     });
-    
+
     // Label padding slider
     const labelPaddingSlider = document.getElementById('labelPadding');
     const labelPaddingValue = document.getElementById('labelPaddingValue');
-    
+
     labelPaddingSlider.addEventListener('input', () => {
       config.labelPadding = parseInt(labelPaddingSlider.value);
       labelPaddingValue.textContent = labelPaddingSlider.value;
@@ -1629,7 +1710,7 @@
     // Label offset slider
     const labelOffsetSlider = document.getElementById('labelOffset');
     const labelOffsetValue = document.getElementById('labelOffsetValue');
-    
+
     labelOffsetSlider.addEventListener('input', () => {
       config.labelOffset = parseInt(labelOffsetSlider.value);
       labelOffsetValue.textContent = labelOffsetSlider.value;
@@ -1642,121 +1723,141 @@
       }
     });
 
+    // Label font size slider
+    const labelFontSizeSlider = document.getElementById('labelFontSize');
+    const labelFontSizeValue = document.getElementById('labelFontSizeValue');
+
+    labelFontSizeSlider.addEventListener('input', () => {
+      config.labelFontSize = parseInt(labelFontSizeSlider.value);
+      labelFontSizeValue.textContent = labelFontSizeSlider.value;
+      saveConfig();
+      updatePreview();
+      if (isEditingConnection) {
+        updateConnection();
+      } else {
+        checkAutoCreate();
+      }
+    });
+
     // Auto-create checkbox
     const autoCreateCheckbox = document.getElementById('autoCreate');
     autoCreateCheckbox.addEventListener('change', () => {
-      parent.postMessage({ 
-        pluginMessage: { 
-          type: 'toggle-auto-create', 
-          enabled: autoCreateCheckbox.checked 
-        } 
+      parent.postMessage({
+        pluginMessage: {
+          type: 'toggle-auto-create',
+          enabled: autoCreateCheckbox.checked
+        }
       }, '*');
     });
-    
+
     // Auto-update checkbox
     const autoUpdateCheckbox = document.getElementById('autoUpdate');
     autoUpdateCheckbox.addEventListener('change', () => {
-      parent.postMessage({ 
-        pluginMessage: { 
-          type: 'toggle-auto-update', 
-          enabled: autoUpdateCheckbox.checked 
-        } 
+      parent.postMessage({
+        pluginMessage: {
+          type: 'toggle-auto-update',
+          enabled: autoUpdateCheckbox.checked
+        }
       }, '*');
     });
   }
-  
+
   function updateConfigFromUI(newConfig) {
     // Update main arrow color selection
     document.querySelectorAll('[data-color]').forEach(option => {
       option.classList.toggle('selected', option.dataset.color === newConfig.color);
     });
-    
+
     // Update stroke width
     document.querySelectorAll('[data-width]').forEach(option => {
       option.classList.toggle('selected', parseInt(option.dataset.width) === newConfig.strokeWidth);
     });
-    
+
     // Update stroke style
     document.querySelectorAll('[data-style]').forEach(option => {
       option.classList.toggle('selected', option.dataset.style === newConfig.strokeStyle);
     });
-    
+
     // Update sloppiness
     document.querySelectorAll('[data-sloppiness]').forEach(option => {
       option.classList.toggle('selected', option.dataset.sloppiness === newConfig.sloppiness);
     });
-    
+
     // Update arrow type
     document.querySelectorAll('[data-arrow-type]').forEach(option => {
       option.classList.toggle('selected', option.dataset.arrowType === newConfig.arrowType);
     });
-    
+
     // Update arrowheads
     document.querySelectorAll('[data-arrowheads]').forEach(option => {
       option.classList.toggle('selected', option.dataset.arrowheads === newConfig.arrowheads);
     });
-    
+
     // Update start position
     document.querySelectorAll('[data-start-position]').forEach(option => {
       option.classList.toggle('selected', option.dataset.startPosition === newConfig.startPosition);
     });
-    
+
     // Update end position
     document.querySelectorAll('[data-end-position]').forEach(option => {
       option.classList.toggle('selected', option.dataset.endPosition === newConfig.endPosition);
     });
-    
+
     // Update connection offset
     document.getElementById('connectionOffset').value = newConfig.connectionOffset;
     document.getElementById('connectionOffsetValue').textContent = newConfig.connectionOffset;
-    
+
     // Update avoid overlap
     document.getElementById('avoidOverlap').checked = newConfig.avoidOverlap;
-    
+
     // Update opacity
     document.getElementById('opacity').value = newConfig.opacity;
     document.getElementById('opacityValue').textContent = newConfig.opacity;
-    
+
     // Update label
     document.getElementById('labelPreview').value = newConfig.label || 'Label Text';
-    
+
     // Update label text color
     document.querySelectorAll('[data-label-text-color]').forEach(option => {
       option.classList.toggle('selected', option.dataset.labelTextColor === newConfig.labelTextColor);
     });
-    
+
     // Update label background color
     document.querySelectorAll('[data-label-bg]').forEach(option => {
       option.classList.toggle('selected', option.dataset.labelBg === newConfig.labelBg);
     });
-    
+
     // Update label border color
     document.querySelectorAll('[data-label-border]').forEach(option => {
       option.classList.toggle('selected', option.dataset.labelBorder === newConfig.labelBorderColor);
     });
-    
+
     // Update label border width
     document.querySelectorAll('[data-label-border-width]').forEach(option => {
       option.classList.toggle('selected', parseInt(option.dataset.labelBorderWidth) === newConfig.labelBorderWidth);
     });
-    
+
     // Update label border radius
     document.getElementById('labelBorderRadius').value = newConfig.labelBorderRadius;
     document.getElementById('labelBorderRadiusValue').textContent = newConfig.labelBorderRadius;
-    
+
     // Update label padding
     document.getElementById('labelPadding').value = newConfig.labelPadding;
     document.getElementById('labelPaddingValue').textContent = newConfig.labelPadding;
-    
+
     // Update label position
     document.querySelectorAll('[data-label-position]').forEach(option => {
       option.classList.toggle('selected', option.dataset.labelPosition === newConfig.labelPosition);
     });
-    
+
     // Update label offset
     document.getElementById('labelOffset').value = newConfig.labelOffset;
     document.getElementById('labelOffsetValue').textContent = newConfig.labelOffset;
-    
+
+    // Update label font size
+    document.getElementById('labelFontSize').value = newConfig.labelFontSize;
+    document.getElementById('labelFontSizeValue').textContent = newConfig.labelFontSize;
+
     // Update config object
     config = { ...newConfig };
     updatePreview();
@@ -1765,31 +1866,31 @@
   function checkAutoCreate() {
     const autoCreateEnabled = document.getElementById('autoCreate').checked;
     if (autoCreateEnabled && frameCount === 2 && !isEditingConnection) {
-      parent.postMessage({ 
-        pluginMessage: { 
-          type: 'auto-create-connection', 
-          config: config 
-        } 
+      parent.postMessage({
+        pluginMessage: {
+          type: 'auto-create-connection',
+          config: config
+        }
       }, '*');
     }
   }
-  
+
   function updateConnection() {
     if (selectedConnectionId) {
-      parent.postMessage({ 
-        pluginMessage: { 
-          type: 'update-connection', 
+      parent.postMessage({
+        pluginMessage: {
+          type: 'update-connection',
           connectionId: selectedConnectionId,
-          config: config 
-        } 
+          config: config
+        }
       }, '*');
     }
   }
-  
+
   // Handle messages from plugin
   window.onmessage = (event) => {
     const msg = event.data.pluginMessage;
-    
+
     if (msg.type === 'selection-changed') {
       frameCount = msg.frameCount;
       connectionCount = msg.connectionCount || 0;
@@ -1798,7 +1899,7 @@
       updateUI();
       checkAutoCreate();
     }
-    
+
     if (msg.type === 'connection-selected') {
       isEditingConnection = true;
       selectedConnectionId = msg.connectionId;
@@ -1808,24 +1909,24 @@
       showStatus(`Editing: ${msg.connectionName}`, 'editing');
       updateUI();
     }
-    
+
     if (msg.type === 'get-config') {
-      parent.postMessage({ 
-        pluginMessage: { 
-          type: 'auto-create-connection', 
-          config: config 
-        } 
+      parent.postMessage({
+        pluginMessage: {
+          type: 'auto-create-connection',
+          config: config
+        }
       }, '*');
     }
-    
+
     if (msg.type === 'success') {
       showStatus(msg.message, 'success');
     }
-    
+
     if (msg.type === 'error') {
       showStatus(msg.message, 'error');
     }
-    
+
     if (msg.type === 'config-loaded') {
       // Update config with loaded data
       if (msg.config) {
@@ -1833,19 +1934,19 @@
       }
     }
   };
-  
+
   function updateUI() {
     const createButton = document.getElementById('create');
     const autoCreateEnabled = document.getElementById('autoCreate').checked;
-    
+
     if (isEditingConnection) {
       createButton.textContent = 'Update Connection';
       createButton.disabled = false;
       return;
     }
-    
+
     createButton.textContent = 'Create Connection';
-    
+
     if (frameCount === 0) {
       if (connectionCount === 1) {
         // Don't override the editing status message
@@ -1869,41 +1970,41 @@
       createButton.disabled = true;
     }
   }
-  
+
   function showStatus(message, type) {
     const status = document.getElementById('status');
     status.textContent = message;
     status.className = `status ${type}`;
   }
-  
+
   document.getElementById('create').onclick = () => {
     if (isEditingConnection) {
       updateConnection();
     } else {
-      parent.postMessage({ 
-        pluginMessage: { 
-          type: 'create-connection', 
-          config: config 
-        } 
+      parent.postMessage({
+        pluginMessage: {
+          type: 'create-connection',
+          config: config
+        }
       }, '*');
     }
   };
-  
+
   document.getElementById('cancel').onclick = () => {
     parent.postMessage({ pluginMessage: { type: 'cancel' } }, '*');
   };
-  
+
   // Initialize when page loads
   initializeTabs();
   initializeUI();
-  
+
   // Request saved config from backend
-  parent.postMessage({ 
-    pluginMessage: { 
+  parent.postMessage({
+    pluginMessage: {
       type: 'load-config'
-    } 
+    }
   }, '*');
-  
+
   // Initial preview update
   updatePreview();
 </script>
