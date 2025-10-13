@@ -885,21 +885,23 @@ function calculateLabelPosition(startPoint: { x: number, y: number }, endPoint: 
     return pathCenter;
   }
 
-  // Calculate perpendicular offset for top/bottom positioning
-  const perpAngle = pathAngle + Math.PI / 2; // 90 degrees perpendicular
+  // For top/bottom positioning, move along the path towards start/end
   const offsetDistance = config.labelOffset || 10;
-
   let finalPosition = pathCenter;
 
   if (config.labelPosition === 'top') {
+    // "Top" means closer to the start of the arrow (tail end)
+    // Move backwards along the path from center
     finalPosition = {
-      x: pathCenter.x + Math.cos(perpAngle) * offsetDistance,
-      y: pathCenter.y + Math.sin(perpAngle) * offsetDistance
+      x: pathCenter.x - Math.cos(pathAngle) * offsetDistance,
+      y: pathCenter.y - Math.sin(pathAngle) * offsetDistance
     };
   } else if (config.labelPosition === 'bottom') {
+    // "Bottom" means closer to the end of the arrow (head end)  
+    // Move forwards along the path from center
     finalPosition = {
-      x: pathCenter.x - Math.cos(perpAngle) * offsetDistance,
-      y: pathCenter.y - Math.sin(perpAngle) * offsetDistance
+      x: pathCenter.x + Math.cos(pathAngle) * offsetDistance,
+      y: pathCenter.y + Math.sin(pathAngle) * offsetDistance
     };
   }
 

@@ -258,17 +258,18 @@
     width: auto;
   }
   
-  .button-group {
+.button-group {
     position: absolute;
-    bottom: 16px;
-    left: 16px;
-    right: 16px;
+    bottom: 0;
+    left: 0;
+    right: 0;
     display: flex;
     gap: 6px;
     background: white;
-    padding: 12px 0 0 0;
     border-top: 1px solid #e0e0e0;
-  }
+    padding: 16px;
+    z-index: 9;
+}
   
   button {
     flex: 1;
@@ -1099,26 +1100,31 @@
     }
     
     // Apply position offset based on label position setting
+    console.log('Preview label position logic:', config.labelPosition, pathCenter, pathAngle); // Debug log
     if (config.labelPosition === 'center') {
       return pathCenter;
     }
     
-    // Calculate perpendicular offset for top/bottom positioning
-    const perpAngle = pathAngle + Math.PI / 2; // 90 degrees perpendicular
+    // For top/bottom positioning, move along the path towards start/end
     const offsetDistance = config.labelOffset || 10;
-    
     let finalPosition = pathCenter;
     
     if (config.labelPosition === 'top') {
+      // "Top" means closer to the start of the arrow (tail end)
+      // Move backwards along the path from center
       finalPosition = {
-        x: pathCenter.x + Math.cos(perpAngle) * offsetDistance,
-        y: pathCenter.y + Math.sin(perpAngle) * offsetDistance
+        x: pathCenter.x - Math.cos(pathAngle) * offsetDistance,
+        y: pathCenter.y - Math.sin(pathAngle) * offsetDistance
       };
+      console.log('Top position calculated (towards start):', finalPosition); // Debug log
     } else if (config.labelPosition === 'bottom') {
+      // "Bottom" means closer to the end of the arrow (head end)  
+      // Move forwards along the path from center
       finalPosition = {
-        x: pathCenter.x - Math.cos(perpAngle) * offsetDistance,
-        y: pathCenter.y - Math.sin(perpAngle) * offsetDistance
+        x: pathCenter.x + Math.cos(pathAngle) * offsetDistance,
+        y: pathCenter.y + Math.sin(pathAngle) * offsetDistance
       };
+      console.log('Bottom position calculated (towards end):', finalPosition); // Debug log
     }
     
     // Final validation
@@ -1267,7 +1273,9 @@
     // Add label if present
     if (config.label.trim()) {
       // Calculate the label position based on configuration
+      console.log('Label config:', config.labelPosition, config.labelOffset); // Debug log
       const labelPosition = calculatePreviewLabelPosition(startPoint, endPoint, startOffsetPoint, endOffsetPoint, waypoints, config);
+      console.log('Label position result:', labelPosition); // Debug log
       const midX = labelPosition.x;
       const midY = labelPosition.y;
       
@@ -1608,7 +1616,13 @@
         document.querySelectorAll('[data-label-position]').forEach(o => o.classList.remove('selected'));
         option.classList.add('selected');
         config.labelPosition = option.dataset.labelPosition;
-        debounceLabelUpdate();
+        saveConfig();
+        updatePreview();
+        if (isEditingConnection) {
+          updateConnection();
+        } else {
+          checkAutoCreate();
+        }
       });
     });
 
@@ -1619,7 +1633,13 @@
     labelOffsetSlider.addEventListener('input', () => {
       config.labelOffset = parseInt(labelOffsetSlider.value);
       labelOffsetValue.textContent = labelOffsetSlider.value;
-      debounceLabelUpdate();
+      saveConfig();
+      updatePreview();
+      if (isEditingConnection) {
+        updateConnection();
+      } else {
+        checkAutoCreate();
+      }
     });
 
     // Auto-create checkbox
