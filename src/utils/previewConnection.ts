@@ -19,7 +19,7 @@ export interface PreviewGeometry {
   color: string;
   opacity: number;
   strokeWidth: number;
-  arrowheads: Array<{ type: 'start' | 'end'; points: string }>;
+  arrowheads: Array<{ type: 'start' | 'end'; path: string }>;
   label: null | {
     rect: Rect;
     text: string;
@@ -48,19 +48,19 @@ export function buildPreviewGeometry(config: ConnectionConfig): PreviewGeometry 
   path = addSloppiness(path, config);
 
   const { startAngle, endAngle } = calculateArrowAngles(connectionPoints, config);
-  const arrowheads: Array<{ type: 'start' | 'end'; points: string }> = [];
+  const arrowheads: Array<{ type: 'start' | 'end'; path: string }> = [];
 
   if (config.arrowheads === 'end' || config.arrowheads === 'both') {
     arrowheads.push({
       type: 'end',
-      points: toArrowPolygon(connectionPoints.endPoint, endAngle)
+      path: toArrowPolygon(connectionPoints.endPoint, endAngle)
     });
   }
 
   if (config.arrowheads === 'both') {
     arrowheads.push({
       type: 'start',
-      points: toArrowPolygon(connectionPoints.startPoint, startAngle + Math.PI)
+      path: toArrowPolygon(connectionPoints.startPoint, startAngle + Math.PI)
     });
   }
 
@@ -346,7 +346,7 @@ function toArrowPolygon(point: Point, angle: number): string {
     y: point.y - ARROW_LENGTH * Math.sin(angle + ARROW_ANGLE)
   };
 
-  return `${p1.x},${p1.y} ${point.x},${point.y} ${p2.x},${p2.y}`;
+  return `M ${p1.x} ${p1.y} L ${point.x} ${point.y} L ${p2.x} ${p2.y} Z`;
 }
 
 function buildLabelGeometry(points: ConnectionPoints, config: ConnectionConfig): PreviewGeometry['label'] {

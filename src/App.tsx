@@ -21,6 +21,8 @@ function App() {
 
   const debouncedSave = useDebouncedSave();
   const sendMessageRef = useRef<((msg: any) => void) | null>(null);
+  const [isSidebarOpen, setSidebarOpen] = useState(false);
+  const [sidebarTab, setSidebarTab] = useState<'properties' | 'settings'>('properties');
 
   const handleFigmaMessage = useCallback((message: FigmaMessage) => {
     switch (message.type) {
@@ -111,6 +113,11 @@ function App() {
     sendMessageRef.current = sendMessage;
   }, [sendMessage]);
 
+  const openSidebar = useCallback((target: 'properties' | 'settings') => {
+    setSidebarTab(target);
+    setSidebarOpen(true);
+  }, []);
+
   // Load initial config and settings when app starts
   useEffect(() => {
     sendMessage({ type: 'load-config' });
@@ -184,6 +191,11 @@ function App() {
       createConnection={createConnection}
       cancelConnection={cancelConnection}
       clearCache={clearCache}
+      isSidebarOpen={isSidebarOpen}
+      onSidebarOpenChange={setSidebarOpen}
+      sidebarTab={sidebarTab}
+      onSidebarTabChange={setSidebarTab}
+      onRequestSidebar={openSidebar}
     />
   );
 }
