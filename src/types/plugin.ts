@@ -34,6 +34,7 @@ export interface PluginMessage {
   connectionId?: string;
   connectionName?: string;
   message?: string;
+  command?: string;
 }
 
 export interface ConnectionMetadata {

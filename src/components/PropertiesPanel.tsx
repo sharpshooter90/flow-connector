@@ -11,7 +11,7 @@ interface PropertiesPanelProps {
   updateAppState: (updates: Partial<AppState>) => void;
   createConnection: () => void;
   cancelConnection: () => void;
-  labelInputRef?: React.RefObject<HTMLInputElement>;
+  labelInputRef?: React.RefObject<HTMLInputElement | null>;
 }
 
 export const PropertiesPanel: React.FC<PropertiesPanelProps> = ({

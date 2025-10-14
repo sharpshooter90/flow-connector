@@ -32,10 +32,18 @@ function App() {
   const [sidebarTab, setSidebarTab] = useState<"properties" | "settings">(
     "properties"
   );
-  const labelInputRef = useRef<HTMLInputElement | null>(null);
+  const labelInputRef = useRef<HTMLInputElement>(null);
+  const [pendingCommand, setPendingCommand] = useState<string | null>(null);
 
   const handleFigmaMessage = useCallback((message: FigmaMessage) => {
     switch (message.type) {
+      case "menu-command":
+        // Store command for processing after component initialization
+        if (message.command) {
+          setPendingCommand(message.command);
+        }
+        break;
+
       case "selection-changed":
         const frameCount = message.frameCount || 0;
         const connectionCount = message.connectionCount || 0;
@@ -219,6 +227,54 @@ function App() {
       }
     });
   }, [openSidebar, updateAppState]);
+
+  // Handle menu commands
+  useEffect(() => {
+    if (!pendingCommand) return;
+
+    switch (pendingCommand) {
+      case "draw-connection":
+        // Open UI in default draw mode
+        openSidebar("properties");
+        updateAppState({ activeTab: "arrow" });
+        break;
+
+      case "update-connection":
+        // Open UI - if connection is selected, it will auto-load
+        openSidebar("properties");
+        updateAppState({ activeTab: "arrow" });
+        break;
+
+      case "update-connection-label":
+        // Open UI focused on label editing
+        handleLabelEditRequest();
+        break;
+
+      case "about-project":
+        // Show about dialog or info
+        setAppState((prev) => ({
+          ...prev,
+          status: {
+            type: "info",
+            message:
+              "Flow Connector - An open source Figma plugin for creating configurable connections between frames",
+          },
+        }));
+        openSidebar("settings");
+        break;
+
+      case "about-author":
+        // Open external URL
+        window.open("https://oss-design-tools.adventureland.io", "_blank");
+        break;
+
+      default:
+        break;
+    }
+
+    // Clear pending command
+    setPendingCommand(null);
+  }, [pendingCommand, openSidebar, updateAppState, handleLabelEditRequest]);
 
   const handleArrowEditRequest = useCallback(() => {
     openSidebar("properties");

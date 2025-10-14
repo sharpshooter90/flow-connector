@@ -11,8 +11,19 @@ import { PluginInitializer } from "./src/services/pluginInitializer";
 import { ConnectionManager } from "./src/services/connectionManager";
 import { captureViewport, restoreViewport } from "./src/utils/viewport";
 
+// Handle menu commands
+const command = figma.command;
+
 // Show the UI
 figma.showUI(__html__, { width: 840, height: 520 });
+
+// Send initial command to UI
+if (command) {
+  figma.ui.postMessage({
+    type: "menu-command",
+    command: command,
+  });
+}
 
 // Plugin state
 let autoCreateEnabled = true;

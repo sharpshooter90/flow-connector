@@ -28,7 +28,7 @@ interface MainContainerProps {
   onRequestSidebar: (target: "properties" | "settings") => void;
   onRequestLabelEdit: () => void;
   onRequestArrowEdit: () => void;
-  labelInputRef?: React.RefObject<HTMLInputElement>;
+  labelInputRef?: React.RefObject<HTMLInputElement | null>;
 }
 
 const MainContainer: React.FC<MainContainerProps> = ({

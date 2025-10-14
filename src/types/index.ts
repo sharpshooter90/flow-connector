@@ -36,6 +36,7 @@ export interface FigmaMessage {
   connectionCount?: number;
   connectionId?: string;
   connectionName?: string;
+  command?: string;
 }
 
 // UI state interface

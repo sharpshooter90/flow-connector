@@ -6,13 +6,39 @@
   "capabilities": [],
   "enableProposedApi": false,
   "documentAccess": "dynamic-page",
-  "editorType": [
-    "figma"
-  ],
+  "editorType": ["figma"],
   "ui": "ui.html",
   "networkAccess": {
-    "allowedDomains": [
-      "none"
-    ]
-  }
+    "allowedDomains": ["none"]
+  },
+  "menu": [
+    {
+      "name": "Draw Connection",
+      "command": "draw-connection"
+    },
+    {
+      "name": "Update Connection",
+      "command": "update-connection"
+    },
+    {
+      "name": "Update Connection Label",
+      "command": "update-connection-label"
+    },
+    {
+      "separator": true
+    },
+    {
+      "name": "About",
+      "menu": [
+        {
+          "name": "About This Open Source Project",
+          "command": "about-project"
+        },
+        {
+          "name": "About Author/Builder",
+          "command": "about-author"
+        }
+      ]
+    }
+  ]
 }
