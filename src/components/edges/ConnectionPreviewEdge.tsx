@@ -40,6 +40,9 @@ export interface PreviewEdgeData {
   onLabelClick?: () => void;
   pathType?: "bezier" | "smoothstep" | "straight";
   borderRadius?: number;
+  showMarkers?: boolean;
+  startPosition?: string;
+  endPosition?: string;
 }
 
 const ConnectionPreviewEdge: React.FC<EdgeProps<PreviewEdgeData>> = ({
@@ -84,10 +87,8 @@ const ConnectionPreviewEdge: React.FC<EdgeProps<PreviewEdgeData>> = ({
     const [straightPath, straightLabelX, straightLabelY] = getStraightPath({
       sourceX,
       sourceY,
-      sourcePosition,
       targetX,
       targetY,
-      targetPosition,
     });
     edgePath = straightPath;
     labelX = straightLabelX;
@@ -154,11 +155,11 @@ const ConnectionPreviewEdge: React.FC<EdgeProps<PreviewEdgeData>> = ({
         return `M ${x} ${y} L ${x - size} ${y - size / 2} L ${x - size} ${
           y + size / 2
         } Z`;
-      case Position.Up:
+      case Position.Top:
         return `M ${x} ${y} L ${x - size / 2} ${y + size} L ${x + size / 2} ${
           y + size
         } Z`;
-      case Position.Down:
+      case Position.Bottom:
         return `M ${x} ${y} L ${x - size / 2} ${y - size} L ${x + size / 2} ${
           y - size
         } Z`;
@@ -187,6 +188,46 @@ const ConnectionPreviewEdge: React.FC<EdgeProps<PreviewEdgeData>> = ({
       />
     );
   });
+
+  // Render connection point markers
+  const markerElements = data?.showMarkers ? (
+    <>
+      {/* Start marker */}
+      <circle
+        cx={sourceX}
+        cy={sourceY}
+        r={Math.max(strokeWidth * 1.5, 4)}
+        fill={stroke}
+        opacity={opacity * 0.8}
+        className="pointer-events-none"
+      />
+      <circle
+        cx={sourceX}
+        cy={sourceY}
+        r={Math.max(strokeWidth * 0.8, 2)}
+        fill="white"
+        opacity={opacity}
+        className="pointer-events-none"
+      />
+      {/* End marker */}
+      <circle
+        cx={targetX}
+        cy={targetY}
+        r={Math.max(strokeWidth * 1.5, 4)}
+        fill={stroke}
+        opacity={opacity * 0.8}
+        className="pointer-events-none"
+      />
+      <circle
+        cx={targetX}
+        cy={targetY}
+        r={Math.max(strokeWidth * 0.8, 2)}
+        fill="white"
+        opacity={opacity}
+        className="pointer-events-none"
+      />
+    </>
+  ) : null;
 
   const edgeGroup = (
     <g className="react-flow__edge">
@@ -234,6 +275,7 @@ const ConnectionPreviewEdge: React.FC<EdgeProps<PreviewEdgeData>> = ({
         }}
       />
       {arrowElements}
+      {markerElements}
       {data?.label ? (
         <EdgeLabelRenderer>
           <div

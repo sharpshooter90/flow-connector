@@ -119,6 +119,7 @@ const MainContainer: React.FC<MainContainerProps> = ({
           config={appState.config}
           frameCount={appState.frameCount}
           isEditingConnection={appState.isEditingConnection}
+          updateConfig={updateConfig}
           onRequestSidebar={onRequestSidebar}
           onRequestLabelEdit={onRequestLabelEdit}
           onRequestArrowEdit={onRequestArrowEdit}

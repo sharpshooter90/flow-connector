@@ -6,6 +6,7 @@ import ReactFlow, {
   MiniMap,
   Node,
   NodeTypes,
+  Position,
   ReactFlowProvider,
   useReactFlow,
   useStoreApi,
@@ -28,6 +29,7 @@ interface PreviewFlowProps {
   config: ConnectionConfig;
   frameCount: number;
   isEditingConnection: boolean;
+  updateConfig: (updates: Partial<ConnectionConfig>) => void;
   onRequestSidebar: (target: SidebarTarget) => void;
   onRequestLabelEdit: () => void;
   onRequestArrowEdit: () => void;
@@ -85,6 +87,7 @@ const PreviewFlowInner: React.FC<PreviewFlowProps> = ({
   config,
   frameCount,
   isEditingConnection,
+  updateConfig,
   onRequestSidebar,
   onRequestLabelEdit,
   onRequestArrowEdit,
@@ -152,6 +155,36 @@ const PreviewFlowInner: React.FC<PreviewFlowProps> = ({
     []
   );
 
+  // Map string positions to ReactFlow Position enum
+  const mapPositionToEnum = useCallback((position: string): Position => {
+    switch (position) {
+      case "top":
+        return Position.Top;
+      case "right":
+        return Position.Right;
+      case "bottom":
+        return Position.Bottom;
+      case "left":
+        return Position.Left;
+      default:
+        return Position.Right; // Default for auto
+    }
+  }, []);
+
+  const handleStartPositionClick = useCallback(
+    (position: "top" | "right" | "bottom" | "left" | "auto") => {
+      updateConfig({ startPosition: position });
+    },
+    [updateConfig]
+  );
+
+  const handleEndPositionClick = useCallback(
+    (position: "top" | "right" | "bottom" | "left" | "auto") => {
+      updateConfig({ endPosition: position });
+    },
+    [updateConfig]
+  );
+
   const nodes: Node[] = useMemo(() => {
     const [source, target] = previewData.frames;
     // Mute only when not editing and frames aren't selected
@@ -166,6 +199,9 @@ const PreviewFlowInner: React.FC<PreviewFlowProps> = ({
           height: source.height,
           label: "Frame A",
           muted: isMuted,
+          isSource: true,
+          activePosition: config.startPosition,
+          onPositionClick: handleStartPositionClick,
         },
         draggable: false,
         selectable: false,
@@ -181,6 +217,9 @@ const PreviewFlowInner: React.FC<PreviewFlowProps> = ({
           height: target.height,
           label: "Frame B",
           muted: isMuted,
+          isSource: false,
+          activePosition: config.endPosition,
+          onPositionClick: handleEndPositionClick,
         },
         draggable: false,
         selectable: false,
@@ -188,7 +227,15 @@ const PreviewFlowInner: React.FC<PreviewFlowProps> = ({
         connectable: false,
       },
     ];
-  }, [previewData, frameCount, isEditingConnection]);
+  }, [
+    previewData,
+    frameCount,
+    isEditingConnection,
+    config.startPosition,
+    config.endPosition,
+    handleStartPositionClick,
+    handleEndPositionClick,
+  ]);
 
   const edges: Edge<PreviewEdgeData>[] = useMemo(() => {
     // Mute only when not editing and frames aren't selected
@@ -202,6 +249,8 @@ const PreviewFlowInner: React.FC<PreviewFlowProps> = ({
         target: "target",
         targetHandle: "frame-target",
         type: "preview",
+        sourcePosition: mapPositionToEnum(config.startPosition),
+        targetPosition: mapPositionToEnum(config.endPosition),
         data: {
           path: previewData.path,
           stroke: isMuted ? "#d1d5db" : geometry.color,
@@ -223,6 +272,9 @@ const PreviewFlowInner: React.FC<PreviewFlowProps> = ({
           tooltip: previewData.tooltip,
           onEdgeClick: onRequestArrowEdit,
           onLabelClick: onRequestLabelEdit,
+          showMarkers: true,
+          startPosition: config.startPosition,
+          endPosition: config.endPosition,
         },
         selectable: false,
         focusable: false,
@@ -237,6 +289,9 @@ const PreviewFlowInner: React.FC<PreviewFlowProps> = ({
     previewData,
     frameCount,
     isEditingConnection,
+    config.startPosition,
+    config.endPosition,
+    mapPositionToEnum,
   ]);
 
   useEffect(() => {
