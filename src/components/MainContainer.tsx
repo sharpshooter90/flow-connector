@@ -10,7 +10,7 @@ import {
 } from "./ui/sheet";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
 import { Button } from "./ui/button";
-import { Menu, Settings, X } from "lucide-react";
+import { Menu, Settings, X, Hash } from "lucide-react";
 import PropertiesPanel from "./PropertiesPanel";
 import SettingsPanel from "./SettingsPanel";
 
@@ -63,16 +63,17 @@ const MainContainer: React.FC<MainContainerProps> = ({
                 Editing Connection
               </h1>
               <p className="text-xs text-orange-700">
-                {appState.selectedConnectionName || "Flow Connection"}
+                @{appState.selectedConnectionName || "Flow Connection"}:
                 {appState.connectedFrames.length === 2 && (
                   <>
                     {" "}
-                    •{" "}
-                    <span className="font-medium">
+                    <span className="font-medium flex items-center gap-1">
+                      <Hash className="h-3 w-3" />
                       {appState.connectedFrames[0].name}
                     </span>
                     {" → "}
-                    <span className="font-medium">
+                    <span className="font-medium flex items-center gap-1">
+                      <Hash className="h-3 w-3" />
                       {appState.connectedFrames[1].name}
                     </span>
                   </>
