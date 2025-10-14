@@ -202,6 +202,7 @@ const PreviewFlowInner: React.FC<PreviewFlowProps> = ({
           isSource: true,
           activePosition: config.startPosition,
           onPositionClick: handleStartPositionClick,
+          handlePosition: mapPositionToEnum(config.startPosition),
         },
         draggable: false,
         selectable: false,
@@ -220,6 +221,7 @@ const PreviewFlowInner: React.FC<PreviewFlowProps> = ({
           isSource: false,
           activePosition: config.endPosition,
           onPositionClick: handleEndPositionClick,
+          handlePosition: mapPositionToEnum(config.endPosition),
         },
         draggable: false,
         selectable: false,
@@ -235,6 +237,7 @@ const PreviewFlowInner: React.FC<PreviewFlowProps> = ({
     config.endPosition,
     handleStartPositionClick,
     handleEndPositionClick,
+    mapPositionToEnum,
   ]);
 
   const edges: Edge<PreviewEdgeData>[] = useMemo(() => {

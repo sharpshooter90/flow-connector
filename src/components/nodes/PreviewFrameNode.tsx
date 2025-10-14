@@ -11,6 +11,7 @@ interface PreviewFrameNodeData {
   isSource?: boolean;
   activePosition?: EdgePosition;
   onPositionClick?: (position: EdgePosition) => void;
+  handlePosition?: Position; // ReactFlow Position for the handle
 }
 
 interface EdgeIndicatorProps {
@@ -201,19 +202,22 @@ const PreviewFrameNode: React.FC<NodeProps<PreviewFrameNodeData>> = ({
         />
       ))}
 
-      {/* ReactFlow handles (invisible) */}
-      <Handle
-        id="frame-source"
-        type="source"
-        position={Position.Right}
-        style={{ opacity: 0, pointerEvents: "none" }}
-      />
-      <Handle
-        id="frame-target"
-        type="target"
-        position={Position.Left}
-        style={{ opacity: 0, pointerEvents: "none" }}
-      />
+      {/* ReactFlow handles (invisible) - positioned dynamically based on active position */}
+      {data.isSource ? (
+        <Handle
+          id="frame-source"
+          type="source"
+          position={data.handlePosition || Position.Right}
+          style={{ opacity: 0, pointerEvents: "none" }}
+        />
+      ) : (
+        <Handle
+          id="frame-target"
+          type="target"
+          position={data.handlePosition || Position.Left}
+          style={{ opacity: 0, pointerEvents: "none" }}
+        />
+      )}
     </div>
   );
 };
