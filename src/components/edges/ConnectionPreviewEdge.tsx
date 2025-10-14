@@ -33,6 +33,8 @@ export interface PreviewEdgeData {
   opacity?: number;
   strokeWidth?: number;
   strokeDasharray?: string;
+  strokeLinecap?: "none" | "round" | "square";
+  strokeLinejoin?: "miter" | "round" | "bevel";
   arrowheads?: Array<"start" | "end">;
   label?: PreviewEdgeLabel | null;
   tooltip?: string;
@@ -104,6 +106,9 @@ const ConnectionPreviewEdge: React.FC<EdgeProps<PreviewEdgeData>> = ({
   const stroke = data?.stroke ?? "#1d4ed8";
   const strokeWidth = data?.strokeWidth ?? 2;
   const opacity = data?.opacity ?? 1;
+  const strokeLinecap =
+    data?.strokeLinecap === "none" ? "butt" : data?.strokeLinecap ?? "round";
+  const strokeLinejoin = data?.strokeLinejoin ?? "round";
   const tooltipText = data?.tooltip ?? data?.label?.text ?? "";
   const arrowheads = data?.arrowheads ?? [];
   let labelXAdjusted = labelX;
@@ -236,8 +241,8 @@ const ConnectionPreviewEdge: React.FC<EdgeProps<PreviewEdgeData>> = ({
         className="react-flow__edge-outline"
         d={edgePath}
         fill="none"
-        strokeLinecap="round"
-        strokeLinejoin="round"
+        strokeLinecap={strokeLinecap}
+        strokeLinejoin={strokeLinejoin}
         style={{
           stroke,
           strokeWidth: strokeWidth + 8,
@@ -252,8 +257,8 @@ const ConnectionPreviewEdge: React.FC<EdgeProps<PreviewEdgeData>> = ({
         className="react-flow__edge-path"
         d={edgePath}
         fill="none"
-        strokeLinecap="round"
-        strokeLinejoin="round"
+        strokeLinecap={strokeLinecap}
+        strokeLinejoin={strokeLinejoin}
         style={{
           stroke,
           strokeWidth,

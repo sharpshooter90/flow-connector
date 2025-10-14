@@ -1,4 +1,4 @@
-import { ConnectionConfig } from '../types';
+import { ConnectionConfig } from "../types";
 
 type Point = { x: number; y: number };
 type Rect = { x: number; y: number; width: number; height: number };
@@ -16,10 +16,12 @@ export interface PreviewGeometry {
   frames: [Rect, Rect];
   path: string;
   strokeDasharray?: string;
+  strokeLinecap?: "none" | "round" | "square";
+  strokeLinejoin?: "miter" | "round" | "bevel";
   color: string;
   opacity: number;
   strokeWidth: number;
-  arrowheads: Array<{ type: 'start' | 'end'; path: string }>;
+  arrowheads: Array<{ type: "start" | "end"; path: string }>;
   label: null | {
     rect: Rect;
     text: string;
@@ -40,27 +42,36 @@ const TARGET_FRAME: Rect = { x: 152, y: 120, width: 56, height: 40 };
 const ARROW_LENGTH = 12;
 const ARROW_ANGLE = Math.PI / 6;
 
-export function buildPreviewGeometry(config: ConnectionConfig): PreviewGeometry {
+export function buildPreviewGeometry(
+  config: ConnectionConfig
+): PreviewGeometry {
   const frames: [Rect, Rect] = [SOURCE_FRAME, TARGET_FRAME];
 
-  const connectionPoints = calculateConnectionPoints(frames[0], frames[1], config);
+  const connectionPoints = calculateConnectionPoints(
+    frames[0],
+    frames[1],
+    config
+  );
   let path = createPathData(connectionPoints, config);
   path = addSloppiness(path, config);
 
-  const { startAngle, endAngle } = calculateArrowAngles(connectionPoints, config);
-  const arrowheads: Array<{ type: 'start' | 'end'; path: string }> = [];
+  const { startAngle, endAngle } = calculateArrowAngles(
+    connectionPoints,
+    config
+  );
+  const arrowheads: Array<{ type: "start" | "end"; path: string }> = [];
 
-  if (config.arrowheads === 'end' || config.arrowheads === 'both') {
+  if (config.arrowheads === "end" || config.arrowheads === "both") {
     arrowheads.push({
-      type: 'end',
-      path: toArrowPolygon(connectionPoints.endPoint, endAngle)
+      type: "end",
+      path: toArrowPolygon(connectionPoints.endPoint, endAngle),
     });
   }
 
-  if (config.arrowheads === 'both') {
+  if (config.arrowheads === "both") {
     arrowheads.push({
-      type: 'start',
-      path: toArrowPolygon(connectionPoints.startPoint, startAngle + Math.PI)
+      type: "start",
+      path: toArrowPolygon(connectionPoints.startPoint, startAngle + Math.PI),
     });
   }
 
@@ -71,44 +82,66 @@ export function buildPreviewGeometry(config: ConnectionConfig): PreviewGeometry 
     frames,
     path,
     strokeDasharray: getStrokeDash(config.strokeStyle),
+    strokeLinecap: config.strokeCap,
+    strokeLinejoin: config.strokeJoin,
     color: config.color,
     opacity: config.opacity / 100,
     strokeWidth: config.strokeWidth,
     arrowheads,
-    label
+    label,
   };
 }
 
-function calculateConnectionPoints(frame1: Rect, frame2: Rect, config: ConnectionConfig): ConnectionPoints {
+function calculateConnectionPoints(
+  frame1: Rect,
+  frame2: Rect,
+  config: ConnectionConfig
+): ConnectionPoints {
   const frame1Center = centerOf(frame1);
   const frame2Center = centerOf(frame2);
 
   let startPoint: Point;
   let startOffsetPoint: Point;
 
-  if (config.startPosition === 'auto') {
+  if (config.startPosition === "auto") {
     const dx = frame2Center.x - frame1Center.x;
     const dy = frame2Center.y - frame1Center.y;
 
     if (Math.abs(dx) > Math.abs(dy)) {
       if (dx > 0) {
         startPoint = { x: frame1.x + frame1.width, y: frame1Center.y };
-        startOffsetPoint = { x: startPoint.x + config.connectionOffset, y: startPoint.y };
+        startOffsetPoint = {
+          x: startPoint.x + config.connectionOffset,
+          y: startPoint.y,
+        };
       } else {
         startPoint = { x: frame1.x, y: frame1Center.y };
-        startOffsetPoint = { x: startPoint.x - config.connectionOffset, y: startPoint.y };
+        startOffsetPoint = {
+          x: startPoint.x - config.connectionOffset,
+          y: startPoint.y,
+        };
       }
     } else {
       if (dy > 0) {
         startPoint = { x: frame1Center.x, y: frame1.y + frame1.height };
-        startOffsetPoint = { x: startPoint.x, y: startPoint.y + config.connectionOffset };
+        startOffsetPoint = {
+          x: startPoint.x,
+          y: startPoint.y + config.connectionOffset,
+        };
       } else {
         startPoint = { x: frame1Center.x, y: frame1.y };
-        startOffsetPoint = { x: startPoint.x, y: startPoint.y - config.connectionOffset };
+        startOffsetPoint = {
+          x: startPoint.x,
+          y: startPoint.y - config.connectionOffset,
+        };
       }
     }
   } else {
-    const start = calculateExplicitPosition(frame1, config.startPosition, config.connectionOffset);
+    const start = calculateExplicitPosition(
+      frame1,
+      config.startPosition,
+      config.connectionOffset
+    );
     startPoint = start.point;
     startOffsetPoint = start.offsetPoint;
   }
@@ -116,29 +149,45 @@ function calculateConnectionPoints(frame1: Rect, frame2: Rect, config: Connectio
   let endPoint: Point;
   let endOffsetPoint: Point;
 
-  if (config.endPosition === 'auto') {
+  if (config.endPosition === "auto") {
     const dx = frame2Center.x - frame1Center.x;
     const dy = frame2Center.y - frame1Center.y;
 
     if (Math.abs(dx) > Math.abs(dy)) {
       if (dx > 0) {
         endPoint = { x: frame2.x, y: frame2Center.y };
-        endOffsetPoint = { x: endPoint.x - config.connectionOffset, y: endPoint.y };
+        endOffsetPoint = {
+          x: endPoint.x - config.connectionOffset,
+          y: endPoint.y,
+        };
       } else {
         endPoint = { x: frame2.x + frame2.width, y: frame2Center.y };
-        endOffsetPoint = { x: endPoint.x + config.connectionOffset, y: endPoint.y };
+        endOffsetPoint = {
+          x: endPoint.x + config.connectionOffset,
+          y: endPoint.y,
+        };
       }
     } else {
       if (dy > 0) {
         endPoint = { x: frame2Center.x, y: frame2.y };
-        endOffsetPoint = { x: endPoint.x, y: endPoint.y - config.connectionOffset };
+        endOffsetPoint = {
+          x: endPoint.x,
+          y: endPoint.y - config.connectionOffset,
+        };
       } else {
         endPoint = { x: frame2Center.x, y: frame2.y + frame2.height };
-        endOffsetPoint = { x: endPoint.x, y: endPoint.y + config.connectionOffset };
+        endOffsetPoint = {
+          x: endPoint.x,
+          y: endPoint.y + config.connectionOffset,
+        };
       }
     }
   } else {
-    const end = calculateExplicitPosition(frame2, config.endPosition, config.connectionOffset);
+    const end = calculateExplicitPosition(
+      frame2,
+      config.endPosition,
+      config.connectionOffset
+    );
     endPoint = end.point;
     endOffsetPoint = end.offsetPoint;
   }
@@ -148,45 +197,55 @@ function calculateConnectionPoints(frame1: Rect, frame2: Rect, config: Connectio
     endOffsetPoint = { ...endPoint };
   }
 
-  const waypoints = calculateAvoidanceRoute(frame1, frame2, startOffsetPoint, endOffsetPoint, config);
+  const waypoints = calculateAvoidanceRoute(
+    frame1,
+    frame2,
+    startOffsetPoint,
+    endOffsetPoint,
+    config
+  );
 
   return {
     startPoint,
     endPoint,
     startOffsetPoint,
     endOffsetPoint,
-    waypoints
+    waypoints,
   };
 }
 
-function calculateExplicitPosition(frame: Rect, position: ConnectionConfig['startPosition'], offset: number) {
+function calculateExplicitPosition(
+  frame: Rect,
+  position: ConnectionConfig["startPosition"],
+  offset: number
+) {
   const center = centerOf(frame);
 
   switch (position) {
-    case 'top':
+    case "top":
       return {
         point: { x: center.x, y: frame.y },
-        offsetPoint: { x: center.x, y: frame.y - offset }
+        offsetPoint: { x: center.x, y: frame.y - offset },
       };
-    case 'right':
+    case "right":
       return {
         point: { x: frame.x + frame.width, y: center.y },
-        offsetPoint: { x: frame.x + frame.width + offset, y: center.y }
+        offsetPoint: { x: frame.x + frame.width + offset, y: center.y },
       };
-    case 'bottom':
+    case "bottom":
       return {
         point: { x: center.x, y: frame.y + frame.height },
-        offsetPoint: { x: center.x, y: frame.y + frame.height + offset }
+        offsetPoint: { x: center.x, y: frame.y + frame.height + offset },
       };
-    case 'left':
+    case "left":
       return {
         point: { x: frame.x, y: center.y },
-        offsetPoint: { x: frame.x - offset, y: center.y }
+        offsetPoint: { x: frame.x - offset, y: center.y },
       };
     default:
       return {
         point: { ...center },
-        offsetPoint: { ...center }
+        offsetPoint: { ...center },
       };
   }
 }
@@ -222,11 +281,14 @@ function calculateAvoidanceRoute(
     const routeAboveY = Math.min(frame1Top, frame2Top) - clearance;
     const routeBelowY = Math.max(frame1Bottom, frame2Bottom) + clearance;
     const avgY = (startPoint.y + endPoint.y) / 2;
-    const routeY = Math.abs(routeAboveY - avgY) < Math.abs(routeBelowY - avgY) ? routeAboveY : routeBelowY;
+    const routeY =
+      Math.abs(routeAboveY - avgY) < Math.abs(routeBelowY - avgY)
+        ? routeAboveY
+        : routeBelowY;
 
     return [
       { x: startPoint.x, y: routeY },
-      { x: endPoint.x, y: routeY }
+      { x: endPoint.x, y: routeY },
     ];
   }
 
@@ -238,16 +300,23 @@ function calculateAvoidanceRoute(
   const routeLeftX = Math.min(frame1Left, frame2Left) - clearance;
   const routeRightX = Math.max(frame1Right, frame2Right) + clearance;
   const avgX = (startPoint.x + endPoint.x) / 2;
-  const routeX = Math.abs(routeLeftX - avgX) < Math.abs(routeRightX - avgX) ? routeLeftX : routeRightX;
+  const routeX =
+    Math.abs(routeLeftX - avgX) < Math.abs(routeRightX - avgX)
+      ? routeLeftX
+      : routeRightX;
 
   return [
     { x: routeX, y: startPoint.y },
-    { x: routeX, y: endPoint.y }
+    { x: routeX, y: endPoint.y },
   ];
 }
 
-function createPathData(points: ConnectionPoints, config: ConnectionConfig): string {
-  const { startPoint, endPoint, startOffsetPoint, endOffsetPoint, waypoints } = points;
+function createPathData(
+  points: ConnectionPoints,
+  config: ConnectionConfig
+): string {
+  const { startPoint, endPoint, startOffsetPoint, endOffsetPoint, waypoints } =
+    points;
 
   if (waypoints.length > 0) {
     const segments: string[] = [`M ${startPoint.x} ${startPoint.y}`];
@@ -265,17 +334,17 @@ function createPathData(points: ConnectionPoints, config: ConnectionConfig): str
     }
 
     segments.push(`L ${endPoint.x} ${endPoint.y}`);
-    return segments.join(' ');
+    return segments.join(" ");
   }
 
-  if (config.arrowType === 'straight') {
+  if (config.arrowType === "straight") {
     if (config.connectionOffset > 0) {
       return `M ${startPoint.x} ${startPoint.y} L ${startOffsetPoint.x} ${startOffsetPoint.y} L ${endOffsetPoint.x} ${endOffsetPoint.y} L ${endPoint.x} ${endPoint.y}`;
     }
     return `M ${startPoint.x} ${startPoint.y} L ${endPoint.x} ${endPoint.y}`;
   }
 
-  if (config.arrowType === 'elbow') {
+  if (config.arrowType === "elbow") {
     if (config.connectionOffset > 0) {
       const midX = (startOffsetPoint.x + endOffsetPoint.x) / 2;
       const midY = (startOffsetPoint.y + endOffsetPoint.y) / 2;
@@ -293,12 +362,16 @@ function createPathData(points: ConnectionPoints, config: ConnectionConfig): str
 
     const controlPoint1 = {
       x: startOffsetPoint.x + (Math.abs(dx) > Math.abs(dy) ? curvature : 0),
-      y: startOffsetPoint.y + (Math.abs(dy) > Math.abs(dx) ? curvature * Math.sign(dy) : 0)
+      y:
+        startOffsetPoint.y +
+        (Math.abs(dy) > Math.abs(dx) ? curvature * Math.sign(dy) : 0),
     };
 
     const controlPoint2 = {
       x: endOffsetPoint.x - (Math.abs(dx) > Math.abs(dy) ? curvature : 0),
-      y: endOffsetPoint.y - (Math.abs(dy) > Math.abs(dx) ? curvature * Math.sign(dy) : 0)
+      y:
+        endOffsetPoint.y -
+        (Math.abs(dy) > Math.abs(dx) ? curvature * Math.sign(dy) : 0),
     };
 
     return `M ${startPoint.x} ${startPoint.y} L ${startOffsetPoint.x} ${startOffsetPoint.y} C ${controlPoint1.x} ${controlPoint1.y} ${controlPoint2.x} ${controlPoint2.y} ${endOffsetPoint.x} ${endOffsetPoint.y} L ${endPoint.x} ${endPoint.y}`;
@@ -311,27 +384,39 @@ function createPathData(points: ConnectionPoints, config: ConnectionConfig): str
 
   const controlPoint1 = {
     x: startPoint.x + (Math.abs(dx) > Math.abs(dy) ? curvature : 0),
-    y: startPoint.y + (Math.abs(dy) > Math.abs(dx) ? curvature * Math.sign(dy) : 0)
+    y:
+      startPoint.y +
+      (Math.abs(dy) > Math.abs(dx) ? curvature * Math.sign(dy) : 0),
   };
 
   const controlPoint2 = {
     x: endPoint.x - (Math.abs(dx) > Math.abs(dy) ? curvature : 0),
-    y: endPoint.y - (Math.abs(dy) > Math.abs(dx) ? curvature * Math.sign(dy) : 0)
+    y:
+      endPoint.y -
+      (Math.abs(dy) > Math.abs(dx) ? curvature * Math.sign(dy) : 0),
   };
 
   return `M ${startPoint.x} ${startPoint.y} C ${controlPoint1.x} ${controlPoint1.y} ${controlPoint2.x} ${controlPoint2.y} ${endPoint.x} ${endPoint.y}`;
 }
 
-function calculateArrowAngles(points: ConnectionPoints, config: ConnectionConfig) {
+function calculateArrowAngles(
+  points: ConnectionPoints,
+  config: ConnectionConfig
+) {
   const { startPoint, endPoint, startOffsetPoint, endOffsetPoint } = points;
 
-  const endAngle = config.connectionOffset > 0
-    ? Math.atan2(endPoint.y - endOffsetPoint.y, endPoint.x - endOffsetPoint.x)
-    : Math.atan2(endPoint.y - startPoint.y, endPoint.x - startPoint.x);
+  const endAngle =
+    config.connectionOffset > 0
+      ? Math.atan2(endPoint.y - endOffsetPoint.y, endPoint.x - endOffsetPoint.x)
+      : Math.atan2(endPoint.y - startPoint.y, endPoint.x - startPoint.x);
 
-  const startAngle = config.connectionOffset > 0
-    ? Math.atan2(startOffsetPoint.y - startPoint.y, startOffsetPoint.x - startPoint.x)
-    : Math.atan2(endPoint.y - startPoint.y, endPoint.x - startPoint.x);
+  const startAngle =
+    config.connectionOffset > 0
+      ? Math.atan2(
+          startOffsetPoint.y - startPoint.y,
+          startOffsetPoint.x - startPoint.x
+        )
+      : Math.atan2(endPoint.y - startPoint.y, endPoint.x - startPoint.x);
 
   return { startAngle, endAngle };
 }
@@ -339,17 +424,20 @@ function calculateArrowAngles(points: ConnectionPoints, config: ConnectionConfig
 function toArrowPolygon(point: Point, angle: number): string {
   const p1 = {
     x: point.x - ARROW_LENGTH * Math.cos(angle - ARROW_ANGLE),
-    y: point.y - ARROW_LENGTH * Math.sin(angle - ARROW_ANGLE)
+    y: point.y - ARROW_LENGTH * Math.sin(angle - ARROW_ANGLE),
   };
   const p2 = {
     x: point.x - ARROW_LENGTH * Math.cos(angle + ARROW_ANGLE),
-    y: point.y - ARROW_LENGTH * Math.sin(angle + ARROW_ANGLE)
+    y: point.y - ARROW_LENGTH * Math.sin(angle + ARROW_ANGLE),
   };
 
   return `M ${p1.x} ${p1.y} L ${point.x} ${point.y} L ${p2.x} ${p2.y} Z`;
 }
 
-function buildLabelGeometry(points: ConnectionPoints, config: ConnectionConfig): PreviewGeometry['label'] {
+function buildLabelGeometry(
+  points: ConnectionPoints,
+  config: ConnectionConfig
+): PreviewGeometry["label"] {
   if (!config.label.trim()) return null;
 
   const position = calculateLabelPosition(
@@ -374,7 +462,7 @@ function buildLabelGeometry(points: ConnectionPoints, config: ConnectionConfig):
       x: position.x - width / 2,
       y: position.y - height / 2,
       width,
-      height
+      height,
     },
     text: config.label,
     fontSize: config.labelFontSize,
@@ -383,7 +471,7 @@ function buildLabelGeometry(points: ConnectionPoints, config: ConnectionConfig):
     borderColor: config.labelBorderColor,
     borderWidth: config.labelBorderWidth,
     borderRadius: config.labelBorderRadius,
-    padding: config.labelPadding
+    padding: config.labelPadding,
   };
 }
 
@@ -397,19 +485,19 @@ function calculateLabelPosition(
 ): Point {
   const safeStartPoint = {
     x: isNaN(startPoint.x) ? 0 : startPoint.x,
-    y: isNaN(startPoint.y) ? 0 : startPoint.y
+    y: isNaN(startPoint.y) ? 0 : startPoint.y,
   };
   const safeEndPoint = {
     x: isNaN(endPoint.x) ? 100 : endPoint.x,
-    y: isNaN(endPoint.y) ? 100 : endPoint.y
+    y: isNaN(endPoint.y) ? 100 : endPoint.y,
   };
   const safeStartOffsetPoint = {
     x: isNaN(startOffsetPoint?.x) ? safeStartPoint.x : startOffsetPoint.x,
-    y: isNaN(startOffsetPoint?.y) ? safeStartPoint.y : startOffsetPoint.y
+    y: isNaN(startOffsetPoint?.y) ? safeStartPoint.y : startOffsetPoint.y,
   };
   const safeEndOffsetPoint = {
     x: isNaN(endOffsetPoint?.x) ? safeEndPoint.x : endOffsetPoint.x,
-    y: isNaN(endOffsetPoint?.y) ? safeEndPoint.y : endOffsetPoint.y
+    y: isNaN(endOffsetPoint?.y) ? safeEndPoint.y : endOffsetPoint.y,
   };
 
   const pathPoints: Point[] = [safeStartPoint];
@@ -451,15 +539,21 @@ function calculateLabelPosition(
   if (segments.length === 0 || totalLength === 0) {
     const fallbackCenter = {
       x: (safeStartPoint.x + safeEndPoint.x) / 2,
-      y: (safeStartPoint.y + safeEndPoint.y) / 2
+      y: (safeStartPoint.y + safeEndPoint.y) / 2,
     };
 
-    if (config.labelPosition === 'top') {
-      return { x: fallbackCenter.x, y: fallbackCenter.y - (config.labelOffset || 10) };
+    if (config.labelPosition === "top") {
+      return {
+        x: fallbackCenter.x,
+        y: fallbackCenter.y - (config.labelOffset || 10),
+      };
     }
 
-    if (config.labelPosition === 'bottom') {
-      return { x: fallbackCenter.x, y: fallbackCenter.y + (config.labelOffset || 10) };
+    if (config.labelPosition === "bottom") {
+      return {
+        x: fallbackCenter.x,
+        y: fallbackCenter.y + (config.labelOffset || 10),
+      };
     }
 
     return fallbackCenter;
@@ -477,10 +571,13 @@ function calculateLabelPosition(
 
       pathCenter = {
         x: segment.start.x + (segment.end.x - segment.start.x) * ratio,
-        y: segment.start.y + (segment.end.y - segment.start.y) * ratio
+        y: segment.start.y + (segment.end.y - segment.start.y) * ratio,
       };
 
-      pathAngle = Math.atan2(segment.end.y - segment.start.y, segment.end.x - segment.start.x);
+      pathAngle = Math.atan2(
+        segment.end.y - segment.start.y,
+        segment.end.x - segment.start.x
+      );
       break;
     }
     currentLength += segment.length;
@@ -489,46 +586,49 @@ function calculateLabelPosition(
   if (isNaN(pathCenter.x) || isNaN(pathCenter.y)) {
     pathCenter = {
       x: (safeStartPoint.x + safeEndPoint.x) / 2,
-      y: (safeStartPoint.y + safeEndPoint.y) / 2
+      y: (safeStartPoint.y + safeEndPoint.y) / 2,
     };
-    pathAngle = Math.atan2(safeEndPoint.y - safeStartPoint.y, safeEndPoint.x - safeStartPoint.x);
+    pathAngle = Math.atan2(
+      safeEndPoint.y - safeStartPoint.y,
+      safeEndPoint.x - safeStartPoint.x
+    );
   }
 
-  if (config.labelPosition === 'center') {
+  if (config.labelPosition === "center") {
     return pathCenter;
   }
 
   const offsetDistance = config.labelOffset || 10;
   let finalPosition = pathCenter;
 
-  if (config.labelPosition === 'top') {
+  if (config.labelPosition === "top") {
     finalPosition = {
       x: pathCenter.x - Math.cos(pathAngle) * offsetDistance,
-      y: pathCenter.y - Math.sin(pathAngle) * offsetDistance
+      y: pathCenter.y - Math.sin(pathAngle) * offsetDistance,
     };
-  } else if (config.labelPosition === 'bottom') {
+  } else if (config.labelPosition === "bottom") {
     finalPosition = {
       x: pathCenter.x + Math.cos(pathAngle) * offsetDistance,
-      y: pathCenter.y + Math.sin(pathAngle) * offsetDistance
+      y: pathCenter.y + Math.sin(pathAngle) * offsetDistance,
     };
   }
 
   return {
     x: isNaN(finalPosition.x) ? pathCenter.x : finalPosition.x,
-    y: isNaN(finalPosition.y) ? pathCenter.y : finalPosition.y
+    y: isNaN(finalPosition.y) ? pathCenter.y : finalPosition.y,
   };
 }
 
-function getStrokeDash(style: ConnectionConfig['strokeStyle']) {
-  if (style === 'dashed') return '5 5';
-  if (style === 'dotted') return '2 3';
+function getStrokeDash(style: ConnectionConfig["strokeStyle"]) {
+  if (style === "dashed") return "5 5";
+  if (style === "dotted") return "2 3";
   return undefined;
 }
 
 function addSloppiness(path: string, config: ConnectionConfig): string {
-  if (config.sloppiness === 'none') return path;
+  if (config.sloppiness === "none") return path;
 
-  const slopAmount = config.sloppiness === 'low' ? 2 : 5;
+  const slopAmount = config.sloppiness === "low" ? 2 : 5;
   const random = seededRandom(hashConfig(config));
 
   return path.replace(/-?\d+\.?\d*/g, (match) => {
@@ -561,8 +661,8 @@ function hashConfig(config: ConnectionConfig) {
     config.avoidOverlap,
     config.label,
     config.labelPosition,
-    config.labelOffset
-  ].join('|');
+    config.labelOffset,
+  ].join("|");
 
   let hash = 0;
   for (let i = 0; i < str.length; i += 1) {
@@ -577,7 +677,7 @@ function lineIntersectsRect(start: Point, end: Point, rect: Rect) {
     x: rect.x - padding,
     y: rect.y - padding,
     width: rect.width + padding * 2,
-    height: rect.height + padding * 2
+    height: rect.height + padding * 2,
   };
 
   const rectLeft = expanded.x;
@@ -585,10 +685,12 @@ function lineIntersectsRect(start: Point, end: Point, rect: Rect) {
   const rectTop = expanded.y;
   const rectBottom = expanded.y + expanded.height;
 
-  if ((start.x < rectLeft && end.x < rectLeft) ||
-      (start.x > rectRight && end.x > rectRight) ||
-      (start.y < rectTop && end.y < rectTop) ||
-      (start.y > rectBottom && end.y > rectBottom)) {
+  if (
+    (start.x < rectLeft && end.x < rectLeft) ||
+    (start.x > rectRight && end.x > rectRight) ||
+    (start.y < rectTop && end.y < rectTop) ||
+    (start.y > rectBottom && end.y > rectBottom)
+  ) {
     return false;
   }
 
@@ -597,12 +699,17 @@ function lineIntersectsRect(start: Point, end: Point, rect: Rect) {
   const lineTop = Math.min(start.y, end.y);
   const lineBottom = Math.max(start.y, end.y);
 
-  return !(lineRight < rectLeft || lineLeft > rectRight || lineBottom < rectTop || lineTop > rectBottom);
+  return !(
+    lineRight < rectLeft ||
+    lineLeft > rectRight ||
+    lineBottom < rectTop ||
+    lineTop > rectBottom
+  );
 }
 
 function centerOf(rect: Rect): Point {
   return {
     x: rect.x + rect.width / 2,
-    y: rect.y + rect.height / 2
+    y: rect.y + rect.height / 2,
   };
 }

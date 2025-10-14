@@ -3,6 +3,9 @@ export interface ConnectionConfig {
   color: string;
   strokeWidth: number;
   strokeStyle: "solid" | "dashed" | "dotted";
+  strokeAlign: "center" | "inside" | "outside";
+  strokeCap: "none" | "round" | "square";
+  strokeJoin: "miter" | "round" | "bevel";
   sloppiness: "none" | "low" | "high";
   arrowType: "straight" | "curved" | "elbow";
   arrowheads: "none" | "end" | "both";
@@ -58,6 +61,9 @@ export const defaultConfig: ConnectionConfig = {
   color: "#2c2c2c",
   strokeWidth: 3,
   strokeStyle: "solid",
+  strokeAlign: "center",
+  strokeCap: "round",
+  strokeJoin: "round",
   sloppiness: "low",
   arrowType: "elbow",
   arrowheads: "end",

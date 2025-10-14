@@ -14,13 +14,6 @@ interface PropertiesPanelProps {
   labelInputRef?: React.RefObject<HTMLInputElement>;
 }
 
-const statusClasses = {
-  success: "text-green-700 bg-green-50 border-green-200",
-  error: "text-red-700 bg-red-50 border-red-200",
-  editing: "text-orange-700 bg-orange-50 border-orange-200",
-  info: "text-blue-700 bg-blue-50 border-blue-200",
-};
-
 export const PropertiesPanel: React.FC<PropertiesPanelProps> = ({
   appState,
   updateConfig,
@@ -29,18 +22,9 @@ export const PropertiesPanel: React.FC<PropertiesPanelProps> = ({
   cancelConnection,
   labelInputRef,
 }) => {
-  const statusVariant =
-    statusClasses[appState.status.type] ?? statusClasses.info;
-
   return (
     <>
       <SheetBody className="space-y-6">
-        <div>
-          <div className={`text-xs rounded px-3 py-2 border ${statusVariant}`}>
-            {appState.status.message}
-          </div>
-        </div>
-
         <div>
           <div className="flex rounded-lg bg-gray-100 p-1 text-xs font-semibold uppercase tracking-wide text-gray-500">
             <button

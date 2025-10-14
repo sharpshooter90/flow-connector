@@ -3,17 +3,20 @@
 export interface ConnectionConfig {
   color: string;
   strokeWidth: number;
-  strokeStyle: 'solid' | 'dashed' | 'dotted';
-  sloppiness: 'none' | 'low' | 'high';
-  arrowType: 'straight' | 'curved' | 'elbow';
-  arrowheads: 'none' | 'end' | 'both';
-  startPosition: 'auto' | 'top' | 'right' | 'bottom' | 'left';
-  endPosition: 'auto' | 'top' | 'right' | 'bottom' | 'left';
+  strokeStyle: "solid" | "dashed" | "dotted";
+  strokeAlign: "center" | "inside" | "outside";
+  strokeCap: "none" | "round" | "square";
+  strokeJoin: "miter" | "round" | "bevel";
+  sloppiness: "none" | "low" | "high";
+  arrowType: "straight" | "curved" | "elbow";
+  arrowheads: "none" | "end" | "both";
+  startPosition: "auto" | "top" | "right" | "bottom" | "left";
+  endPosition: "auto" | "top" | "right" | "bottom" | "left";
   connectionOffset: number;
   avoidOverlap: boolean;
   opacity: number;
   label: string;
-  labelPosition: 'center' | 'top' | 'bottom';
+  labelPosition: "center" | "top" | "bottom";
   labelOffset: number;
   labelFontSize: number;
   labelBg: string;

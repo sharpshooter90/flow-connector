@@ -135,6 +135,8 @@ const PreviewFlowInner: React.FC<PreviewFlowProps> = ({
       path: geometry.path,
       strokeWidth: Math.max(geometry.strokeWidth, 1),
       strokeDasharray: geometry.strokeDasharray,
+      strokeLinecap: geometry.strokeLinecap,
+      strokeLinejoin: geometry.strokeLinejoin,
       tooltip: labelText || "Connection preview",
       label: labelStyle,
       arrowheads,
