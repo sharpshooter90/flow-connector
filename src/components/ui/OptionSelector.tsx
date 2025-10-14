@@ -1,4 +1,4 @@
-import React from 'react';
+import React from "react";
 
 interface OptionSelectorOption<T> {
   value: T;
@@ -15,24 +15,25 @@ interface OptionSelectorProps<T> {
   columns?: number;
 }
 
-function OptionSelector<T extends string | number>({ 
-  value, 
-  options, 
-  onChange, 
-  label, 
-  columns = 4 
+function OptionSelector<T extends string | number>({
+  value,
+  options,
+  onChange,
+  label,
+  columns = 4,
 }: OptionSelectorProps<T>) {
-  const gridCols = {
-    2: 'grid-cols-2',
-    3: 'grid-cols-3',
-    4: 'grid-cols-4',
-    5: 'grid-cols-5',
-    6: 'grid-cols-6'
-  }[columns] || 'grid-cols-4';
+  const gridCols =
+    {
+      2: "grid-cols-2",
+      3: "grid-cols-3",
+      4: "grid-cols-4",
+      5: "grid-cols-5",
+      6: "grid-cols-6",
+    }[columns] || "grid-cols-4";
 
   return (
     <div className="space-y-2">
-      <label className="block text-xs font-semibold text-gray-700 uppercase tracking-wide">
+      <label className="block text-[10px] font-semibold text-gray-700 uppercase tracking-wide">
         {label}
       </label>
       <div className={`grid ${gridCols} gap-1`}>
@@ -41,13 +42,14 @@ function OptionSelector<T extends string | number>({
             key={String(option.value)}
             onClick={() => onChange(option.value)}
             className={`
-              p-2 border-2 rounded text-xs transition-all hover:border-purple-400 
+              p-2 border-2 rounded text-[11px] transition-all hover:border-purple-400 
               flex items-center justify-center min-h-[32px] relative
-              ${value === option.value 
-                ? 'border-purple-500 bg-purple-500 text-white' 
-                : 'border-gray-200 bg-white text-gray-700 hover:bg-gray-50'
+              ${
+                value === option.value
+                  ? "border-purple-500 bg-purple-500 text-white"
+                  : "border-gray-200 bg-white text-gray-700 hover:bg-gray-50"
               }
-              ${option.className || ''}
+              ${option.className || ""}
             `}
             title={option.label}
           >

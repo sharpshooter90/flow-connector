@@ -87,7 +87,7 @@ const StartPositionSelector: React.FC<StartPositionSelectorProps> = ({
 
   return (
     <div className="space-y-2">
-      <label className="block text-xs font-semibold text-gray-700 uppercase tracking-wide">
+      <label className="block text-[10px] font-semibold text-gray-700 uppercase tracking-wide">
         {label}
       </label>
       <div className="grid grid-cols-5 gap-1">
@@ -96,7 +96,7 @@ const StartPositionSelector: React.FC<StartPositionSelectorProps> = ({
             key={option.value}
             onClick={() => onChange(option.value)}
             className={`
-              p-2 rounded-md border-2 text-xs font-medium shadow-sm transition-all duration-200
+              p-2 rounded-md border-2 text-[10px] font-medium shadow-sm transition-all duration-200
               flex flex-col items-center justify-center min-h-[48px] relative
               ${
                 value === option.value
@@ -109,7 +109,7 @@ const StartPositionSelector: React.FC<StartPositionSelectorProps> = ({
             <div className="flex items-center justify-center mb-1">
               {option.icon}
             </div>
-            <span className="text-xs font-medium">{option.label}</span>
+            <span className="text-[10px] font-medium">{option.label}</span>
           </button>
         ))}
       </div>

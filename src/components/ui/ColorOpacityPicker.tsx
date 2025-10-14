@@ -71,7 +71,7 @@ const ColorOpacityPicker: React.FC<ColorOpacityPickerProps> = ({
 
   return (
     <div className="space-y-2">
-      <label className="block text-xs font-semibold text-gray-700 uppercase tracking-wide">
+      <label className="block text-[10px] font-semibold text-gray-700 uppercase tracking-wide">
         {label}
       </label>
       <div className="flex items-center bg-gray-100 rounded border border-gray-200 overflow-hidden">
@@ -85,12 +85,12 @@ const ColorOpacityPicker: React.FC<ColorOpacityPickerProps> = ({
 
         {/* Hex Input */}
         <div className="flex items-center px-2 py-1 flex-1">
-          <span className="text-gray-500 text-xs mr-1">#</span>
+          <span className="text-gray-500 text-[10px] mr-1">#</span>
           <input
             type="text"
             value={hexInput}
             onChange={handleHexChange}
-            className="bg-transparent border-none outline-none text-sm font-mono text-gray-700 w-full"
+            className="bg-transparent border-none outline-none text-xs font-mono text-gray-700 w-full"
             placeholder="FF9800"
             maxLength={6}
           />
@@ -106,10 +106,10 @@ const ColorOpacityPicker: React.FC<ColorOpacityPickerProps> = ({
             value={opacityInput}
             onChange={handleOpacityChange}
             onBlur={handleOpacityBlur}
-            className="bg-transparent border-none outline-none text-sm text-gray-700 w-full text-right"
+            className="bg-transparent border-none outline-none text-xs text-gray-700 w-full text-right"
             placeholder="100"
           />
-          <span className="text-gray-500 text-xs ml-1">%</span>
+          <span className="text-gray-500 text-[10px] ml-1">%</span>
         </div>
       </div>
 

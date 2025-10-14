@@ -1,4 +1,4 @@
-import React from 'react';
+import React from "react";
 
 interface RangeSliderProps {
   value: number;
@@ -10,18 +10,18 @@ interface RangeSliderProps {
   step?: number;
 }
 
-const RangeSlider: React.FC<RangeSliderProps> = ({ 
-  value, 
-  min, 
-  max, 
-  label, 
-  onChange, 
+const RangeSlider: React.FC<RangeSliderProps> = ({
+  value,
+  min,
+  max,
+  label,
+  onChange,
   showValue = true,
-  step = 1 
+  step = 1,
 }) => {
   return (
     <div className="space-y-2">
-      <label className="block text-xs font-semibold text-gray-700 uppercase tracking-wide">
+      <label className="block text-[10px] font-semibold text-gray-700 uppercase tracking-wide">
         {label}
       </label>
       <input
@@ -34,7 +34,7 @@ const RangeSlider: React.FC<RangeSliderProps> = ({
         className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer slider"
       />
       {showValue && (
-        <div className="flex justify-between text-xs text-gray-500">
+        <div className="flex justify-between text-[10px] text-gray-500">
           <span>{min}</span>
           <span className="font-medium text-gray-700">{value}</span>
           <span>{max}</span>

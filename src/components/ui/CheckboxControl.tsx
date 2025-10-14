@@ -1,4 +1,4 @@
-import React from 'react';
+import React from "react";
 
 interface CheckboxControlProps {
   checked: boolean;
@@ -7,14 +7,18 @@ interface CheckboxControlProps {
   disabled?: boolean;
 }
 
-const CheckboxControl: React.FC<CheckboxControlProps> = ({ 
-  checked, 
-  onChange, 
-  label, 
-  disabled = false 
+const CheckboxControl: React.FC<CheckboxControlProps> = ({
+  checked,
+  onChange,
+  label,
+  disabled = false,
 }) => {
   return (
-    <label className={`flex items-center gap-2 text-xs cursor-pointer ${disabled ? 'opacity-50 cursor-not-allowed' : ''}`}>
+    <label
+      className={`flex items-center gap-2 text-[11px] cursor-pointer ${
+        disabled ? "opacity-50 cursor-not-allowed" : ""
+      }`}
+    >
       <input
         type="checkbox"
         checked={checked}

@@ -61,7 +61,7 @@ const StrokeJoinSelector: React.FC<StrokeJoinSelectorProps> = ({
 
   return (
     <div className="space-y-2">
-      <label className="block text-xs font-semibold text-gray-700 uppercase tracking-wide">
+      <label className="block text-[10px] font-semibold text-gray-700 uppercase tracking-wide">
         {label}
       </label>
       <select
@@ -69,7 +69,7 @@ const StrokeJoinSelector: React.FC<StrokeJoinSelectorProps> = ({
         onChange={(e) =>
           onChange(e.target.value as "miter" | "round" | "bevel")
         }
-        className="w-full bg-gray-100 border border-gray-200 rounded text-sm px-3 py-2 text-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+        className="w-full bg-gray-100 border border-gray-200 rounded text-xs px-3 py-2 text-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
       >
         {options.map((option) => (
           <option key={option.value} value={option.value}>

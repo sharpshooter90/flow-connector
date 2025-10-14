@@ -26,7 +26,7 @@ export const PropertiesPanel: React.FC<PropertiesPanelProps> = ({
     <>
       <SheetBody className="space-y-6">
         <div>
-          <div className="flex rounded-lg bg-gray-100 p-1 text-xs font-semibold uppercase tracking-wide text-gray-500">
+          <div className="flex rounded-lg bg-gray-100 p-1 text-[11px] font-semibold uppercase tracking-wide text-gray-500">
             <button
               className={`flex-1 rounded-md px-3 py-2 transition-colors ${
                 appState.activeTab === "arrow"

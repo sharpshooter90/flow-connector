@@ -147,7 +147,7 @@ const ArrowTab: React.FC<ArrowTabProps> = memo(({ config, updateConfig }) => {
           label="Stroke Align"
         />
         <div className="space-y-2">
-          <label className="block text-xs font-semibold text-gray-700 uppercase tracking-wide">
+          <label className="block text-[10px] font-semibold text-gray-700 uppercase tracking-wide">
             Stroke Width
           </label>
           <div className="bg-gray-100 border border-gray-200 rounded flex items-center px-3 py-2">
@@ -177,7 +177,7 @@ const ArrowTab: React.FC<ArrowTabProps> = memo(({ config, updateConfig }) => {
                 strokeWidth="1.5"
               />
             </svg>
-            <span className="text-sm text-gray-700">{config.strokeWidth}</span>
+            <span className="text-xs text-gray-700">{config.strokeWidth}</span>
           </div>
         </div>
       </div>
