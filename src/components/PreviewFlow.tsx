@@ -339,15 +339,6 @@ const PreviewFlowInner: React.FC<PreviewFlowProps> = ({
         onPaneClick={() => onRequestSidebar("properties")}
       >
         <Background id="preview-dots" gap={22} size={1} color="#e5e7eb" />
-        <MiniMap
-          position="bottom-left"
-          pannable
-          zoomable
-          className="hidden sm:block"
-          nodeColor={() => geometry.color}
-          maskStrokeColor="#e5e7eb"
-          maskStrokeWidth={1}
-        />
       </ReactFlow>
     </div>
   );
