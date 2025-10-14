@@ -322,7 +322,9 @@ const PreviewFlowInner: React.FC<PreviewFlowProps> = ({
         maxZoom={2.5}
         nodesDraggable={false}
         nodesConnectable={false}
+        nodesFocusable={false}
         elementsSelectable={false}
+        selectNodesOnDrag={false}
         panOnDrag
         panOnScroll={false}
         zoomOnScroll
