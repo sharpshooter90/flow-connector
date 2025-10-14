@@ -4,6 +4,9 @@ import ColorOpacityPicker from "../ui/ColorOpacityPicker";
 import StrokeAlignSelector from "../ui/StrokeAlignSelector";
 import StrokeCapSelector from "../ui/StrokeCapSelector";
 import StrokeJoinSelector from "../ui/StrokeJoinSelector";
+import StartPositionSelector from "../ui/StartPositionSelector";
+import EndPositionSelector from "../ui/EndPositionSelector";
+import ArrowheadsSelector from "../ui/ArrowheadsSelector";
 import OptionSelector from "../ui/OptionSelector";
 import RangeSlider from "../ui/RangeSlider";
 import CheckboxControl from "../ui/CheckboxControl";
@@ -126,68 +129,6 @@ const ArrowTab: React.FC<ArrowTabProps> = memo(({ config, updateConfig }) => {
     },
   ];
 
-  const arrowheadOptions = [
-    {
-      value: "none" as const,
-      label: "None",
-      icon: (
-        <svg className="w-4 h-2">
-          <line
-            x1="2"
-            y1="4"
-            x2="12"
-            y2="4"
-            stroke="currentColor"
-            strokeWidth="1.5"
-          />
-        </svg>
-      ),
-    },
-    {
-      value: "end" as const,
-      label: "End",
-      icon: (
-        <svg className="w-4 h-2">
-          <line
-            x1="2"
-            y1="4"
-            x2="12"
-            y2="4"
-            stroke="currentColor"
-            strokeWidth="1.5"
-          />
-          <polygon points="10,2 12,4 10,6" fill="currentColor" />
-        </svg>
-      ),
-    },
-    {
-      value: "both" as const,
-      label: "Both",
-      icon: (
-        <svg className="w-4 h-2">
-          <line
-            x1="2"
-            y1="4"
-            x2="12"
-            y2="4"
-            stroke="currentColor"
-            strokeWidth="1.5"
-          />
-          <polygon points="4,2 2,4 4,6" fill="currentColor" />
-          <polygon points="10,2 12,4 10,6" fill="currentColor" />
-        </svg>
-      ),
-    },
-  ];
-
-  const positionOptions = [
-    { value: "auto" as const, label: "Auto" },
-    { value: "top" as const, label: "Top" },
-    { value: "right" as const, label: "Right" },
-    { value: "bottom" as const, label: "Bottom" },
-    { value: "left" as const, label: "Left" },
-  ];
-
   return (
     <div className="space-y-4">
       {/* Combined Color & Opacity */}
@@ -280,29 +221,26 @@ const ArrowTab: React.FC<ArrowTabProps> = memo(({ config, updateConfig }) => {
         columns={3}
       />
 
-      <OptionSelector
+      {/* Arrowheads */}
+      <ArrowheadsSelector
         value={config.arrowheads}
-        options={arrowheadOptions}
         onChange={(arrowheads) => updateConfig({ arrowheads })}
         label="Arrowheads"
-        columns={3}
       />
 
-      <OptionSelector
-        value={config.startPosition}
-        options={positionOptions}
-        onChange={(startPosition) => updateConfig({ startPosition })}
-        label="Start Position"
-        columns={3}
-      />
-
-      <OptionSelector
-        value={config.endPosition}
-        options={positionOptions}
-        onChange={(endPosition) => updateConfig({ endPosition })}
-        label="End Position"
-        columns={3}
-      />
+      {/* Start & End Position */}
+      <div className="grid grid-cols-2 gap-3">
+        <StartPositionSelector
+          value={config.startPosition}
+          onChange={(startPosition) => updateConfig({ startPosition })}
+          label="Start Position"
+        />
+        <EndPositionSelector
+          value={config.endPosition}
+          onChange={(endPosition) => updateConfig({ endPosition })}
+          label="End Position"
+        />
+      </div>
 
       <RangeSlider
         value={config.connectionOffset}

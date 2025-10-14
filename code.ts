@@ -12,7 +12,7 @@ import { ConnectionManager } from "./src/services/connectionManager";
 import { captureViewport, restoreViewport } from "./src/utils/viewport";
 
 // Show the UI
-figma.showUI(__html__, { width: 600, height: 520 });
+figma.showUI(__html__, { width: 840, height: 520 });
 
 // Plugin state
 let autoCreateEnabled = true;
