@@ -28,7 +28,17 @@ export interface ConnectionConfig {
 }
 
 export interface PluginMessage {
-  type: string;
+  type:
+    | "create-connection"
+    | "update-connection"
+    | "auto-create-connection"
+    | "toggle-auto-create"
+    | "toggle-auto-update"
+    | "save-config"
+    | "load-config"
+    | "clear-cache"
+    | "cancel"
+    | "reverse-connection";
   config?: ConnectionConfig;
   enabled?: boolean;
   connectionId?: string;

@@ -10,7 +10,7 @@ import {
 } from "./ui/sheet";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
 import { Button } from "./ui/button";
-import { Menu, Settings, X, Hash } from "lucide-react";
+import { Menu, Settings, X, Hash, ArrowLeftRight } from "lucide-react";
 import PropertiesPanel from "./PropertiesPanel";
 import SettingsPanel from "./SettingsPanel";
 
@@ -28,6 +28,7 @@ interface MainContainerProps {
   onRequestSidebar: (target: "properties" | "settings") => void;
   onRequestLabelEdit: () => void;
   onRequestArrowEdit: () => void;
+  onReverseConnection: () => void;
   labelInputRef?: React.RefObject<HTMLInputElement | null>;
 }
 
@@ -45,6 +46,7 @@ const MainContainer: React.FC<MainContainerProps> = ({
   onRequestSidebar,
   onRequestLabelEdit,
   onRequestArrowEdit,
+  onReverseConnection,
   labelInputRef,
 }) => {
   return (
@@ -60,20 +62,31 @@ const MainContainer: React.FC<MainContainerProps> = ({
           {appState.isEditingConnection ? (
             <>
               <h1 className="text-sm font-semibold text-orange-900">
-                Editing Connection
+                Editing Flow connection
               </h1>
-              <p className="text-xs text-orange-700">
-                @{appState.selectedConnectionName || "Flow Connection"}:
+
+              <p className="text-xs text-orange-700 flex items-center gap-1.5">
+                Frames:
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={onReverseConnection}
+                  aria-label="Reverse connection"
+                  className="h-4 w-4 p-0"
+                >
+                  <ArrowLeftRight className="h-3.5 w-3.5" />
+                </Button>
                 {appState.connectedFrames.length === 2 && (
                   <>
-                    {" "}
-                    <span className="font-medium flex items-center gap-1">
-                      <Hash className="h-3 w-3" />
+                    <Hash className="h-3 w-3" />
+                    <span className="font-medium">A</span>
+                    <span className="font-medium">
                       {appState.connectedFrames[0].name}
                     </span>
                     {" → "}
-                    <span className="font-medium flex items-center gap-1">
-                      <Hash className="h-3 w-3" />
+                    <Hash className="h-3 w-3" />
+                    <span className="font-medium">B</span>
+                    <span className="font-medium">
                       {appState.connectedFrames[1].name}
                     </span>
                   </>

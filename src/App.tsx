@@ -281,6 +281,50 @@ function App() {
     updateAppState({ activeTab: "arrow" });
   }, [openSidebar, updateAppState]);
 
+  const reverseConnection = useCallback(() => {
+    if (
+      appState.connectedFrames.length === 2 &&
+      appState.selectedConnectionId
+    ) {
+      // Swap the connected frames in state
+      const reversedFrames = [
+        appState.connectedFrames[1],
+        appState.connectedFrames[0],
+      ];
+
+      // Swap start and end positions in config
+      const newConfig = {
+        ...appState.config,
+        startPosition: appState.config.endPosition,
+        endPosition: appState.config.startPosition,
+      };
+
+      // Update app state
+      setAppState((prev) => ({
+        ...prev,
+        connectedFrames: reversedFrames,
+        config: newConfig,
+      }));
+
+      // Use the existing update mechanism with reversed frames
+      // Save config
+      debouncedSave(newConfig, sendMessage);
+
+      // Send reverse-connection message with reversed config
+      sendMessage({
+        type: "reverse-connection",
+        connectionId: appState.selectedConnectionId,
+        config: newConfig,
+      });
+    }
+  }, [
+    appState.connectedFrames,
+    appState.selectedConnectionId,
+    appState.config,
+    sendMessage,
+    debouncedSave,
+  ]);
+
   const createConnection = useCallback(() => {
     sendMessage({ type: "create-connection", config: appState.config });
   }, [sendMessage, appState.config]);
@@ -319,6 +363,7 @@ function App() {
       onRequestSidebar={openSidebar}
       onRequestLabelEdit={handleLabelEditRequest}
       onRequestArrowEdit={handleArrowEditRequest}
+      onReverseConnection={reverseConnection}
       labelInputRef={labelInputRef}
     />
   );

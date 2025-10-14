@@ -115,6 +115,9 @@ figma.ui.onmessage = async (msg: PluginMessage) => {
       case "clear-cache":
         await handleClearCache();
         break;
+      case "reverse-connection":
+        await handleReverseConnection(msg);
+        break;
       case "cancel":
         figma.closePlugin();
         break;
@@ -236,6 +239,84 @@ async function handleAutoCreateConnection(msg: PluginMessage) {
     figma.ui.postMessage({
       type: "connection-created",
       message: "Connection created and ready for editing!",
+    });
+  }
+}
+
+async function handleReverseConnection(msg: PluginMessage) {
+  if (msg.connectionId && msg.config) {
+    const currentViewport = captureViewport();
+
+    // Get the connection node
+    const connection = figma.getNodeById(msg.connectionId) as GroupNode;
+    if (!connection || !connectionManager.isFlowConnection(connection)) {
+      figma.ui.postMessage({
+        type: "error",
+        message: "Connection not found",
+      });
+      return;
+    }
+
+    // Get connection metadata to find the frames
+    const metadata = connectionManager.getConnectionMetadata(connection);
+    if (!metadata) {
+      figma.ui.postMessage({
+        type: "error",
+        message: "Connection metadata not found",
+      });
+      return;
+    }
+
+    // Get the frame nodes
+    const frame1 = figma.getNodeById(metadata.frame1Id) as FrameNode;
+    const frame2 = figma.getNodeById(metadata.frame2Id) as FrameNode;
+
+    if (!frame1 || !frame2) {
+      figma.ui.postMessage({
+        type: "error",
+        message: "Connected frames not found",
+      });
+      return;
+    }
+
+    // Save the reversed config
+    await storageManager.saveConfig(msg.config);
+
+    // Update the connection with swapped frames and reversed config
+    const updatedConnection = await connectionUpdater.updateConnection(
+      msg.connectionId,
+      msg.config,
+      frame2, // Swap frames: frame2 becomes source, frame1 becomes target
+      frame1
+    );
+
+    // Select the updated connection
+    figma.currentPage.selection = [updatedConnection];
+
+    // Restore viewport
+    setTimeout(() => {
+      restoreViewport(currentViewport);
+    }, 50);
+
+    // Send updated connection info back to UI
+    const updatedMetadata =
+      connectionManager.getConnectionMetadata(updatedConnection);
+    if (updatedMetadata) {
+      figma.ui.postMessage({
+        type: "connection-selected",
+        config: updatedMetadata.config,
+        connectionId: updatedConnection.id,
+        connectionName: updatedConnection.name,
+        frames: [
+          { id: frame2.id, name: frame2.name },
+          { id: frame1.id, name: frame1.name },
+        ],
+      });
+    }
+
+    figma.ui.postMessage({
+      type: "success",
+      message: "Connection reversed successfully!",
     });
   }
 }
