@@ -3,7 +3,9 @@ import { ConnectionConfig } from "../../types";
 import ColorPicker from "../ui/ColorPicker";
 import BorderWidthSelector from "../ui/BorderWidthSelector";
 import LabelPositionSelector from "../ui/LabelPositionSelector";
-import RangeSlider from "../ui/RangeSlider";
+import FontFamilySelector from "../ui/FontFamilySelector";
+import FontWeightSelector from "../ui/FontWeightSelector";
+import FontSizeSelector from "../ui/FontSizeSelector";
 import TextInput from "../ui/TextInput";
 
 interface LabelTabProps {
@@ -84,37 +86,110 @@ const LabelTab: React.FC<LabelTabProps> = memo(
           label="Label Position"
         />
 
-        <RangeSlider
-          value={config.labelOffset}
-          min={0}
-          max={30}
-          label="Label Offset"
-          onChange={(labelOffset) => updateConfig({ labelOffset })}
-        />
+        {/* Typography Section */}
+        <div className="space-y-4">
+          <h3 className="text-sm font-semibold text-gray-900">Typography</h3>
 
-        <RangeSlider
-          value={config.labelFontSize}
-          min={8}
-          max={24}
-          label="Font Size"
-          onChange={(labelFontSize) => updateConfig({ labelFontSize })}
-        />
+          <FontFamilySelector
+            value={config.labelFontFamily}
+            onChange={(labelFontFamily) => updateConfig({ labelFontFamily })}
+            label="Font Family"
+          />
 
-        <RangeSlider
-          value={config.labelBorderRadius}
-          min={0}
-          max={12}
-          label="Border Radius"
-          onChange={(labelBorderRadius) => updateConfig({ labelBorderRadius })}
-        />
+          <div className="grid grid-cols-2 gap-3">
+            <FontWeightSelector
+              value={config.labelFontWeight}
+              onChange={(labelFontWeight) => updateConfig({ labelFontWeight })}
+              label="Font Weight"
+            />
+            <FontSizeSelector
+              value={config.labelFontSize}
+              onChange={(labelFontSize) => updateConfig({ labelFontSize })}
+              label="Font Size"
+            />
+          </div>
+        </div>
 
-        <RangeSlider
-          value={config.labelPadding}
-          min={2}
-          max={12}
-          label="Padding"
-          onChange={(labelPadding) => updateConfig({ labelPadding })}
-        />
+        {/* Padding and Border Radius in a row */}
+        <div className="grid grid-cols-2 gap-3">
+          <div className="space-y-2 relative">
+            <label className="block text-[10px] font-semibold text-gray-700 uppercase tracking-wide">
+              Padding
+            </label>
+            <div className="relative">
+              <svg
+                className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-600"
+                viewBox="0 0 16 16"
+              >
+                <rect
+                  x="2"
+                  y="2"
+                  width="12"
+                  height="12"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="1.5"
+                />
+                <rect
+                  x="4"
+                  y="4"
+                  width="8"
+                  height="8"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="1"
+                  opacity="0.5"
+                />
+              </svg>
+              <input
+                type="number"
+                value={config.labelPadding}
+                onChange={(e) =>
+                  updateConfig({ labelPadding: Number(e.target.value) })
+                }
+                min="0"
+                max="20"
+                step="1"
+                className="w-full bg-gray-100 border border-gray-200 rounded text-xs px-3 py-2 pl-10 text-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+              />
+            </div>
+          </div>
+
+          <div className="space-y-2 relative">
+            <label className="block text-[10px] font-semibold text-gray-700 uppercase tracking-wide">
+              Border Radius
+            </label>
+            <div className="relative">
+              <svg
+                className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-600"
+                viewBox="0 0 16 16"
+              >
+                <rect
+                  x="2"
+                  y="2"
+                  width="12"
+                  height="12"
+                  rx="2"
+                  ry="2"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="1.5"
+                />
+              </svg>
+              <input
+                type="number"
+                value={config.labelBorderRadius}
+                onChange={(e) =>
+                  updateConfig({ labelBorderRadius: Number(e.target.value) })
+                }
+                min="0"
+                max="20"
+                step="1"
+                className="w-full bg-gray-100 border border-gray-200 rounded text-xs px-3 py-2 pl-10 text-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+              />
+            </div>
+          </div>
+        </div>
       </div>
     );
   }

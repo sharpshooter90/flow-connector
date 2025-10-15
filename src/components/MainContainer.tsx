@@ -1,14 +1,10 @@
 import React from "react";
 import { AppState, ConnectionConfig } from "../types";
 import PreviewFlow from "./PreviewFlow";
-import {
-  Sheet,
-  SheetContent,
-  SheetHeader,
-  SheetTitle,
-} from "./ui/sheet";
+import { Sheet, SheetContent, SheetHeader, SheetTitle } from "./ui/sheet";
 import { Button } from "./ui/button";
 import { Hash, ArrowLeftRight, Settings, PanelRight } from "lucide-react";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "./ui/tabs";
 import PropertiesPanel from "./PropertiesPanel";
 import SettingsPanel from "./SettingsPanel";
 
@@ -140,7 +136,6 @@ const MainContainer: React.FC<MainContainerProps> = ({
           onRequestLabelEdit={onRequestLabelEdit}
           onRequestArrowEdit={onRequestArrowEdit}
         />
-
       </main>
 
       <Sheet
@@ -153,39 +148,84 @@ const MainContainer: React.FC<MainContainerProps> = ({
           className="w-full max-w-xs border-l border-gray-200"
         >
           <div className="flex h-full flex-col">
-            <SheetHeader className="flex flex-row items-center justify-between border-b border-gray-200 pb-3">
-              <SheetTitle>{sidebarTab === "properties" ? "Properties" : "Settings"}</SheetTitle>
-              <div className="flex items-center gap-2">
-                <Button 
-                  variant="ghost" 
-                  size="icon" 
-                  onClick={() => onRequestSidebar(sidebarTab === "settings" ? "properties" : "settings")}
-                  aria-label={sidebarTab === "settings" ? "Back to properties" : "Open settings"}
-                  className="h-8 w-8"
-                >
-                  <Settings className="h-4 w-4" />
-                </Button>
-                <Button 
-                  variant="ghost" 
-                  size="icon" 
-                  onClick={() => onSidebarOpenChange(false)}
-                  aria-label="Collapse panel" 
-                  className="h-8 w-8"
-                >
-                  <PanelRight className="h-4 w-4" />
-                </Button>
-              </div>
-            </SheetHeader>
-
             {sidebarTab === "properties" ? (
-              <PropertiesPanel
-                appState={appState}
-                updateConfig={updateConfig}
-                updateAppState={updateAppState}
-                createConnection={createConnection}
-                cancelConnection={cancelConnection}
-                labelInputRef={labelInputRef}
-              />
+              <Tabs
+                value={appState.activeTab}
+                onValueChange={(value) =>
+                  updateAppState({ activeTab: value as "arrow" | "label" })
+                }
+                className="flex flex-col h-full"
+              >
+                <div className="flex flex-row items-center justify-between border-b border-gray-200 py-3 px-4">
+                  <TabsList className="grid grid-cols-2 text-xs font-semibold uppercase tracking-wide bg-transparent">
+                    <TabsTrigger
+                      value="arrow"
+                      className="hover:bg-gray-100 data-[state=active]:bg-gray-100 data-[state=active]:text-gray-900 px-3 py-1.5 min-w-0"
+                    >
+                      Connector
+                    </TabsTrigger>
+                    <TabsTrigger
+                      value="label"
+                      className="hover:bg-gray-100 data-[state=active]:bg-gray-100 data-[state=active]:text-gray-900 px-3 py-1.5 min-w-0"
+                    >
+                      Label
+                    </TabsTrigger>
+                  </TabsList>
+                  <div className="flex items-center gap-2">
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() =>
+                        onRequestSidebar(
+                          sidebarTab === "settings" ? "properties" : "settings"
+                        )
+                      }
+                      aria-label={
+                        sidebarTab === "settings"
+                          ? "Back to properties"
+                          : "Open settings"
+                      }
+                      className="h-8 w-8"
+                    >
+                      <Settings className="h-4 w-4" />
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => onSidebarOpenChange(false)}
+                      aria-label="Collapse panel"
+                      className="h-8 w-8"
+                    >
+                      <PanelRight className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </div>
+                <TabsContent
+                  value="arrow"
+                  className="flex-1 overflow-y-auto mt-0"
+                >
+                  <PropertiesPanel
+                    appState={appState}
+                    updateConfig={updateConfig}
+                    updateAppState={updateAppState}
+                    createConnection={createConnection}
+                    cancelConnection={cancelConnection}
+                    labelInputRef={labelInputRef}
+                    activeTab="arrow"
+                  />
+                </TabsContent>
+                <TabsContent value="label" className="flex-1 overflow-y-auto">
+                  <PropertiesPanel
+                    appState={appState}
+                    updateConfig={updateConfig}
+                    updateAppState={updateAppState}
+                    createConnection={createConnection}
+                    cancelConnection={cancelConnection}
+                    labelInputRef={labelInputRef}
+                    activeTab="label"
+                  />
+                </TabsContent>
+              </Tabs>
             ) : (
               <SettingsPanel
                 appState={appState}

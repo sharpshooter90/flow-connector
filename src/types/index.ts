@@ -18,6 +18,8 @@ export interface ConnectionConfig {
   labelPosition: "center" | "top" | "bottom";
   labelOffset: number;
   labelFontSize: number;
+  labelFontFamily: string;
+  labelFontWeight: string;
   labelBg: string;
   labelTextColor: string;
   labelBorderColor: string;
@@ -77,6 +79,8 @@ export const defaultConfig: ConnectionConfig = {
   labelPosition: "center",
   labelOffset: 10,
   labelFontSize: 12,
+  labelFontFamily: "Inter",
+  labelFontWeight: "Medium",
   labelBg: "#ffffff",
   labelTextColor: "#333333",
   labelBorderColor: "#e0e0e0",
