@@ -7,12 +7,7 @@
     "strict": true,
     "outDir": "dist",
     "noEmit": false,
-    "typeRoots": [
-      "./node_modules/@types",
-      "./node_modules/@figma"
-    ]
+    "typeRoots": ["./node_modules/@types", "./node_modules/@figma"]
   },
-  "include": [
-    "code.ts"
-  ]
+  "include": ["code.ts"]
 }

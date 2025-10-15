@@ -27,6 +27,8 @@ export interface ConnectionConfig {
   labelPadding: number;
 }
 
+import { ConnectionStrategy, FrameLayoutAnalysis, BulkOperationResult } from './index';
+
 export interface PluginMessage {
   type:
     | "create-connection"
@@ -38,13 +40,31 @@ export interface PluginMessage {
     | "load-config"
     | "clear-cache"
     | "cancel"
-    | "reverse-connection";
+    | "reverse-connection"
+    | "frame-selection"
+    | "clear-frame-selection"
+    | "create-bulk-connections"
+    | "update-bulk-connections"
+    | "update-connection-strategy"
+    | "analyze-frame-layout"
+    | "exit-bulk-mode"
+    | "cancel-bulk-operation"
+    | "retry-bulk-operation"
+    | "analyze-mixed-properties";
   config?: ConnectionConfig;
   enabled?: boolean;
   connectionId?: string;
+  connectionIds?: string[];
   connectionName?: string;
   message?: string;
   command?: string;
+  frameId?: string;
+  // Bulk operation properties
+  selectedFrames?: Array<{ id: string; name: string }>;
+  connectionStrategy?: ConnectionStrategy;
+  frameLayout?: FrameLayoutAnalysis;
+  operationId?: string;
+  bulkOperationResult?: BulkOperationResult;
 }
 
 export interface ConnectionMetadata {

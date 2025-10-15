@@ -1,5 +1,5 @@
 import React from "react";
-import { AppState, ConnectionConfig } from "../types";
+import { AppState, ConnectionConfig, ConnectionStrategy, OperationProgress } from "../types";
 import PreviewFlow from "./PreviewFlow";
 import {
   Sheet,
@@ -10,9 +10,11 @@ import {
 } from "./ui/sheet";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
 import { Button } from "./ui/button";
-import { Menu, Settings, X, Hash, ArrowLeftRight } from "lucide-react";
+import { Menu, Settings, X, Hash, ArrowLeftRight, Users, AlertTriangle, Zap } from "lucide-react";
 import PropertiesPanel from "./PropertiesPanel";
 import SettingsPanel from "./SettingsPanel";
+import BulkActionControls from "./BulkActionControls";
+import ProgressIndicator from "./ui/ProgressIndicator";
 
 interface MainContainerProps {
   appState: AppState;
@@ -30,6 +32,21 @@ interface MainContainerProps {
   onRequestArrowEdit: () => void;
   onReverseConnection: () => void;
   labelInputRef?: React.RefObject<HTMLInputElement | null>;
+  // Bulk operation functions
+  updateConnectionStrategy?: (strategy: ConnectionStrategy) => void;
+  createBulkConnections?: () => void;
+  updateBulkConnections?: (updates: Partial<ConnectionConfig>) => void;
+  exitBulkMode?: () => void;
+  retryBulkOperation?: (operationId: string) => void;
+  cancelBulkOperation?: () => void;
+  requestLayoutAnalysis?: () => void;
+  onBulkPropertyUpdate?: (property: keyof ConnectionConfig, value: any) => Promise<void>;
+  onBulkMultiplePropertyUpdate?: (updates: Partial<ConnectionConfig>) => Promise<void>;
+  // Progress tracking functions
+  activeOperations?: OperationProgress[];
+  onCancelOperation?: (operationId: string) => void;
+  onRetryOperation?: (operationId: string) => void;
+  onDismissOperation?: (operationId: string) => void;
 }
 
 const MainContainer: React.FC<MainContainerProps> = ({
@@ -48,18 +65,83 @@ const MainContainer: React.FC<MainContainerProps> = ({
   onRequestArrowEdit,
   onReverseConnection,
   labelInputRef,
+  // Bulk operation props
+  updateConnectionStrategy,
+  createBulkConnections,
+  updateBulkConnections,
+  exitBulkMode,
+  retryBulkOperation,
+  cancelBulkOperation,
+  // requestLayoutAnalysis, // Currently unused but available for future use
+  onBulkPropertyUpdate,
+  onBulkMultiplePropertyUpdate,
+  // Progress tracking props
+  activeOperations = [],
+  onCancelOperation,
+  onRetryOperation,
+  onDismissOperation,
 }) => {
   return (
     <div className="flex h-screen flex-col bg-gray-50">
       <header
         className={`flex items-center justify-between border-b px-6 py-3 shadow-sm transition-colors ${
-          appState.isEditingConnection
+          appState.isBulkMode
+            ? "border-purple-200 bg-purple-50"
+            : appState.isEditingConnection
             ? "border-orange-200 bg-orange-50"
             : "border-blue-200 bg-blue-50"
         }`}
       >
-        <div>
-          {appState.isEditingConnection ? (
+        <div className="flex-1">
+          {appState.isBulkMode ? (
+            <>
+              <div className="flex items-center gap-2">
+                <Users className="h-4 w-4 text-purple-700" />
+                <h1 className="text-sm font-semibold text-purple-900">
+                  Bulk Mode - {appState.selectedFrames.length} frames selected
+                </h1>
+                {appState.bulkOperationInProgress && (
+                  <div className="flex items-center gap-1">
+                    <Zap className="h-3 w-3 text-purple-600 animate-pulse" />
+                    <span className="text-xs text-purple-600">Processing...</span>
+                  </div>
+                )}
+              </div>
+              
+              {/* Layout warning for scattered frames */}
+              {appState.frameLayout && appState.frameLayout.pattern.type === 'scattered' && (
+                <div className="flex items-center gap-1.5 mt-1">
+                  <AlertTriangle className="h-3 w-3 text-amber-600" />
+                  <p className="text-xs text-amber-700">
+                    Selected frames appear scattered. Connection order may not be predictable.
+                  </p>
+                </div>
+              )}
+              
+              {/* Layout suggestions */}
+              {appState.frameLayout && appState.frameLayout.suggestions.length > 0 && (
+                <p className="text-xs text-purple-600 mt-1">
+                  Suggestion: {appState.frameLayout.suggestions[0]}
+                </p>
+              )}
+              
+              {/* Frame names preview */}
+              <div className="flex items-center gap-1 mt-1 text-xs text-purple-700">
+                <span>Frames:</span>
+                {appState.selectedFrames.slice(0, 3).map((frame, index) => (
+                  <span key={frame.id} className="font-medium">
+                    {frame.name}
+                    {index < Math.min(2, appState.selectedFrames.length - 1) && ", "}
+                  </span>
+                ))}
+                {appState.selectedFrames.length > 3 && (
+                  <span className="text-purple-600">
+                    +{appState.selectedFrames.length - 3} more
+                  </span>
+                )}
+              </div>
+            </>
+          ) : appState.isEditingConnection ? (
             <>
               <h1 className="text-sm font-semibold text-orange-900">
                 Editing Flow connection
@@ -99,16 +181,27 @@ const MainContainer: React.FC<MainContainerProps> = ({
                 Flow Connector
               </h1>
               <p className="text-xs text-blue-700">
-                Select 2 frames with{" "}
-                <kbd className="px-1.5 py-0.5 bg-blue-100 rounded text-[10px] font-mono border border-blue-300">
-                  Shift+Click
-                </kbd>{" "}
-                to create a connection
+                Select frames to create connections or edit existing ones
               </p>
             </>
           )}
         </div>
+        
+        {/* Bulk Action Controls */}
+        {appState.isBulkMode && (
+          <div className="flex items-center gap-2 mr-4">
+            <BulkActionControls
+              appState={appState}
+              updateConnectionStrategy={updateConnectionStrategy}
+              createBulkConnections={createBulkConnections}
+              exitBulkMode={exitBulkMode}
+              cancelBulkOperation={cancelBulkOperation}
+              retryBulkOperation={retryBulkOperation}
+            />
+          </div>
+        )}
         <div className="flex items-center gap-2">
+
           <Button
             variant="outline"
             size="icon"
@@ -138,6 +231,22 @@ const MainContainer: React.FC<MainContainerProps> = ({
           onRequestLabelEdit={onRequestLabelEdit}
           onRequestArrowEdit={onRequestArrowEdit}
         />
+        
+        {/* Progress Indicators Overlay */}
+        {activeOperations.length > 0 && (
+          <div className="absolute bottom-4 right-4 space-y-2 z-40 max-w-sm">
+            {activeOperations.map((operation) => (
+              <ProgressIndicator
+                key={operation.operationId}
+                progress={operation}
+                onCancel={onCancelOperation ? () => onCancelOperation(operation.operationId) : undefined}
+                onRetry={onRetryOperation ? () => onRetryOperation(operation.operationId) : undefined}
+                onDismiss={onDismissOperation ? () => onDismissOperation(operation.operationId) : undefined}
+                className="shadow-lg"
+              />
+            ))}
+          </div>
+        )}
       </main>
 
       <Sheet
@@ -179,6 +288,7 @@ const MainContainer: React.FC<MainContainerProps> = ({
                 createConnection={createConnection}
                 cancelConnection={cancelConnection}
                 labelInputRef={labelInputRef}
+                onBulkPropertyUpdate={onBulkPropertyUpdate}
               />
             </TabsContent>
 
