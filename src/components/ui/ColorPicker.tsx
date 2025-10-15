@@ -14,7 +14,7 @@ const ColorPicker: React.FC<ColorPickerProps> = ({
   label,
 }) => {
   return (
-    <div className="space-y-2">
+    <div className="space-y-2 relative">
       <label className="block text-[10px] font-semibold text-gray-700 uppercase tracking-wide">
         {label}
       </label>
@@ -25,7 +25,7 @@ const ColorPicker: React.FC<ColorPickerProps> = ({
             onClick={() => onChange(color)}
             className={`w-6 h-6 rounded border-2 transition-all hover:scale-110 ${
               value === color
-                ? "border-blue-500 scale-110"
+                ? "border-purple-500 scale-110 shadow-md"
                 : "border-transparent hover:border-gray-300"
             }`}
             style={{ backgroundColor: color }}

@@ -7,69 +7,69 @@ import {
   SelectValue,
 } from "./select";
 
-interface ArrowheadsSelectorProps {
-  value: "none" | "end" | "both";
-  onChange: (value: "none" | "end" | "both") => void;
+interface LabelPositionSelectorProps {
+  value: "center" | "top" | "bottom";
+  onChange: (value: "center" | "top" | "bottom") => void;
   label: string;
 }
 
-const ArrowheadsSelector: React.FC<ArrowheadsSelectorProps> = ({
+const LabelPositionSelector: React.FC<LabelPositionSelectorProps> = ({
   value,
   onChange,
   label,
 }) => {
   const options = [
     {
-      value: "none" as const,
-      label: "None",
+      value: "top" as const,
+      label: "Top",
       icon: (
-        <svg className="w-4 h-4" viewBox="0 0 16 8" fill="none">
+        <svg className="w-4 h-4" viewBox="0 0 16 16" fill="none">
           <line
-            x1="2"
-            y1="4"
-            x2="14"
-            y2="4"
+            x1="8"
+            y1="2"
+            x2="8"
+            y2="14"
             stroke="currentColor"
             strokeWidth="1.5"
             strokeLinecap="round"
           />
+          <circle cx="8" cy="3" r="1.5" fill="currentColor" />
         </svg>
       ),
     },
     {
-      value: "end" as const,
-      label: "End",
+      value: "center" as const,
+      label: "Center",
       icon: (
-        <svg className="w-4 h-4" viewBox="0 0 16 8" fill="none">
+        <svg className="w-4 h-4" viewBox="0 0 16 16" fill="none">
           <line
-            x1="2"
-            y1="4"
-            x2="12"
-            y2="4"
+            x1="8"
+            y1="2"
+            x2="8"
+            y2="14"
             stroke="currentColor"
             strokeWidth="1.5"
             strokeLinecap="round"
           />
-          <polygon points="10,2 12,4 10,6" fill="currentColor" />
+          <circle cx="8" cy="8" r="1.5" fill="currentColor" />
         </svg>
       ),
     },
     {
-      value: "both" as const,
-      label: "Both",
+      value: "bottom" as const,
+      label: "Bottom",
       icon: (
-        <svg className="w-4 h-4" viewBox="0 0 16 8" fill="none">
+        <svg className="w-4 h-4" viewBox="0 0 16 16" fill="none">
           <line
-            x1="4"
-            y1="4"
-            x2="12"
-            y2="4"
+            x1="8"
+            y1="2"
+            x2="8"
+            y2="14"
             stroke="currentColor"
             strokeWidth="1.5"
             strokeLinecap="round"
           />
-          <polygon points="4,2 2,4 4,6" fill="currentColor" />
-          <polygon points="12,2 14,4 12,6" fill="currentColor" />
+          <circle cx="8" cy="13" r="1.5" fill="currentColor" />
         </svg>
       ),
     },
@@ -103,4 +103,4 @@ const ArrowheadsSelector: React.FC<ArrowheadsSelectorProps> = ({
   );
 };
 
-export default ArrowheadsSelector;
+export default LabelPositionSelector;

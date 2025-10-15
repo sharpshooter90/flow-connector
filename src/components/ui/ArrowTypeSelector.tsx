@@ -7,38 +7,21 @@ import {
   SelectValue,
 } from "./select";
 
-interface ArrowheadsSelectorProps {
-  value: "none" | "end" | "both";
-  onChange: (value: "none" | "end" | "both") => void;
+interface ArrowTypeSelectorProps {
+  value: "straight" | "curved" | "elbow";
+  onChange: (value: "straight" | "curved" | "elbow") => void;
   label: string;
 }
 
-const ArrowheadsSelector: React.FC<ArrowheadsSelectorProps> = ({
+const ArrowTypeSelector: React.FC<ArrowTypeSelectorProps> = ({
   value,
   onChange,
   label,
 }) => {
   const options = [
     {
-      value: "none" as const,
-      label: "None",
-      icon: (
-        <svg className="w-4 h-4" viewBox="0 0 16 8" fill="none">
-          <line
-            x1="2"
-            y1="4"
-            x2="14"
-            y2="4"
-            stroke="currentColor"
-            strokeWidth="1.5"
-            strokeLinecap="round"
-          />
-        </svg>
-      ),
-    },
-    {
-      value: "end" as const,
-      label: "End",
+      value: "straight" as const,
+      label: "Straight",
       icon: (
         <svg className="w-4 h-4" viewBox="0 0 16 8" fill="none">
           <line
@@ -55,21 +38,34 @@ const ArrowheadsSelector: React.FC<ArrowheadsSelectorProps> = ({
       ),
     },
     {
-      value: "both" as const,
-      label: "Both",
+      value: "curved" as const,
+      label: "Curved",
       icon: (
         <svg className="w-4 h-4" viewBox="0 0 16 8" fill="none">
-          <line
-            x1="4"
-            y1="4"
-            x2="12"
-            y2="4"
+          <path
+            d="M2,4 Q7,1 12,4"
             stroke="currentColor"
             strokeWidth="1.5"
+            fill="none"
             strokeLinecap="round"
           />
-          <polygon points="4,2 2,4 4,6" fill="currentColor" />
-          <polygon points="12,2 14,4 12,6" fill="currentColor" />
+          <polygon points="10,2 12,4 10,6" fill="currentColor" />
+        </svg>
+      ),
+    },
+    {
+      value: "elbow" as const,
+      label: "Elbow",
+      icon: (
+        <svg className="w-4 h-4" viewBox="0 0 16 8" fill="none">
+          <path
+            d="M2,4 L7,4 L7,2 L12,2"
+            stroke="currentColor"
+            strokeWidth="1.5"
+            fill="none"
+            strokeLinecap="round"
+          />
+          <polygon points="10,1 12,2 10,3" fill="currentColor" />
         </svg>
       ),
     },
@@ -103,4 +99,4 @@ const ArrowheadsSelector: React.FC<ArrowheadsSelectorProps> = ({
   );
 };
 
-export default ArrowheadsSelector;
+export default ArrowTypeSelector;

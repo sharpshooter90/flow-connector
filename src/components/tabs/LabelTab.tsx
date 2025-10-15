@@ -1,7 +1,8 @@
 import React, { memo, RefObject } from "react";
 import { ConnectionConfig } from "../../types";
 import ColorPicker from "../ui/ColorPicker";
-import OptionSelector from "../ui/OptionSelector";
+import BorderWidthSelector from "../ui/BorderWidthSelector";
+import LabelPositionSelector from "../ui/LabelPositionSelector";
 import RangeSlider from "../ui/RangeSlider";
 import TextInput from "../ui/TextInput";
 
@@ -40,19 +41,6 @@ const LabelTab: React.FC<LabelTabProps> = memo(
       "#ff9800",
     ];
 
-    const borderWidthOptions = [
-      { value: 0, label: "0" },
-      { value: 1, label: "1" },
-      { value: 2, label: "2" },
-      { value: 3, label: "3" },
-    ];
-
-    const labelPositionOptions = [
-      { value: "center" as const, label: "Center" },
-      { value: "top" as const, label: "Top" },
-      { value: "bottom" as const, label: "Bottom" },
-    ];
-
     return (
       <div className="space-y-4">
         <TextInput
@@ -84,20 +72,16 @@ const LabelTab: React.FC<LabelTabProps> = memo(
           label="Border Color"
         />
 
-        <OptionSelector
+        <BorderWidthSelector
           value={config.labelBorderWidth}
-          options={borderWidthOptions}
           onChange={(labelBorderWidth) => updateConfig({ labelBorderWidth })}
           label="Border Width"
-          columns={4}
         />
 
-        <OptionSelector
+        <LabelPositionSelector
           value={config.labelPosition}
-          options={labelPositionOptions}
           onChange={(labelPosition) => updateConfig({ labelPosition })}
           label="Label Position"
-          columns={3}
         />
 
         <RangeSlider

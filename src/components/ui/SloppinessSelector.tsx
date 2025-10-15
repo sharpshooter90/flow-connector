@@ -7,13 +7,13 @@ import {
   SelectValue,
 } from "./select";
 
-interface ArrowheadsSelectorProps {
-  value: "none" | "end" | "both";
-  onChange: (value: "none" | "end" | "both") => void;
+interface SloppinessSelectorProps {
+  value: "none" | "low" | "high";
+  onChange: (value: "none" | "low" | "high") => void;
   label: string;
 }
 
-const ArrowheadsSelector: React.FC<ArrowheadsSelectorProps> = ({
+const SloppinessSelector: React.FC<SloppinessSelectorProps> = ({
   value,
   onChange,
   label,
@@ -37,39 +37,32 @@ const ArrowheadsSelector: React.FC<ArrowheadsSelectorProps> = ({
       ),
     },
     {
-      value: "end" as const,
-      label: "End",
+      value: "low" as const,
+      label: "Low",
       icon: (
         <svg className="w-4 h-4" viewBox="0 0 16 8" fill="none">
-          <line
-            x1="2"
-            y1="4"
-            x2="12"
-            y2="4"
+          <path
+            d="M2,4 Q6,3 10,4 T14,4"
             stroke="currentColor"
             strokeWidth="1.5"
+            fill="none"
             strokeLinecap="round"
           />
-          <polygon points="10,2 12,4 10,6" fill="currentColor" />
         </svg>
       ),
     },
     {
-      value: "both" as const,
-      label: "Both",
+      value: "high" as const,
+      label: "High",
       icon: (
         <svg className="w-4 h-4" viewBox="0 0 16 8" fill="none">
-          <line
-            x1="4"
-            y1="4"
-            x2="12"
-            y2="4"
+          <path
+            d="M2,4 Q6,2 10,4 T14,4"
             stroke="currentColor"
             strokeWidth="1.5"
+            fill="none"
             strokeLinecap="round"
           />
-          <polygon points="4,2 2,4 4,6" fill="currentColor" />
-          <polygon points="12,2 14,4 12,6" fill="currentColor" />
         </svg>
       ),
     },
@@ -103,4 +96,4 @@ const ArrowheadsSelector: React.FC<ArrowheadsSelectorProps> = ({
   );
 };
 
-export default ArrowheadsSelector;
+export default SloppinessSelector;
