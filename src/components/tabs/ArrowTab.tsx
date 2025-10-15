@@ -9,7 +9,6 @@ import PositionSelector from "../ui/PositionSelector";
 import ArrowheadsSelector from "../ui/ArrowheadsSelector";
 import SloppinessSelector from "../ui/SloppinessSelector";
 import ArrowTypeSelector from "../ui/ArrowTypeSelector";
-import RangeSlider from "../ui/RangeSlider";
 import CheckboxControl from "../ui/CheckboxControl";
 
 interface ArrowTabProps {
@@ -142,13 +141,55 @@ const ArrowTab: React.FC<ArrowTabProps> = memo(({ config, updateConfig }) => {
         label="Connection Points"
       />
 
-      <RangeSlider
-        value={config.connectionOffset}
-        min={0}
-        max={50}
-        label="Connection Offset"
-        onChange={(connectionOffset) => updateConfig({ connectionOffset })}
-      />
+      <div className="space-y-2 relative">
+        <label className="block text-[10px] font-semibold text-gray-700 uppercase tracking-wide">
+          Connection Offset
+        </label>
+        <div className="relative">
+          <svg
+            className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-600"
+            viewBox="0 0 16 16"
+          >
+            <line
+              x1="2"
+              y1="8"
+              x2="14"
+              y2="8"
+              stroke="currentColor"
+              strokeWidth="1.5"
+              strokeLinecap="round"
+            />
+            <line
+              x1="8"
+              y1="2"
+              x2="8"
+              y2="14"
+              stroke="currentColor"
+              strokeWidth="1.5"
+              strokeLinecap="round"
+            />
+            <circle
+              cx="8"
+              cy="8"
+              r="2"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1"
+            />
+          </svg>
+          <input
+            type="number"
+            value={config.connectionOffset}
+            onChange={(e) =>
+              updateConfig({ connectionOffset: Number(e.target.value) })
+            }
+            min="0"
+            max="50"
+            step="1"
+            className="w-full bg-gray-100 border border-gray-200 rounded text-xs px-3 py-2 pl-10 text-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+          />
+        </div>
+      </div>
 
       <CheckboxControl
         checked={config.avoidOverlap}

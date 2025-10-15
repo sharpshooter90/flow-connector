@@ -21,8 +21,11 @@ export interface ConnectionConfig {
   labelFontFamily: string;
   labelFontWeight: string;
   labelBg: string;
+  labelBgOpacity: number;
   labelTextColor: string;
+  labelTextColorOpacity: number;
   labelBorderColor: string;
+  labelBorderColorOpacity: number;
   labelBorderWidth: number;
   labelBorderRadius: number;
   labelPadding: number;
@@ -82,8 +85,11 @@ export const defaultConfig: ConnectionConfig = {
   labelFontFamily: "Inter",
   labelFontWeight: "Medium",
   labelBg: "#ffffff",
+  labelBgOpacity: 100,
   labelTextColor: "#333333",
+  labelTextColorOpacity: 100,
   labelBorderColor: "#e0e0e0",
+  labelBorderColorOpacity: 100,
   labelBorderWidth: 1,
   labelBorderRadius: 4,
   labelPadding: 6,

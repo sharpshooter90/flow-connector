@@ -1,6 +1,6 @@
 import React, { memo, RefObject } from "react";
 import { ConnectionConfig } from "../../types";
-import ColorPicker from "../ui/ColorPicker";
+import ColorOpacityPicker from "../ui/ColorOpacityPicker";
 import BorderWidthSelector from "../ui/BorderWidthSelector";
 import LabelPositionSelector from "../ui/LabelPositionSelector";
 import FontFamilySelector from "../ui/FontFamilySelector";
@@ -16,33 +16,6 @@ interface LabelTabProps {
 
 const LabelTab: React.FC<LabelTabProps> = memo(
   ({ config, updateConfig, inputRef }) => {
-    const textColors = [
-      "#333333",
-      "#ffffff",
-      "#dc3545",
-      "#28a745",
-      "#1976d2",
-      "#ff9800",
-    ];
-
-    const backgroundColors = [
-      "#ffffff",
-      "#f8f9fa",
-      "#333333",
-      "#1976d2",
-      "#28a745",
-      "#ff9800",
-    ];
-
-    const borderColors = [
-      "#e0e0e0",
-      "#333333",
-      "#dc3545",
-      "#28a745",
-      "#1976d2",
-      "#ff9800",
-    ];
-
     return (
       <div className="space-y-4">
         <TextInput
@@ -53,38 +26,47 @@ const LabelTab: React.FC<LabelTabProps> = memo(
           placeholder="Enter label text"
         />
 
-        <ColorPicker
+        <ColorOpacityPicker
           value={config.labelTextColor}
-          colors={textColors}
-          onChange={(labelTextColor) => updateConfig({ labelTextColor })}
+          opacity={config.labelTextColorOpacity}
+          onChange={(labelTextColor, labelTextColorOpacity) =>
+            updateConfig({ labelTextColor, labelTextColorOpacity })
+          }
           label="Text Color"
         />
 
-        <ColorPicker
+        <ColorOpacityPicker
           value={config.labelBg}
-          colors={backgroundColors}
-          onChange={(labelBg) => updateConfig({ labelBg })}
+          opacity={config.labelBgOpacity}
+          onChange={(labelBg, labelBgOpacity) =>
+            updateConfig({ labelBg, labelBgOpacity })
+          }
           label="Background Color"
         />
 
-        <ColorPicker
+        <ColorOpacityPicker
           value={config.labelBorderColor}
-          colors={borderColors}
-          onChange={(labelBorderColor) => updateConfig({ labelBorderColor })}
+          opacity={config.labelBorderColorOpacity}
+          onChange={(labelBorderColor, labelBorderColorOpacity) =>
+            updateConfig({ labelBorderColor, labelBorderColorOpacity })
+          }
           label="Border Color"
         />
 
-        <BorderWidthSelector
-          value={config.labelBorderWidth}
-          onChange={(labelBorderWidth) => updateConfig({ labelBorderWidth })}
-          label="Border Width"
-        />
+        {/* Border Width and Label Position in a row */}
+        <div className="grid grid-cols-2 gap-3">
+          <BorderWidthSelector
+            value={config.labelBorderWidth}
+            onChange={(labelBorderWidth) => updateConfig({ labelBorderWidth })}
+            label="Border Width"
+          />
 
-        <LabelPositionSelector
-          value={config.labelPosition}
-          onChange={(labelPosition) => updateConfig({ labelPosition })}
-          label="Label Position"
-        />
+          <LabelPositionSelector
+            value={config.labelPosition}
+            onChange={(labelPosition) => updateConfig({ labelPosition })}
+            label="Label Position"
+          />
+        </div>
 
         {/* Typography Section */}
         <div className="space-y-4">
