@@ -19,9 +19,14 @@ export interface ConnectionConfig {
   labelPosition: "center" | "top" | "bottom";
   labelOffset: number;
   labelFontSize: number;
+  labelFontFamily: string;
+  labelFontWeight: string;
   labelBg: string;
+  labelBgOpacity: number;
   labelTextColor: string;
+  labelTextColorOpacity: number;
   labelBorderColor: string;
+  labelBorderColorOpacity: number;
   labelBorderWidth: number;
   labelBorderRadius: number;
   labelPadding: number;
