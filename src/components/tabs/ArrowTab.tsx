@@ -5,7 +5,7 @@ import StrokeAlignSelector from "../ui/StrokeAlignSelector";
 import StrokeStyleSelector from "../ui/StrokeStyleSelector";
 import StrokeCapSelector from "../ui/StrokeCapSelector";
 import StrokeJoinSelector from "../ui/StrokeJoinSelector";
-import PositionSelector from "../ui/PositionSelector";
+import InteractiveConnectionPoints from "../ui/InteractiveConnectionPoints";
 import ArrowheadsSelector from "../ui/ArrowheadsSelector";
 import SloppinessSelector from "../ui/SloppinessSelector";
 import ArrowTypeSelector from "../ui/ArrowTypeSelector";
@@ -123,8 +123,8 @@ const ArrowTab: React.FC<ArrowTabProps> = memo(({ config, updateConfig }) => {
         />
       </div>
 
-      {/* Start & End Position */}
-      <PositionSelector
+      {/* Interactive Connection Points */}
+      <InteractiveConnectionPoints
         startPosition={config.startPosition}
         endPosition={config.endPosition}
         onStartPositionChange={(startPosition) =>

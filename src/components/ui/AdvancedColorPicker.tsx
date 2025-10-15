@@ -300,7 +300,7 @@ const AdvancedColorPicker: React.FC<AdvancedColorPickerProps> = ({
           <div className="relative">
             <div
               ref={opacityRef}
-              className="w-full h-4 rounded border border-gray-300 cursor-pointer relative overflow-hidden"
+              className="w-full h-4 rounded border border-gray-300 cursor-pointer relative"
               style={{
                 backgroundImage: `
                   linear-gradient(to right, ${state.hex}00, ${state.hex}ff),

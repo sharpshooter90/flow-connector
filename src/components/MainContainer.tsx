@@ -1,7 +1,7 @@
 import React from "react";
 import { AppState, ConnectionConfig } from "../types";
 import PreviewFlow from "./PreviewFlow";
-import { Sheet, SheetContent, SheetHeader, SheetTitle } from "./ui/sheet";
+import { Sheet, SheetContent } from "./ui/sheet";
 import { Button } from "./ui/button";
 import { Hash, ArrowLeftRight, Settings, PanelRight } from "lucide-react";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "./ui/tabs";
@@ -157,16 +157,16 @@ const MainContainer: React.FC<MainContainerProps> = ({
                 className="flex flex-col h-full"
               >
                 <div className="flex flex-row items-center justify-between border-b border-gray-200 py-3 px-4">
-                  <TabsList className="grid grid-cols-2 text-xs font-semibold uppercase tracking-wide bg-transparent">
+                  <TabsList className="grid grid-cols-2 text-xs font-semibold uppercase tracking-wide bg-gray-100">
                     <TabsTrigger
                       value="arrow"
-                      className="hover:bg-gray-100 data-[state=active]:bg-gray-100 data-[state=active]:text-gray-900 px-3 py-1.5 min-w-0"
+                      className="bg-gray-100 data-[state=active]:bg-white data-[state=active]:text-gray-900 px-3 py-1.5 min-w-0"
                     >
                       Connector
                     </TabsTrigger>
                     <TabsTrigger
                       value="label"
-                      className="hover:bg-gray-100 data-[state=active]:bg-gray-100 data-[state=active]:text-gray-900 px-3 py-1.5 min-w-0"
+                      className="bg-gray-100 data-[state=active]:bg-white data-[state=active]:text-gray-900 px-3 py-1.5 min-w-0"
                     >
                       Label
                     </TabsTrigger>
@@ -175,16 +175,8 @@ const MainContainer: React.FC<MainContainerProps> = ({
                     <Button
                       variant="ghost"
                       size="icon"
-                      onClick={() =>
-                        onRequestSidebar(
-                          sidebarTab === "settings" ? "properties" : "settings"
-                        )
-                      }
-                      aria-label={
-                        sidebarTab === "settings"
-                          ? "Back to properties"
-                          : "Open settings"
-                      }
+                      onClick={() => onRequestSidebar("settings")}
+                      aria-label="Open settings"
                       className="h-8 w-8"
                     >
                       <Settings className="h-4 w-4" />
@@ -231,6 +223,8 @@ const MainContainer: React.FC<MainContainerProps> = ({
                 appState={appState}
                 updateAppState={updateAppState}
                 clearCache={clearCache}
+                onBack={() => onRequestSidebar("properties")}
+                onClose={() => onSidebarOpenChange(false)}
               />
             )}
           </div>
