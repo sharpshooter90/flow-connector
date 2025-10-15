@@ -8,7 +8,7 @@ import {
   SheetTitle,
 } from "./ui/sheet";
 import { Button } from "./ui/button";
-import { Hash, ArrowLeftRight, ChevronRight, Settings, PanelRight } from "lucide-react";
+import { Hash, ArrowLeftRight, Settings, PanelRight } from "lucide-react";
 import PropertiesPanel from "./PropertiesPanel";
 import SettingsPanel from "./SettingsPanel";
 
@@ -172,7 +172,7 @@ const MainContainer: React.FC<MainContainerProps> = ({
                   aria-label="Collapse panel" 
                   className="h-8 w-8"
                 >
-                  <ChevronRight className="h-4 w-4" />
+                  <PanelRight className="h-4 w-4" />
                 </Button>
               </div>
             </SheetHeader>
