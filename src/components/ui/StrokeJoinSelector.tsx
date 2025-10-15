@@ -61,7 +61,7 @@ const StrokeJoinSelector: React.FC<StrokeJoinSelectorProps> = ({
 
   return (
     <div className="space-y-2">
-      <label className="block text-[10px] font-semibold text-gray-700 uppercase tracking-wide">
+      <label className="block text-[10px] font-semibold text-gray-700">
         {label}
       </label>
       <select

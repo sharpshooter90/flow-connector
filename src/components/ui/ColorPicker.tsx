@@ -15,7 +15,7 @@ const ColorPicker: React.FC<ColorPickerProps> = ({
 }) => {
   return (
     <div className="space-y-2 relative">
-      <label className="block text-[10px] font-semibold text-gray-700 uppercase tracking-wide">
+      <label className="block text-[10px] font-semibold text-gray-700">
         {label}
       </label>
       <div className="grid grid-cols-6 gap-1">

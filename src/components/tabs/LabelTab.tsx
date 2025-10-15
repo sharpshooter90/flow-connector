@@ -95,12 +95,12 @@ const LabelTab: React.FC<LabelTabProps> = memo(
         {/* Padding and Border Radius in a row */}
         <div className="grid grid-cols-2 gap-3">
           <div className="space-y-2 relative">
-            <label className="block text-[10px] font-semibold text-gray-700 uppercase tracking-wide">
+            <label className="block text-[10px] font-semibold text-gray-700">
               Padding
             </label>
             <div className="relative">
               <svg
-                className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-600"
+                className="absolute left-2 top-1/2 transform -translate-y-1/2 w-3 h-3 text-gray-600"
                 viewBox="0 0 16 16"
               >
                 <rect
@@ -132,18 +132,18 @@ const LabelTab: React.FC<LabelTabProps> = memo(
                 min="0"
                 max="20"
                 step="1"
-                className="w-full bg-gray-100 border border-gray-200 rounded text-xs px-3 py-2 pl-10 text-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                className="w-full bg-gray-100 border border-gray-200 rounded text-xs px-2 py-1.5 pl-8 text-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
               />
             </div>
           </div>
 
           <div className="space-y-2 relative">
-            <label className="block text-[10px] font-semibold text-gray-700 uppercase tracking-wide">
+            <label className="block text-[10px] font-semibold text-gray-700">
               Border Radius
             </label>
             <div className="relative">
               <svg
-                className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-600"
+                className="absolute left-2 top-1/2 transform -translate-y-1/2 w-3 h-3 text-gray-600"
                 viewBox="0 0 16 16"
               >
                 <rect
@@ -167,7 +167,7 @@ const LabelTab: React.FC<LabelTabProps> = memo(
                 min="0"
                 max="20"
                 step="1"
-                className="w-full bg-gray-100 border border-gray-200 rounded text-xs px-3 py-2 pl-10 text-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                className="w-full bg-gray-100 border border-gray-200 rounded text-xs px-2 py-1.5 pl-8 text-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
               />
             </div>
           </div>

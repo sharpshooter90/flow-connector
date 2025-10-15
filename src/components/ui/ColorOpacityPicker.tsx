@@ -71,20 +71,20 @@ const ColorOpacityPicker: React.FC<ColorOpacityPickerProps> = ({
 
   return (
     <div className="space-y-2">
-      <label className="block text-[10px] font-semibold text-gray-700 uppercase tracking-wide">
+      <label className="block text-[10px] font-semibold text-gray-700">
         {label}
       </label>
       <div className="flex items-center bg-gray-100 rounded border border-gray-200 overflow-hidden">
         {/* Color Swatch - Clickable to open advanced picker */}
         <button
-          className="w-6 h-6 border-r border-gray-200 flex-shrink-0 hover:opacity-80 transition-opacity cursor-pointer"
+          className="w-5 h-5 border-r border-gray-200 flex-shrink-0 hover:opacity-80 transition-opacity cursor-pointer"
           style={{ backgroundColor: value }}
           onClick={() => setShowAdvancedPicker(true)}
           title="Click to open color picker"
         />
 
         {/* Hex Input */}
-        <div className="flex items-center px-2 py-1 flex-1">
+        <div className="flex items-center px-1.5 py-1 flex-1">
           <span className="text-gray-500 text-[10px] mr-1">#</span>
           <input
             type="text"
@@ -97,10 +97,10 @@ const ColorOpacityPicker: React.FC<ColorOpacityPickerProps> = ({
         </div>
 
         {/* Separator */}
-        <div className="w-px h-6 bg-gray-200" />
+        <div className="w-px h-5 bg-gray-200" />
 
         {/* Opacity Input */}
-        <div className="flex items-center px-2 py-1 min-w-[60px]">
+        <div className="flex items-center px-1.5 py-1 min-w-[50px]">
           <input
             type="text"
             value={opacityInput}

@@ -13,7 +13,7 @@ const TextInput = React.forwardRef<HTMLInputElement, TextInputProps>(
   ({ value, onChange, label, placeholder, disabled = false, error }, ref) => {
     return (
       <div className="space-y-2 relative">
-        <label className="block text-[10px] font-semibold text-gray-700 uppercase tracking-wide">
+        <label className="block text-[10px] font-semibold text-gray-700">
           {label}
         </label>
         <input
@@ -24,7 +24,7 @@ const TextInput = React.forwardRef<HTMLInputElement, TextInputProps>(
           placeholder={placeholder}
           disabled={disabled}
           className={`
-          w-full bg-gray-100 border border-gray-200 rounded text-xs px-3 py-2 text-gray-700 
+          w-full bg-gray-100 border border-gray-200 rounded text-xs px-2 py-1.5 text-gray-700 
           focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent
           ${error ? "border-red-300 bg-red-50" : ""}
           ${

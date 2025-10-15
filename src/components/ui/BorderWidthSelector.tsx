@@ -91,14 +91,14 @@ const BorderWidthSelector: React.FC<BorderWidthSelectorProps> = ({
 
   return (
     <div className="space-y-2 relative">
-      <label className="block text-[10px] font-semibold text-gray-700 uppercase tracking-wide">
+      <label className="block text-[10px] font-semibold text-gray-700">
         {label}
       </label>
       <Select
         value={String(value)}
         onValueChange={(val) => onChange(Number(val))}
       >
-        <SelectTrigger className="w-full bg-gray-100 border border-gray-200 rounded text-xs px-3 py-2 text-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent h-auto">
+        <SelectTrigger className="w-full bg-gray-100 border border-gray-200 rounded text-xs px-2 py-1.5 text-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent h-auto">
           <SelectValue>
             <div className="flex items-center justify-center">
               {options.find((option) => option.value === value)?.icon}

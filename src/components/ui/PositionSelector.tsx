@@ -3,8 +3,12 @@ import React from "react";
 interface PositionSelectorProps {
   startPosition: "auto" | "top" | "right" | "bottom" | "left";
   endPosition: "auto" | "top" | "right" | "bottom" | "left";
-  onStartPositionChange: (value: "auto" | "top" | "right" | "bottom" | "left") => void;
-  onEndPositionChange: (value: "auto" | "top" | "right" | "bottom" | "left") => void;
+  onStartPositionChange: (
+    value: "auto" | "top" | "right" | "bottom" | "left"
+  ) => void;
+  onEndPositionChange: (
+    value: "auto" | "top" | "right" | "bottom" | "left"
+  ) => void;
   label: string;
 }
 
@@ -27,18 +31,38 @@ const PositionSelector: React.FC<PositionSelectorProps> = ({
     const baseClasses = `absolute w-2 h-2 rounded-full transition-all duration-200 ${
       isActive ? "bg-blue-500" : "bg-gray-300"
     }`;
-    
+
     switch (position) {
       case "top":
-        return <div className={`${baseClasses} top-0 left-1/2 transform -translate-x-1/2 -translate-y-1/2`} />;
+        return (
+          <div
+            className={`${baseClasses} top-0 left-1/2 transform -translate-x-1/2 -translate-y-1/2`}
+          />
+        );
       case "right":
-        return <div className={`${baseClasses} top-1/2 right-0 transform translate-x-1/2 -translate-y-1/2`} />;
+        return (
+          <div
+            className={`${baseClasses} top-1/2 right-0 transform translate-x-1/2 -translate-y-1/2`}
+          />
+        );
       case "bottom":
-        return <div className={`${baseClasses} bottom-0 left-1/2 transform -translate-x-1/2 translate-y-1/2`} />;
+        return (
+          <div
+            className={`${baseClasses} bottom-0 left-1/2 transform -translate-x-1/2 translate-y-1/2`}
+          />
+        );
       case "left":
-        return <div className={`${baseClasses} top-1/2 left-0 transform -translate-x-1/2 -translate-y-1/2`} />;
+        return (
+          <div
+            className={`${baseClasses} top-1/2 left-0 transform -translate-x-1/2 -translate-y-1/2`}
+          />
+        );
       case "auto":
-        return <div className={`${baseClasses} top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2`} />;
+        return (
+          <div
+            className={`${baseClasses} top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2`}
+          />
+        );
       default:
         return null;
     }
@@ -46,10 +70,10 @@ const PositionSelector: React.FC<PositionSelectorProps> = ({
 
   return (
     <div className="space-y-3">
-      <label className="block text-[10px] font-semibold text-gray-700 uppercase tracking-wide">
+      <label className="block text-[10px] font-semibold text-gray-700">
         {label}
       </label>
-      
+
       {/* Visual representation with two boxes */}
       <div className="flex items-center justify-center gap-8 p-4 bg-gray-50 rounded-lg border">
         {/* Start Frame */}
@@ -61,7 +85,7 @@ const PositionSelector: React.FC<PositionSelectorProps> = ({
             </div>
           </div>
         </div>
-        
+
         {/* Arrow */}
         <div className="flex items-center">
           <svg className="w-6 h-4 text-gray-400" viewBox="0 0 24 16">
@@ -75,7 +99,7 @@ const PositionSelector: React.FC<PositionSelectorProps> = ({
             />
           </svg>
         </div>
-        
+
         {/* End Frame */}
         <div className="flex flex-col items-center gap-2">
           <span className="text-xs font-medium text-gray-600">End</span>
@@ -86,7 +110,7 @@ const PositionSelector: React.FC<PositionSelectorProps> = ({
           </div>
         </div>
       </div>
-      
+
       {/* Position Controls */}
       <div className="grid grid-cols-2 gap-4">
         {/* Start Position */}
@@ -106,7 +130,7 @@ const PositionSelector: React.FC<PositionSelectorProps> = ({
             ))}
           </select>
         </div>
-        
+
         {/* End Position */}
         <div className="space-y-2">
           <label className="block text-[10px] font-semibold text-gray-600 uppercase tracking-wide">
