@@ -4,6 +4,7 @@ import ArrowTab from "./tabs/ArrowTab";
 import LabelTab from "./tabs/LabelTab";
 import { SheetBody, SheetFooter } from "./ui/sheet";
 import { Button } from "./ui/button";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "./ui/tabs";
 
 interface PropertiesPanelProps {
   appState: AppState;
@@ -25,42 +26,37 @@ export const PropertiesPanel: React.FC<PropertiesPanelProps> = ({
   return (
     <>
       <SheetBody className="space-y-6">
-        <div>
-          <div className="flex rounded-lg bg-gray-100 p-1 text-[11px] font-semibold uppercase tracking-wide">
-            <button
-              className={`flex-1 rounded-md px-3 py-2 transition-colors ${
-                appState.activeTab === "arrow"
-                  ? "bg-white text-gray-900 shadow-sm"
-                  : "text-gray-500 hover:text-gray-700 hover:bg-gray-50"
-              }`}
-              onClick={() => updateAppState({ activeTab: "arrow" })}
+        <Tabs
+          value={appState.activeTab}
+          onValueChange={(value) => updateAppState({ activeTab: value as "arrow" | "label" })}
+        >
+          <TabsList className="grid w-full grid-cols-2 text-[9px] font-semibold uppercase tracking-wide bg-transparent">
+            <TabsTrigger
+              value="arrow"
+              className="bg-gray-50 data-[state=active]:bg-gray-100 data-[state=active]:text-gray-900"
             >
               Connector
-            </button>
-            <button
-              className={`flex-1 rounded-md px-3 py-2 transition-colors ${
-                appState.activeTab === "label"
-                  ? "bg-white text-gray-900 shadow-sm"
-                  : "text-gray-500 hover:text-gray-700 hover:bg-gray-50"
-              }`}
-              onClick={() => updateAppState({ activeTab: "label" })}
+            </TabsTrigger>
+            <TabsTrigger
+              value="label"
+              className="bg-gray-50 data-[state=active]:bg-gray-100 data-[state=active]:text-gray-900"
             >
               Label
-            </button>
-          </div>
-        </div>
+            </TabsTrigger>
+          </TabsList>
 
-        <div className="space-y-6">
-          {appState.activeTab === "arrow" ? (
+          <TabsContent value="arrow" className="space-y-6">
             <ArrowTab config={appState.config} updateConfig={updateConfig} />
-          ) : (
+          </TabsContent>
+
+          <TabsContent value="label" className="space-y-6">
             <LabelTab
               config={appState.config}
               updateConfig={updateConfig}
               inputRef={labelInputRef}
             />
-          )}
-        </div>
+          </TabsContent>
+        </Tabs>
       </SheetBody>
 
       <SheetFooter className="gap-3 sticky bottom-0 bg-white">
