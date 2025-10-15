@@ -262,7 +262,7 @@ const AdvancedColorPicker: React.FC<AdvancedColorPickerProps> = ({
           <div className="relative">
             <div
               ref={squareRef}
-              className="w-full h-48 rounded border border-gray-300 cursor-crosshair relative overflow-hidden"
+              className="w-full h-32 rounded border border-gray-300 cursor-crosshair relative overflow-hidden"
               style={{
                 background: `linear-gradient(to right, white, ${hueColor}), linear-gradient(to bottom, transparent, black)`,
                 backgroundBlendMode: "multiply",

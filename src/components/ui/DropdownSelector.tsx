@@ -1,5 +1,6 @@
 import React from "react";
 import { ChevronDown } from "lucide-react";
+import { DROPDOWN_STYLES } from "../../utils/dropdownStyles";
 
 interface DropdownSelectorOption<T> {
   value: T;
@@ -23,10 +24,8 @@ function DropdownSelector<T extends string | number>({
   const selectedOption = options.find((option) => option.value === value);
 
   return (
-    <div className="space-y-2">
-      <label className="block text-[10px] font-semibold text-gray-700">
-        {label}
-      </label>
+    <div className={DROPDOWN_STYLES.container}>
+      <label className={DROPDOWN_STYLES.label}>{label}</label>
       <div className="relative">
         <select
           value={String(value)}
@@ -38,7 +37,7 @@ function DropdownSelector<T extends string | number>({
               onChange(selectedValue);
             }
           }}
-          className="w-full appearance-none bg-white border border-gray-300 rounded-md px-2 py-1.5 pr-8 text-xs focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          className={`${DROPDOWN_STYLES.select} appearance-none pr-8`}
         >
           {options.map((option) => (
             <option key={String(option.value)} value={String(option.value)}>
