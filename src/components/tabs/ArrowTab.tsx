@@ -2,12 +2,12 @@ import React, { memo } from "react";
 import { ConnectionConfig } from "../../types";
 import ColorOpacityPicker from "../ui/ColorOpacityPicker";
 import StrokeAlignSelector from "../ui/StrokeAlignSelector";
+import StrokeStyleSelector from "../ui/StrokeStyleSelector";
 import StrokeCapSelector from "../ui/StrokeCapSelector";
 import StrokeJoinSelector from "../ui/StrokeJoinSelector";
 import PositionSelector from "../ui/PositionSelector";
 import ArrowheadsSelector from "../ui/ArrowheadsSelector";
 import OptionSelector from "../ui/OptionSelector";
-import DropdownSelector from "../ui/DropdownSelector";
 import RangeSlider from "../ui/RangeSlider";
 import CheckboxControl from "../ui/CheckboxControl";
 
@@ -22,41 +22,6 @@ const ArrowTab: React.FC<ArrowTabProps> = memo(({ config, updateConfig }) => {
     { value: 2, label: "2", className: "stroke-width-2" },
     { value: 3, label: "3", className: "stroke-width-3" },
     { value: 4, label: "4", className: "stroke-width-4" },
-  ];
-
-  const strokeStyleOptions = [
-    { 
-      value: "solid" as const, 
-      label: "Solid",
-      icon: (
-        <svg className="w-6 h-2" viewBox="0 0 24 8">
-          <line x1="2" y1="4" x2="22" y2="4" stroke="currentColor" strokeWidth="2" />
-        </svg>
-      )
-    },
-    { 
-      value: "dashed" as const, 
-      label: "Dashed",
-      icon: (
-        <svg className="w-6 h-2" viewBox="0 0 24 8">
-          <line x1="2" y1="4" x2="8" y2="4" stroke="currentColor" strokeWidth="2" />
-          <line x1="12" y1="4" x2="18" y2="4" stroke="currentColor" strokeWidth="2" />
-        </svg>
-      )
-    },
-    { 
-      value: "dotted" as const, 
-      label: "Dotted",
-      icon: (
-        <svg className="w-6 h-2" viewBox="0 0 24 8">
-          <circle cx="4" cy="4" r="1" fill="currentColor" />
-          <circle cx="8" cy="4" r="1" fill="currentColor" />
-          <circle cx="12" cy="4" r="1" fill="currentColor" />
-          <circle cx="16" cy="4" r="1" fill="currentColor" />
-          <circle cx="20" cy="4" r="1" fill="currentColor" />
-        </svg>
-      )
-    },
   ];
 
   const sloppinessOptions = [
@@ -212,9 +177,8 @@ const ArrowTab: React.FC<ArrowTabProps> = memo(({ config, updateConfig }) => {
       </div>
 
       {/* Stroke Style */}
-      <DropdownSelector
+      <StrokeStyleSelector
         value={config.strokeStyle}
-        options={strokeStyleOptions}
         onChange={(strokeStyle) => updateConfig({ strokeStyle })}
         label="Stroke Style"
       />
@@ -260,7 +224,9 @@ const ArrowTab: React.FC<ArrowTabProps> = memo(({ config, updateConfig }) => {
       <PositionSelector
         startPosition={config.startPosition}
         endPosition={config.endPosition}
-        onStartPositionChange={(startPosition) => updateConfig({ startPosition })}
+        onStartPositionChange={(startPosition) =>
+          updateConfig({ startPosition })
+        }
         onEndPositionChange={(endPosition) => updateConfig({ endPosition })}
         label="Connection Points"
       />
