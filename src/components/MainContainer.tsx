@@ -3,14 +3,12 @@ import { AppState, ConnectionConfig } from "../types";
 import PreviewFlow from "./PreviewFlow";
 import {
   Sheet,
-  SheetClose,
   SheetContent,
   SheetHeader,
   SheetTitle,
 } from "./ui/sheet";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
 import { Button } from "./ui/button";
-import { Menu, Settings, X, Hash, ArrowLeftRight } from "lucide-react";
+import { Hash, ArrowLeftRight, ChevronRight, Settings, PanelRight } from "lucide-react";
 import PropertiesPanel from "./PropertiesPanel";
 import SettingsPanel from "./SettingsPanel";
 
@@ -24,7 +22,6 @@ interface MainContainerProps {
   isSidebarOpen: boolean;
   onSidebarOpenChange: (open: boolean) => void;
   sidebarTab: "properties" | "settings";
-  onSidebarTabChange: (tab: "properties" | "settings") => void;
   onRequestSidebar: (target: "properties" | "settings") => void;
   onRequestLabelEdit: () => void;
   onRequestArrowEdit: () => void;
@@ -42,7 +39,6 @@ const MainContainer: React.FC<MainContainerProps> = ({
   isSidebarOpen,
   onSidebarOpenChange,
   sidebarTab,
-  onSidebarTabChange,
   onRequestSidebar,
   onRequestLabelEdit,
   onRequestArrowEdit,
@@ -120,10 +116,16 @@ const MainContainer: React.FC<MainContainerProps> = ({
           <Button
             variant="outline"
             size="icon"
-            onClick={() => onRequestSidebar("properties")}
-            aria-label="Open properties"
+            onClick={() => {
+              if (isSidebarOpen) {
+                onSidebarOpenChange(false);
+              } else {
+                onRequestSidebar("properties");
+              }
+            }}
+            aria-label={isSidebarOpen ? "Close sidebar" : "Open properties"}
           >
-            <Menu className="h-4 w-4" />
+            <PanelRight className="h-4 w-4" />
           </Button>
         </div>
       </header>
@@ -138,6 +140,7 @@ const MainContainer: React.FC<MainContainerProps> = ({
           onRequestLabelEdit={onRequestLabelEdit}
           onRequestArrowEdit={onRequestArrowEdit}
         />
+
       </main>
 
       <Sheet
@@ -149,29 +152,32 @@ const MainContainer: React.FC<MainContainerProps> = ({
           side="right"
           className="w-full max-w-xs border-l border-gray-200"
         >
-          <Tabs
-            value={sidebarTab}
-            onValueChange={(value) =>
-              onSidebarTabChange(value as "properties" | "settings")
-            }
-            className="flex h-full flex-col"
-          >
-            <SheetHeader className="flex justify-between border-b border-gray-200">
-              <SheetTitle>Inspector</SheetTitle>
-              <div className="flex items-center gap-3">
-                <TabsList>
-                  <TabsTrigger value="properties">Properties</TabsTrigger>
-                  <TabsTrigger value="settings">Settings</TabsTrigger>
-                </TabsList>
-                <SheetClose asChild>
-                  <Button variant="ghost" size="icon" aria-label="Close panel">
-                    <X className="h-4 w-4" />
-                  </Button>
-                </SheetClose>
+          <div className="flex h-full flex-col">
+            <SheetHeader className="flex flex-row items-center justify-between border-b border-gray-200 pb-3">
+              <SheetTitle>{sidebarTab === "properties" ? "Properties" : "Settings"}</SheetTitle>
+              <div className="flex items-center gap-2">
+                <Button 
+                  variant="ghost" 
+                  size="icon" 
+                  onClick={() => onRequestSidebar(sidebarTab === "settings" ? "properties" : "settings")}
+                  aria-label={sidebarTab === "settings" ? "Back to properties" : "Open settings"}
+                  className="h-8 w-8"
+                >
+                  <Settings className="h-4 w-4" />
+                </Button>
+                <Button 
+                  variant="ghost" 
+                  size="icon" 
+                  onClick={() => onSidebarOpenChange(false)}
+                  aria-label="Collapse panel" 
+                  className="h-8 w-8"
+                >
+                  <ChevronRight className="h-4 w-4" />
+                </Button>
               </div>
             </SheetHeader>
 
-            <TabsContent value="properties" className="flex h-full flex-col">
+            {sidebarTab === "properties" ? (
               <PropertiesPanel
                 appState={appState}
                 updateConfig={updateConfig}
@@ -180,16 +186,14 @@ const MainContainer: React.FC<MainContainerProps> = ({
                 cancelConnection={cancelConnection}
                 labelInputRef={labelInputRef}
               />
-            </TabsContent>
-
-            <TabsContent value="settings" className="flex h-full flex-col">
+            ) : (
               <SettingsPanel
                 appState={appState}
                 updateAppState={updateAppState}
                 clearCache={clearCache}
               />
-            </TabsContent>
-          </Tabs>
+            )}
+          </div>
         </SheetContent>
       </Sheet>
     </div>

@@ -359,7 +359,7 @@ function App() {
       isSidebarOpen={isSidebarOpen}
       onSidebarOpenChange={setSidebarOpen}
       sidebarTab={sidebarTab}
-      onSidebarTabChange={setSidebarTab}
+
       onRequestSidebar={openSidebar}
       onRequestLabelEdit={handleLabelEditRequest}
       onRequestArrowEdit={handleArrowEditRequest}
