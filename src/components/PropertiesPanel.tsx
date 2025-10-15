@@ -26,22 +26,22 @@ export const PropertiesPanel: React.FC<PropertiesPanelProps> = ({
     <>
       <SheetBody className="space-y-6">
         <div>
-          <div className="flex rounded-lg bg-gray-100 p-1 text-[11px] font-semibold uppercase tracking-wide text-gray-500">
+          <div className="flex rounded-lg bg-gray-100 p-1 text-[11px] font-semibold uppercase tracking-wide">
             <button
               className={`flex-1 rounded-md px-3 py-2 transition-colors ${
                 appState.activeTab === "arrow"
                   ? "bg-white text-gray-900 shadow-sm"
-                  : "hover:text-gray-700"
+                  : "text-gray-500 hover:text-gray-700 hover:bg-gray-50"
               }`}
               onClick={() => updateAppState({ activeTab: "arrow" })}
             >
-              Arrow
+              Connector
             </button>
             <button
               className={`flex-1 rounded-md px-3 py-2 transition-colors ${
                 appState.activeTab === "label"
                   ? "bg-white text-gray-900 shadow-sm"
-                  : "hover:text-gray-700"
+                  : "text-gray-500 hover:text-gray-700 hover:bg-gray-50"
               }`}
               onClick={() => updateAppState({ activeTab: "label" })}
             >

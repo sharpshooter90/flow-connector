@@ -43,7 +43,7 @@ const AdvancedColorPicker: React.FC<AdvancedColorPickerProps> = ({
     };
   });
 
-  const [recentColors, setRecentColors] = useState<string[]>(getRecentColors());
+  const [recentColors] = useState<string[]>(getRecentColors());
   const [isDragging, setIsDragging] = useState<
     "hue" | "saturation" | "opacity" | null
   >(null);
@@ -250,11 +250,11 @@ const AdvancedColorPicker: React.FC<AdvancedColorPickerProps> = ({
 
   return (
     <div
-      className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+      className="fixed inset-0 flex items-center justify-start pl-4 left-[-340px] z-50"
       onClick={onClose}
     >
       <div
-        className="bg-white rounded-lg shadow-xl p-6 max-w-sm w-full mx-4"
+        className="bg-white rounded-lg shadow-xl p-5 w-80"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="space-y-4">
@@ -262,7 +262,7 @@ const AdvancedColorPicker: React.FC<AdvancedColorPickerProps> = ({
           <div className="relative">
             <div
               ref={squareRef}
-              className="w-72 h-72 rounded border border-gray-300 cursor-crosshair relative overflow-hidden"
+              className="w-full h-48 rounded border border-gray-300 cursor-crosshair relative overflow-hidden"
               style={{
                 background: `linear-gradient(to right, white, ${hueColor}), linear-gradient(to bottom, transparent, black)`,
                 backgroundBlendMode: "multiply",
@@ -270,7 +270,7 @@ const AdvancedColorPicker: React.FC<AdvancedColorPickerProps> = ({
               onMouseDown={handleSquareMouseDown}
             >
               <div
-                className="absolute w-4 h-4 bg-white border-2 border-gray-400 rounded-full transform -translate-x-1/2 -translate-y-1/2 pointer-events-none shadow-sm"
+                className="absolute w-4 h-4 bg-white border-2 border-gray-800 rounded-full transform -translate-x-1/2 -translate-y-1/2 pointer-events-none shadow-lg"
                 style={squareHandleStyle}
               />
             </div>
@@ -278,21 +278,7 @@ const AdvancedColorPicker: React.FC<AdvancedColorPickerProps> = ({
 
           {/* Hue slider */}
           <div className="relative">
-            <div className="flex items-center space-x-2">
-              {/* Eyedropper icon */}
-              <button className="p-1 text-gray-600 hover:text-gray-800">
-                <svg
-                  className="w-4 h-4"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                >
-                  <path d="M3 3l7.07 16.97 2.51-7.39 7.39-2.51L3 3z" />
-                  <path d="M13 13l6 6" />
-                </svg>
-              </button>
-
+            <div className="flex items-center space-x-3">
               <div
                 ref={hueRef}
                 className="flex-1 h-4 rounded border border-gray-300 cursor-pointer relative"
@@ -303,7 +289,7 @@ const AdvancedColorPicker: React.FC<AdvancedColorPickerProps> = ({
                 onMouseDown={handleHueMouseDown}
               >
                 <div
-                  className="absolute w-4 h-4 bg-white border-2 border-gray-400 rounded-full transform -translate-x-1/2 -translate-y-1/2 pointer-events-none shadow-sm"
+                  className="absolute w-4 h-4 bg-white border-2 border-gray-800 rounded-full transform -translate-x-1/2 -translate-y-1/2 pointer-events-none shadow-lg top-1/2"
                   style={hueHandleStyle}
                 />
               </div>
@@ -326,7 +312,7 @@ const AdvancedColorPicker: React.FC<AdvancedColorPickerProps> = ({
               onMouseDown={handleOpacityMouseDown}
             >
               <div
-                className="absolute w-4 h-4 bg-white border-2 border-gray-400 rounded-full transform -translate-x-1/2 -translate-y-1/2 pointer-events-none shadow-sm"
+                className="absolute w-4 h-4 bg-white border-2 border-gray-800 rounded-full transform -translate-x-1/2 -translate-y-1/2 pointer-events-none shadow-lg top-1/2"
                 style={opacityHandleStyle}
               />
             </div>
@@ -342,7 +328,7 @@ const AdvancedColorPicker: React.FC<AdvancedColorPickerProps> = ({
                   format: e.target.value as "hex" | "rgb" | "hsl",
                 }))
               }
-              className="px-2 py-1 border border-gray-300 rounded text-sm"
+              className="px-3 py-2 border border-gray-300 rounded text-sm bg-white"
             >
               <option value="hex">Hex</option>
               <option value="rgb">RGB</option>
@@ -353,19 +339,23 @@ const AdvancedColorPicker: React.FC<AdvancedColorPickerProps> = ({
               type="text"
               value={state.hex.replace("#", "")}
               onChange={handleHexChange}
-              className="flex-1 px-2 py-1 border border-gray-300 rounded text-sm font-mono"
+              className="flex-1 w-full px-3 py-2 border border-gray-300 rounded text-sm font-mono bg-white"
               placeholder="FFFFFF"
               maxLength={6}
             />
 
-            <input
-              type="text"
-              value={state.opacity}
-              onChange={handleOpacityInputChange}
-              className="w-16 px-2 py-1 border border-gray-300 rounded text-sm text-right"
-              placeholder="100"
-            />
-            <span className="text-sm text-gray-500">%</span>
+            <div className="flex items-center">
+              <input
+                type="number"
+                min="0"
+                max="100"
+                value={state.opacity}
+                onChange={handleOpacityInputChange}
+                className="w-16 px-2 py-2 border border-gray-300 rounded text-sm text-center bg-white"
+                placeholder="100"
+              />
+              <span className="text-sm text-gray-500 ml-1">%</span>
+            </div>
           </div>
 
           {/* Recent colors */}
@@ -385,7 +375,7 @@ const AdvancedColorPicker: React.FC<AdvancedColorPickerProps> = ({
                   <polyline points="6,9 12,15 18,9" />
                 </svg>
               </div>
-              <div className="grid grid-cols-8 gap-1">
+              <div className="grid grid-cols-8 gap-1.5">
                 {recentColors.slice(0, 16).map((color, index) => (
                   <button
                     key={index}
@@ -400,7 +390,7 @@ const AdvancedColorPicker: React.FC<AdvancedColorPickerProps> = ({
           )}
 
           {/* Action buttons */}
-          <div className="flex justify-end space-x-2 pt-2">
+          <div className="flex justify-end space-x-3 pt-4">
             <button
               onClick={onClose}
               className="px-4 py-2 text-sm text-gray-600 hover:text-gray-800 transition-colors"
